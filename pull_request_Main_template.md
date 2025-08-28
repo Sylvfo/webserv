@@ -2,9 +2,12 @@
 ## From dev(unstable) to main(stable)
 
 ## Importance:
-serious stuff
+Serious stuff
 
-## Type of commit: 
+## Goal:
+To keep track of a stable version of the project
+
+## Type of Pull Request: 
 Merge commit (keep history of merge commits on dev branch) from dev(unstable) to main(stable) ONLY!
 
 ## When:

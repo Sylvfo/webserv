@@ -1,0 +1,42 @@
+
+
+main branch (stable): 
+Pull there only from working dev branch
+Pull request type:
+
+PR from dev to main:
+Merge commit (keep history of merge commit), github default
+Only when changes are done and ok on dev branch. 
+Time to time
+Before trying something than can break the funcitonning dev branch. 
+description: when, what was added (many things), before what change on dev. Issues??
+Next steps. 
+
+^
+dev branch(unstable):
+collaborative branch
+main branch for development. 
+Pull request:
+when issues are done individually
+Pull request type:
+Pull resquest message: 
+
+See templates!
+PR from other branches to dev = 
+Squash and merge commit (erase history of your own commits)
+annonce change, open discussion, review changes before merge
+(transparency, control)
+1 pull request on github with description and name
+2 tell others
+3 review + changes (add comment on github)
+4 when everything ok merge
+5 delete the branch on github (next step will be an other branch)
+
+^ 
+other branches:
+issues created from the dev branch
+branch per task / issues / debug /... Not per people!
+
+tasks/ debug/ ...
+personnal branches
+commits: as you want, from home/school. Messages doesnt matter
