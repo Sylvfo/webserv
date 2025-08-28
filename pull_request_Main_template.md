@@ -1,0 +1,20 @@
+# Pull Request Template
+## From dev(unstable) to main(stable)
+
+## Importance:
+serious stuff
+
+## Type of commit: 
+Merge commit (keep history of merge commits on dev branch) from dev(unstable) to main(stable) ONLY!
+
+## When:
+When features have been tested on the dev branch and are stable or/and before some changes may break the dev branch
+
+## Name:
+A brief description
+
+## Description:
+A list of all changes made on the dev branch + Steps before, state of the project + 
+A reflexion on next steps to do + 
+If an upcoming change may break the dev branch, please decribe this change + 
+Etc...
