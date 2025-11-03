@@ -1,3 +1,6 @@
+#ifndef WEBSERV_HPP
+#define WEBSERV_HPP
+
 //librairies
 #include <iostream>
 #include <arpa/inet.h>
@@ -34,12 +37,16 @@
 //freeaddrinfo()
 //gai_strerro()
 
+/*
+ *	ServerConfig includes
+*/
+#include <string>
+#include <vector>
+#include <map>
+
+
+
 #include "parsing.hpp"
 #include "DataStructureWebServ.hpp"
-
-#ifndef WEBSERV_HPP
-#define WEBSERV_HPP
-
-
 
 #endif
