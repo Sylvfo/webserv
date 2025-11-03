@@ -6,7 +6,7 @@
 /*   By: beboccas <beboccas@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/17 13:50:08 by beboccas          #+#    #+#             */
-/*   Updated: 2025/11/03 15:02:44 by beboccas         ###   ########.fr       */
+/*   Updated: 2025/11/03 15:51:56 by beboccas         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include <iostream>
 #include <cstdlib>
 
-#include "webserv.hpp"
+#include "Webserv.hpp"
 
 static std::string trim(const std::string &s)
 {

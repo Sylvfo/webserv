@@ -1,15 +1,15 @@
-#include "webserv.hpp"
+#include "Webserv.hpp"
 
-WebServ *parseConfigFile(int ac; char **av)
+WebServ WebServ::parseConfigFile(int ac, char **av)
 {
-	Webserv *general;
+	WebServ general;
 
 	if (ac == 1)
-		// general = file par defaut
+		std::cout << "No file specified, starting default config." << std::endl;
 	else
 	{
 		if (checkArgs(ac, av) == false)
-			throw;
+			throw 2;
 		// general = parse(av[1]);
 	}
 
@@ -17,6 +17,8 @@ WebServ *parseConfigFile(int ac; char **av)
 }
 
 
-WebServ *defaultConfig()
+void WebServ::defaultConfig()  
+{}
 
-WebServ	*FileConfig()
+void WebServ::FileConfig()
+{}

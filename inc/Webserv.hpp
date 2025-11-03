@@ -49,4 +49,24 @@
 #include "parsing.hpp"
 #include "DataStructureWebServ.hpp"
 
+
+class WebServ
+{
+private:
+	/* data */
+public:
+	WebServ(/* args */);
+	~WebServ();
+	void epollWaiting();
+	void initServ();
+	void initPoll();
+	void startServers();
+	void defaultConfig();
+	void FileConfig();
+	void free_webserv();
+	WebServ parseConfigFile(int ac, char **av);
+};
+
+
+
 #endif

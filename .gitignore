@@ -1,0 +1,26 @@
+
+# .gitignore for a C++98 project + VSCode
+# Keep or adapt entries as you prefer.
+
+# Build artifacts
+build/
+bin/
+out/
+obj/
+
+# Compiled object files and executables
+*.o
+*.obj
+*.lo
+*.la
+*.a
+*.so
+*.dll
+*.dylib
+*.exe
+*.out
+
+# VSCode
+.vscode/
+*.code-workspace
+

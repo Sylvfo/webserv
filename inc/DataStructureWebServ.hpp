@@ -1,16 +1,6 @@
 #pragma once
 
-#include "webserv.hpp"
-
-//main
-class WebServ{ //autre nom?
-	//to do
-	
-	//canonical form
-
-	Config srvConfig;
-	//epoll vect??
-};
+#include "Webserv.hpp"
 
 //put it in server or Webserv
 class request

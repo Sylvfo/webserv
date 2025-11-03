@@ -4,16 +4,14 @@
 #define BUFFER_SIZE 5000
 
 //void htmlToString(std::string filename, std::string &htmlcontent)
-std::string htmlToString(std::string filename)
+/*std::string htmlToString(std::string filename)
 {
 	std::fstream filestream;//in HTTP request?
 	std::string	content; //in object request?? / socket?
 	char buffer[BUFFER_SIZE];//in function
 
 	filestream.open(filename, std::fstream::in);
-	/*
-	if open doesnt work -> send 404 error
-	*/
+	//if open doesnt work -> send 404 error
 
 	filestream.read(buffer, BUFFER_SIZE);//change size
 	//here we can change the size if the buffer for non blocking. 
@@ -21,15 +19,15 @@ std::string htmlToString(std::string filename)
 	content = buffer;
 	filestream.close();
 	return (content);
-}
+}*/
 
-int main(void)
+/*int main(void)
 {
 	std::string content;
 	content = htmlToString("roofs.html");
 	std::cout << content << std::endl;
 	return (0);
-}
+}*/
 
 /*
 senderror404()

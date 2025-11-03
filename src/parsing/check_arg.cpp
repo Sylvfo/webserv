@@ -1,4 +1,4 @@
-#include "webserv.hpp"
+#include "Webserv.hpp"
 
 bool checkArgs(int argc, char **argv)
 {

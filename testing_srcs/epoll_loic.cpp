@@ -68,12 +68,12 @@ bool data::epollWaiting(server &Server)
 	}
 }
 
-int main(int ac, char **argv)
+int main(int ac, char **av)
 {
 	// check args
 	try
 	{
-		parsConfigFile();
+		parseConfigFile(ac, av);
 		startServers();//(epoll starting);
 
 		while(1)
