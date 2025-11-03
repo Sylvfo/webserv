@@ -35,6 +35,7 @@
 //gai_strerro()
 
 #include "parsing.hpp"
+#include "DataStructureWebServ.hpp"
 
 #ifndef WEBSERV_HPP
 #define WEBSERV_HPP
