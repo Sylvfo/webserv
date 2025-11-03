@@ -1,10 +1,27 @@
 #include "webserv.hpp"
 
-int main(int argc, char **argv)
+//http://127.0.0.1:80
+int main(int ac, char **av)
 {
-	if (checkArgs(argc, argv) == false)
-		return -1;
+	WebServ *WeServ;
+	//allouer ici ??
 
 	std::cout << "Enter webserv" << std::endl;
-	return 0;
+	// check args
+	try
+	{
+		WeServ.parsConfigFile(ac, av);
+		WeServ.startServers();//(epoll starting);
+
+		while(1)
+		{
+			WeServ.epollWaiting();
+		}
+	}
+	catch
+	{
+
+	}
+	WeServ.free();
+	
 }
