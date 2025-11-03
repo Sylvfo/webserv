@@ -1,0 +1,7 @@
+attention verifier si un port est deja bind avec une socket quand on 
+init les serveurs
+
+camelcase functions cpp???
+
+Il segfault au debut parce que ya rien dans les vecteurs 
+pense a init la memoire =)

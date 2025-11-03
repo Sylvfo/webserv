@@ -2,7 +2,9 @@
 
 WebServ::WebServ()
 {
-
+	//epollFd = epoll_create(0);//pk zero?? const?? mettre ca ici??
+	//if (epollFd < 0)
+	//	throw 6;
 }
 
 WebServ::~WebServ()

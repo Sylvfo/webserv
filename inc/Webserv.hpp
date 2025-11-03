@@ -58,13 +58,23 @@ public:
 	WebServ(/* args */);
 	~WebServ();
 	void epollWaiting();
-	void initServ();
+	void initServers();
+	int initSocket(struct ServerConfig &server);
 	void initPoll();
 	void startServers();
 	void defaultConfig();
 	void FileConfig();
 	void free_webserv();
 	WebServ parseConfigFile(int ac, char **av);
+
+	//to do
+	std::vector<ServerConfig> servers;//liste des serveurs
+	std::vector<int> fds;// fd server
+	int epollFd;
+	//liste des fd??
+	//fd general epoll
+
+
 };
 
 

@@ -13,7 +13,7 @@ class request
 
 
 
-//Struct to tranform into class (Config, ServerConfig, LocationConfig) - to do : 4nov
+//struct pour la classse serveur config
 struct LocationConfig
 {
     std::string path;
@@ -28,6 +28,7 @@ struct LocationConfig
     LocationConfig(): autoindex(false) {}
 };
 
+//faire une classe ServerConfig
 struct ServerConfig
 {
     int listen_port;
@@ -36,6 +37,7 @@ struct ServerConfig
     std::string root;
     long client_max_body_size;
     std::vector<LocationConfig> locations;
+	int fd;//a voir si c est utile
 
     ServerConfig(): listen_port(0), client_max_body_size(0) {}
 };

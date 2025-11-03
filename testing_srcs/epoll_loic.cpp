@@ -67,23 +67,3 @@ bool data::epollWaiting(server &Server)
 		std::cout << "Request ansered" << std::endl;
 	}
 }
-
-int main(int ac, char **av)
-{
-	// check args
-	try
-	{
-		parseConfigFile(ac, av);
-		startServers();//(epoll starting);
-
-		while(1)
-		{
-			data.epollWaiting();
-		}
-	}
-	catch
-	{
-
-	}
-	
-}
