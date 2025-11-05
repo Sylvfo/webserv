@@ -1,5 +1,7 @@
 #include "Webserv.hpp"
 
+//void setNonBlocking
+
 void WebServ::startServers()
 {
 	std::cout << "Starting servers..." << std::endl;
@@ -14,12 +16,13 @@ void WebServ::initServers()
 	
 	for (size_t i = 0; i < servers.size(); i++)
 	{
-		// check si port deja bind.si oui fds[i] = fd du meme port
+		// check si port deja bind.si oui pas creer nlle socket
 		this->fds[i] = initSocket(servers[i]);
 	}
-	//sockets bind listen..
 }
 
+//voir setsocketopt() pour non bloquant
+//fcntl pour non blocant. opt NON BLOCKING??
 int WebServ::initSocket(struct ServerConfig &server)//classe ou struct server??
 {
 	int wsocket;//fd
@@ -50,30 +53,65 @@ void WebServ::initPoll()
 	epollFd = epoll_create(0);//pk zero?? const?? mettre dans 
 	if (epollFd < 0)
 		throw 6;
-	
-	// ecouter chaque server voir si nouvelles connexion
-}
-/*
-void data::epollStarting(server &server)//voir data struct
-{
-	//epoll create fait 1 fd pour orchestrer tout
-	int const epollFd = epoll_create(0);//pk zero??
-	if (epollFd < 0)
-		thow (epollException())
-	server.SetEpollfd(epollFd);
-	std::vector<int> const sockets = server.getSockets();
-	//parcours la liste des sockets
-	for (siye_t i = 0; i < sockets.size; i++)
+	for (size_t i; i < fds.size(); i++) //dans tous les fd
 	{
-		//ajoute a epoll les sockest a surveiller
-		//donc epoll prend en charge les sockets. 
-		epoll_envent event;
+		struct epoll_event event;
 		event.events = EPOLLIN | EPOLLET;
-		event.data.fd = sockets[i];
-	if (epoll_ctl(server.getEpollFd(), EPOLL_CTL_ADD, sockets[i], &event) < 0)
+		event.data.fd = fds[i];
+		if (epoll_ctl(epollFd, EPOLL_CTL_ADD,fds[i], &event) < 0)
+			throw 7;
+	}
+}
+
+bool WebServ::epollWaiting()//eventListent= // epollscanning
+{
+	//voir fonction Loic
+	int index = -1;//pk??
+	epoll_event currents_events[MAX_EVENTS];//struct?
+
+	//avec epoll, va passer sur tous les fd des sockets pour voir s il se passe qqch
+	int const ndfs = epoll_wait(epollFd, currents_events,MAX_EVENTS, -1); // -1 infinite
+	if (ndfs < 0)
+		throw 8;
+	for (int i = 0; i < ndfs; i++)
 	{
-		perror("epoll_ctl: epollStarting()");// mettre le message d erreur dans le throw??
-		throw (exeption  no server)
+		// nouvelle connection
+		if ((index = new connextion ) != -1)// a definir si c est une nouvelle connection
+		{
+			if (!acceptConnection(...))
+				return false;
+		}
+		//close connection
+		else if ((currents_events[i].events & EPOLLERR) || (currents_events[i].events & EPOLLHUP) || !(currents_events[i].events && EPOLLIN))
+		{
+			std::cout << "close connection" << std::endl;
+			close(currents_events[i].data.fd);
+			return true;
+		}
+		else
+		{
+		//	handleRequest(server, currents_events[i].data.fd);// a definir suite du projet
+			std::cout << "Request ansered" << std::endl;
+		}
+
 	}
-	}
-}*/
+}
+
+
+
+
+/*
+
+	fcntl
+	File CoNtroL
+	manipuler les descripteur de fichiers
+	change le comportement d une socket dj ouvert (ou file)
+
+	int fcntl(int fd, int cmd, ... args)
+
+	rendre un fd non bloquant:
+
+	int flags = fcntl(fd, F_GETFL, 0);
+	fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+
+*/

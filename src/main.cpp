@@ -1,5 +1,7 @@
 #include "Webserv.hpp"
 
+//signal handler return NULL au debut du programme
+
 //http://127.0.0.1:80
 int main(int ac, char **av)
 {
@@ -12,11 +14,8 @@ int main(int ac, char **av)
 	{
 		WeServ->parseConfigFile(ac, av);
 		WeServ->startServers();//(epoll starting);
-
-		while(1)
-		{
-			WeServ->epollWaiting();
-		}
+		while(WeServ->epollWaiting() == true) //listening
+			;
 	}
 	catch (int errCode)
 	{

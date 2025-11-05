@@ -10,6 +10,7 @@ void data::epollStarting(server &server)//voir data struct
 	int const epollFd = epoll_create(0);//pk zero??
 	if (epollFd < 0)
 		thow (epollException())
+
 	server.SetEpollfd(epollFd);
 	std::vector<int> const sockets = server.getSockets();
 	//parcours la liste des sockets
@@ -43,27 +44,28 @@ bool data::epollWaiting(server &Server)
 	{
 		throw error
 	}
-	// nouvelle connection
+	
 	for (int i = 0; i < ndfs; i++)
 	{
+		// nouvelle connection
 		if ((index = server.newConnection(event[i].data.fd)) != -1)
 		{
 			if (!acceptConnection(server, index)) //renvoie une socket
 				return false;
 		}
-	}
-	// close connection
-	else if ((event[i].events & EPOLLERR)s || (events[i].events & EPOLLHUP))
-	|| (!(events[i].events && EPOLLIN))
-	{
-		std::cout << "close connection" << std::endl;
-		close(events[i].data.fd);
-		return true;
-	}
-	// traite requete
-	else
-	{
-		readRequest(server, events[i].data.fd);
-		std::cout << "Request ansered" << std::endl;
+		// close connection
+		else if ((event[i].events & EPOLLERR) || (events[i].events & EPOLLHUP))
+		|| (!(events[i].events && EPOLLIN))
+		{
+			std::cout << "close connection" << std::endl;
+			close(events[i].data.fd);
+			return true;
+		}
+		// traite requete
+		else
+		{
+			readRequest(server, events[i].data.fd);
+			std::cout << "Request ansered" << std::endl;
+		}
 	}
 }

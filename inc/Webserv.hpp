@@ -50,31 +50,30 @@
 #include "DataStructureWebServ.hpp"
 
 
+#define MAX_EVENTS 200 //A voir
+
 class WebServ
 {
-private:
-	/* data */
-public:
-	WebServ(/* args */);
-	~WebServ();
-	void epollWaiting();
-	void initServers();
-	int initSocket(struct ServerConfig &server);
-	void initPoll();
-	void startServers();
-	void defaultConfig();
-	void FileConfig();
-	void free_webserv();
-	WebServ parseConfigFile(int ac, char **av);
+	private:
+		/* data */
+	public:
+		WebServ(/* args */);
+		~WebServ();
+		bool epollWaiting();
+		void initServers();
+		int initSocket(struct ServerConfig &server);
+		void initPoll();
+		void startServers();
+		void defaultConfig();
+		void FileConfig();
+		void free_webserv();
+		WebServ parseConfigFile(int ac, char **av);
 
-	//to do
-	std::vector<ServerConfig> servers;//liste des serveurs
-	std::vector<int> fds;// fd server
-	int epollFd;
-	//liste des fd??
-	//fd general epoll
-
-
+		//to do
+		std::vector<ServerConfig> servers;//liste des serveurs
+		std::vector<int> fds;// fd server
+		int epollFd;
+		std::vector<int> fdconn;// fd connections
 };
 
 
