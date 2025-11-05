@@ -36,10 +36,8 @@
 //getaddrinfo()
 //freeaddrinfo()
 //gai_strerro()
-
-/*
- *	ServerConfig includes
-*/
+#include <fcntl.h>
+#include <unistd.h>
 #include <string>
 #include <vector>
 #include <map>
@@ -50,32 +48,46 @@
 #include "DataStructureWebServ.hpp"
 
 
-#define MAX_EVENTS 200 //A voir
+#define MAX_EVENTS 100 //A voir
 
 class WebServ
 {
 	private:
-		/* data */
+		
 	public:
-		WebServ(/* args */);
+		WebServ();
 		~WebServ();
-		bool epollWaiting();
-		void initServers();
-		int initSocket(struct ServerConfig &server);
-		void initPoll();
-		void startServers();
+
+		//parsing
 		void defaultConfig();
 		void FileConfig();
-		void free_webserv();
 		WebServ parseConfigFile(int ac, char **av);
 
-		//to do
+		//start servers
+		void initServers();
+		int initSocket(struct ServerConfig &server);
+		bool checkExistingPort(int index);
+		void initPoll();
+		void startServers();
+		
+		//epoll
+		bool epollWaiting();
+	//	int newConnection(int fd);
+	//	bool	acceptConnection(int index);
+		int		newConnection(epoll_event new_event);
+		bool	acceptConnection(int index);
+		//free
+		void free_webserv();
+		
 		std::vector<ServerConfig> servers;//liste des serveurs
+		//comment on sait quelle fds est en lien avec quel serveur??
+		std::vector<int> ports;
 		std::vector<int> fds;// fd server
 		int epollFd;
 		std::vector<int> fdconn;// fd connections
+
 };
 
-
+void setNonBlocking(int fd);
 
 #endif

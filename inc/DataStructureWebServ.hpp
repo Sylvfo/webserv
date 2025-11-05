@@ -37,7 +37,11 @@ struct ServerConfig
     std::string root;
     long client_max_body_size;
     std::vector<LocationConfig> locations;
-	int fd;//a voir si c est utile
+
+	//pour start server
+	int fd_socket_serv;//a voir si c est utile
+	struct sockaddr_in sockaddr;
+	socklen_t server_len;
 
     ServerConfig(): listen_port(0), client_max_body_size(0) {}
 };
