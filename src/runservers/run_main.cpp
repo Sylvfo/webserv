@@ -84,7 +84,8 @@ bool WebServ::epollWaiting()//eventListent= // epollscanning
 		}
 		else
 		{
-		//	handleRequest(server, current_events[i].data.fd);// a definir suite du projet
+			//check request avec port et nom de domaine ici ou aprse?
+			//handleRequest(server, current_events[i].data.fd);// a definir suite du projet
 			std::cout << "Request ansered" << std::endl;
 		}
 	}

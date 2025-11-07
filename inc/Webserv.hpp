@@ -41,12 +41,12 @@
 #include <string>
 #include <vector>
 #include <map>
-
+#include <signal.h>
 
 
 #include "parsing.hpp"
 #include "DataStructureWebServ.hpp"
-
+#include "HttpRequest.hpp"
 
 #define MAX_EVENTS 100 //A voir
 
@@ -72,8 +72,6 @@ class WebServ
 		
 		//epoll
 		bool epollWaiting();
-	//	int newConnection(int fd);
-	//	bool	acceptConnection(int index);
 		int		newConnection(epoll_event new_event);
 		bool	acceptConnection(int index);
 		//free
@@ -85,9 +83,11 @@ class WebServ
 		std::vector<int> fds;// fd server
 		int epollFd;
 		std::vector<int> fdconn;// fd connections
+	//	handel
 
 };
 
 void setNonBlocking(int fd);
+void handleSignInt(int sign);
 
 #endif

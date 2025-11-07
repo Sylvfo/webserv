@@ -1,4 +1,5 @@
 classes
+memory / void
 
 base working
 
@@ -11,3 +12,6 @@ fcntl =)
 revoir setsocketopt
 signaux au debut
 close =)
+
+see again keepalive tant que utilisateur est tj sur la page...
+refresh page -> redo the socket?\
