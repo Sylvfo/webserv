@@ -1,12 +1,12 @@
 #include "Webserv.hpp"
-/*
+
 //to test send the answer on an other fd that can be used 
 
+/*
 handleRequest(serverConfig &server, current_events[i].data.fd)// server or web serv?? socket id...
 {
 	HttpRequest	Request;//no need to save it somewhere?
 
-	
 	Request.newRequest(server, socket);
 	Request.parseRequest();
 	Request.checkRequest();

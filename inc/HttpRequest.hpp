@@ -26,8 +26,8 @@ class HttpRequest{
 	int HttpMethod;
 	//newRequest(server, socket);
 
-};*/
-/*
+};
+
 bool parseHttpRequest(HttpRequest Request, server &ThisServer)
 {
 
