@@ -46,6 +46,7 @@
 
 #include "parsing.hpp"
 #include "DataStructureWebServ.hpp"
+#include "ServerConfig.hpp"
 #include "HttpRequest.hpp"
 
 #define MAX_EVENTS 100 //A voir
@@ -53,7 +54,7 @@
 class WebServ
 {
 	private:
-		
+		std::vector<ServerConfig> servers;
 	public:
 		WebServ();
 		~WebServ();
@@ -61,7 +62,6 @@ class WebServ
 		//parsing
 		void defaultConfig();
 		void FileConfig();
-		WebServ parseConfigFile(int ac, char **av);
 
 		//start servers
 		void initServers();
@@ -77,7 +77,17 @@ class WebServ
 		//free
 		void free_webserv();
 		
-		std::vector<ServerConfig> servers;//liste des serveurs
+
+		/* Server Config related functions */ 		/* **************************************************** */
+		ServerConfig getServer(int index); 			/* Can be searched by port or by server name. 			*/
+		void addServer(ServerConfig config); 		/* Add a server to the ServerConfig list 				*/
+													/*														*/
+		std::vector<ServerConfig> getServerList();	/* Get the entire server list as vector<ServerConfig>	*/
+		void parseConfig(std::string path);			/* Parse the config file .conf and add each server		*/
+		void printConfig();							/* Print the entire config (DEBUG ONLY)					*/
+		/* End of the server config functions */	/* **************************************************** */
+
+
 		//comment on sait quelle fds est en lien avec quel serveur??
 		std::vector<int> ports;
 		std::vector<int> fds;// fd server
