@@ -78,14 +78,15 @@ class WebServ
 		//handle request
 		void handleRequest(int indexServ, int connexion_fd);
 
-		/* Server Config related functions */ 		/* **************************************************** */
-		ServerConfig getServer(int index); 			/* Can be searched by port or by server name. 			*/
-		void addServer(ServerConfig config); 		/* Add a server to the ServerConfig list 				*/
-													/*														*/
-		std::vector<ServerConfig> getServerList();	/* Get the entire server list as vector<ServerConfig>	*/
-		void parseConfig(std::string path);			/* Parse the config file .conf and add each server		*/
-		void printConfig();							/* Print the entire config (DEBUG ONLY)					*/
-		/* End of the server config functions */	/* **************************************************** */
+		/* Server Config related functions */	 			/* **************************************************** */
+		ServerConfig getServer(int index);	 				/* Can be searched by port or by server name. 			*/
+		ServerConfig getServer(std::string hostReq);		/* Can be searched by port or by server name. 			*/
+		void addServer(ServerConfig config); 				/* Add a server to the ServerConfig list 				*/
+															/*														*/
+		std::vector<ServerConfig> getServerList();			/* Get the entire server list as vector<ServerConfig>	*/
+		void parseConfig(std::string path);					/* Parse the config file .conf and add each server		*/
+		void printConfig();									/* Print the entire config (DEBUG ONLY)					*/
+		/* End of the server config functions */			/* **************************************************** */
 
 
 		//comment on sait quelle fds est en lien avec quel serveur??

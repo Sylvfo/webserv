@@ -17,7 +17,7 @@ int main(int ac, char **av)
 		if (ac == 2)
 		{
 			WeServ->parseConfig(av[1]);
-			WeServ->printConfig();
+			//WeServ->printConfig();
 		}
 		WeServ->startServers();//(epoll starting);
 		while(WeServ->epollWaiting() == true) //listening

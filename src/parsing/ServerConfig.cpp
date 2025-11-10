@@ -6,7 +6,7 @@
 /*   By: beboccas <beboccas@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 15:07:41 by beboccas          #+#    #+#             */
-/*   Updated: 2025/11/07 15:19:02 by beboccas         ###   ########.fr       */
+/*   Updated: 2025/11/10 16:53:41 by beboccas         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,27 @@ ServerConfig WebServ::getServer(int index)
 	if (index < 0 || static_cast<size_t>(index) >= servers.size())
 		throw std::out_of_range("Server index out of range");
 	return servers[index];
+}
+
+std::string toString(int value) {
+    std::ostringstream oss;
+    oss << value;
+    return oss.str();
+}
+
+//hostReq format: "hostname:port"
+ServerConfig WebServ::getServer(std::string hostReq)
+{
+	//for each server create string that match the request format
+	std::string serverHostPort;
+	for (size_t i = 0; i < servers.size(); ++i)
+	{
+		serverHostPort = servers[i].server_name + ":" + toString(servers[i].listen_port);
+		if (serverHostPort == hostReq)
+			return servers[i];
+	}
+	throw std::runtime_error("No server matches the requested host: " + hostReq);
+	
 }
 
 void WebServ::addServer(ServerConfig config)
@@ -101,7 +122,6 @@ void WebServ::parseConfig(std::string path)
 			}
 			inServer = true;
 			currentServer = ServerConfig();
-			std::cerr << "[DEBUG] Enter server block (line " << lineNumber << ")\n";
 			continue;
 		}
 
@@ -112,13 +132,11 @@ void WebServ::parseConfig(std::string path)
 			{
 				currentServer.locations.push_back(currentLocation);
 				inLocation = false;
-				std::cerr << "[DEBUG] Close location block (line " << lineNumber << ")\n";
 			}
 			else if (inServer)
 			{
 				this->addServer(currentServer);
 				inServer = false;
-				std::cerr << "[DEBUG] Close server block (line " << lineNumber << ")\n";
 			}
 			else
 			{
@@ -197,7 +215,6 @@ void WebServ::parseConfig(std::string path)
 					oss << "Expected '{' after location (line " << lineNumber << ")";
 					throw std::runtime_error(oss.str());
 				}
-				std::cerr << "[DEBUG] New location: " << currentLocation.path << " (line " << lineNumber << ")\n";
 			}
 			else
 			{
@@ -272,6 +289,5 @@ void WebServ::parseConfig(std::string path)
 	if (inServer)
 	{
 		this->addServer(currentServer);
-		std::cerr << "[DEBUG] Close last server at EOF\n";
 	}
 }
