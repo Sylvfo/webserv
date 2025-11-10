@@ -2,84 +2,129 @@
 
 //to test send the answer on an other fd that can be used 
 
-/*
-handleRequest(serverConfig &server, current_events[i].data.fd)// server or web serv?? socket id...
+//check request avec port et nom de domaine ici ou aprse?
+
+void WebServ::handleRequest(int indexServ, int connexion_fd)
 {
-	HttpRequest	Request;//no need to save it somewhere?
+	HttpRequest	Request;
+	(void) indexServ;
+	//struct ServerConfig *thisServer;//find a better name just a pointer to the server
 
-	Request.newRequest(server, socket);
-	Request.parseRequest();
-	Request.checkRequest();
-	if (Request.AnswerType == ERROR)
-		Request.errortype();
-	else if (Request.AnswerType == LOCAL)
-		Request.Answerlocal();
-	else if (Request.AnswerType == CGI)
-		Request.AnswerCGI();
+	Request.setSocketFd(connexion_fd);
+//	Request.linkServer(indexServ);// ZOGZOGISSUE COMMENT ON LIE LE SERVER ICI??? CE SERAIT MIEUX D'AVOIR LE INDEX SERV EST LE MEME QUE LE I SERVER FDS
+//	Request.recieveRequest();//to do better
+////	Request.parseRequest(); //to do 
+//	Request.checkRequest(); //to do 
+//	if (Request.AnswerType == ERROR)
+//		Request.errortype();//to do 
+//	else if (Request.AnswerType == LOCAL)
+	Request.Answerlocal();//to do 
+//	else if (Request.AnswerType == CGI)
+//		Request.AnswerCGI();//to do
+	
 	//check request avec port et nom de domaine ici ou avant?
-	//where do we check if we have access to the data?
 	//link with the socket and the connexion and the server???
-	//how do we recieve the request??
-	//
-	// parse request (is cgi?)
-	// is request valide donc parsing ok + droit down/up load info +info existe?
-	// no -> answer error
-	// yes and cgi -> send to cgi
-	// yes and no cgi -> create answer
 
-	//where are the data sent??? how can we take them for testing?
-	//sent on a socket as html or cgi
+	Request.setSocketFd(connexion_fd);
 	Request.sendAnswerToRequest();
 }
 
-void HttpRequest::newRequest()
+void HttpRequest::setSocketFd(int fd)
+{
+	socket_fd = fd;
+}
+
+void HttpRequest::linkServer(int index)
+{
+	(void) index;
+	// to do 
+}
+
+void HttpRequest::recieveRequest()
 {
 	// how to do it non blocking
-	int bytes = recv(new_wsocket, buff, BUFFER_SIZE, 0);
-	Request = buff;
+/*	int BUFFER_SIZE = 30720;//??
+	char buff[30720] = {0};
+	int bytes = recv(socket_fd, buff, BUFFER_SIZE, 0);
+	Request = buff;*/
 	//what mistake tye can happen?
 }
 	
-Request.parseRequest()
+void HttpRequest::parseRequest()
 {
-	//put the info in 
+	// to do 
 }
 
-cgi
+void HttpRequest::checkRequest()
 {
-
+	// to do 
 }
 
-anwerRequest{
-
+void HttpRequest::errortype()
+{
+	// to do 
 }
 
-//downlead???
-void sendAnswerToRequest(HttpRequest	&Request)
+void HttpRequest::Answerlocal()
 {
-	std::string messagehtml;
+	HTTPAnswer = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
+	//AnswerBody = "<html><h1>hoi hoi hoi babe</h1></html>";
+	///ici open c'est sur le root
+	AnswerBody = "";
 
-	Request.
-	//change socket mode... sending....
-	//comment couper en morceaux??? par epoll??
-
-	while(totalBytesSent < (int)serverMessage.size())
+	int fd_file;
+	fd_file = open( "www/origameee/index.html" , 'r');
+	char buff;
+	while (read(fd_file, &buff, 1 ) > 0)
 	{
-		//send
-		bytesSent = send(new_wsocket, serverMessage.c_str(), serverMessage.size(), 0);
+		AnswerBody += buff;
+	}
+	close(fd_file);
+	std::cout << "AnswerBody " << AnswerBody << std::endl;
+	HTTPAnswer.append(IntToString(AnswerBody.size()));
+	HTTPAnswer.append("\n\n");
+	HTTPAnswer.append(AnswerBody);
+
+	// to do 
+}
+
+void HttpRequest::AnswerCGI()
+{
+	// to do 
+}
+
+//download???
+void HttpRequest::sendAnswerToRequest()
+{
+	int bytesSent = 0;
+	int totalBytesSent = 0;
+
+	std::cout << "socket fd " << socket_fd << std::endl;
+	// is it non blocking?
+	while(totalBytesSent < (int)HTTPAnswer.size())
+	{
+		bytesSent = send(socket_fd, HTTPAnswer.c_str(), HTTPAnswer.size(), 0);
 		if (bytesSent < 0)
 		{
-			std::cout << "Could not send response" ;
+			std::cout << "Could not send response";
+			return; 
 		}
 		totalBytesSent += bytesSent;
 	}
-	//change socket mode... ready for new request. 
+	//change socket mode... ready for new request.
+	//change socket mode... sending....
+	//comment couper en morceaux??? par epoll??
 }
 
-void handleCGI(...)
+std::string IntToString(int numb)
 {
-	///!! complicated with env data
+	std::string value;
+	std::stringstream out;
 
-	//fork 2 times 1 for timeout the other for ecxcve
-	// for 
-}*/
+	out << numb;
+	value = out.str();
+	return (value);
+
+}
+
+

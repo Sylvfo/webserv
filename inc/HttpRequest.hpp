@@ -1,6 +1,6 @@
 #include "Webserv.hpp"
 
-/*
+
 enum HttpMethod {
 	GET_METHOD,
 	POST_METHOD,
@@ -17,17 +17,33 @@ enum AnswerType {
 struct server;
 
 class HttpRequest{
+
+	public:
+	
 	std::string Request;//usefull??
 	std::string RequestHead;
 	std::string RequestBody;
 	std::string AnswerHead;
-	std::string AnserBody;
+	std::string AnswerBody;
+	std::string HTTPAnswer;
+	int	socket_fd;
 	int AnswerType;
 	int HttpMethod;
-	//newRequest(server, socket);
 
+	void setSocketFd(int fd);
+	void linkServer(int index);
+	void recieveRequest();
+	void sendAnswerToRequest();
+	void parseRequest();
+	void checkRequest();
+	void errortype();
+	void Answerlocal();
+	void AnswerCGI();
 };
 
+std::string IntToString(int numb);
+
+/*
 bool parseHttpRequest(HttpRequest Request, server &ThisServer)
 {
 

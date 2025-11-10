@@ -42,6 +42,7 @@
 #include <vector>
 #include <map>
 #include <signal.h>
+#include <sstream>
 
 #include "ServerConfig.hpp"
 #include "HttpRequest.hpp"
@@ -73,7 +74,9 @@ class WebServ
 		bool	acceptConnection(int index);
 		//free
 		void free_webserv();
-		
+
+		//handle request
+		void handleRequest(int indexServ, int connexion_fd);
 
 		/* Server Config related functions */ 		/* **************************************************** */
 		ServerConfig getServer(int index); 			/* Can be searched by port or by server name. 			*/

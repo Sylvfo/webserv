@@ -70,7 +70,7 @@ bool WebServ::epollWaiting()//eventListent= // epollscanning
 	for (int i = 0; i < ndfs; i++)
 	{
 		// nouvelle connection
-		if ((index = newConnection(current_events[i]) != -1))// a definir si c est une nouvelle connection
+		if ((index = newConnection(current_events[i])) != -1)// a definir si c est une nouvelle connection
 		{
 			if (!(acceptConnection(index)))
 				return false;
@@ -84,21 +84,24 @@ bool WebServ::epollWaiting()//eventListent= // epollscanning
 		}
 		else
 		{
-			//check request avec port et nom de domaine ici ou aprse?
-			//handleRequest(server, current_events[i].data.fd);// a definir suite du projet
-			std::cout << "Request ansered" << std::endl;
+			handleRequest(index, current_events[i].data.fd);
+			std::cout << "Request answered" << std::endl;
 		}
 	}
 	return true;
 }
 
+
+
 int	WebServ::newConnection(epoll_event new_event)
 {
-	std::cout << "new connection coming" << std::endl;
+	//std::cout << "new connection coming" << std::endl;
 	for (size_t i = 0; i < fds.size(); i++)
 	{
 		if (new_event.data.fd == fds[i] && new_event.events == EPOLLIN)
+		{
 			return i;
+		}	
 	}
 	return -1;
 }
@@ -107,9 +110,15 @@ bool	WebServ::acceptConnection(int index)
 {
 	//create new socket, set it 
 	int new_socket;
-	new_socket = accept(servers[index].fd_socket_serv, (struct sockaddr *)&servers[index].sockaddr, &servers[index].server_len);
-	if (new_socket == -1)
+	struct sockaddr_in client_addr;//mettre dans data struct???
+	socklen_t client_len = sizeof(client_addr); //mettre dans data struct???
+	
+	new_socket = accept(servers[index].fd_socket_serv, (struct sockaddr *)&client_addr, &client_len);
+	if (new_socket < 0)
+	{
+		std::cout << "new connection not accepted " << std::endl;
 		return false;
+	}
 	setNonBlocking(new_socket);
 	fdconn.push_back(new_socket);
 	//CREATE EVENT
