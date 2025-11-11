@@ -45,6 +45,7 @@
 
 #include "ServerConfig.hpp"
 #include "HttpRequest.hpp"
+#include "RequestHeader.hpp"
 
 #define MAX_EVENTS 100 //A voir
 
