@@ -6,7 +6,7 @@
 #    By: beboccas <beboccas@student.42lausanne.c    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/02/12 08:32:46 by cmegret           #+#    #+#              #
-#    Updated: 2025/11/03 16:13:44 by beboccas         ###   ########.fr        #
+#    Updated: 2025/11/11 19:19:13 by beboccas         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -81,6 +81,11 @@ fclean: clean
 	#@rm -f $(NAME2)
 	@rm -f $(TEST_NAME)
 	clear
+
+# Rule to remake then run the program. It makes us to type only one commad to test the changes.
+# Example: "make rerun CONFIG_FILE=./config/default.conf"
+rerun: fclean all
+	./$(NAME) $(CONFIG_FILE)
 
 # Règle pour refaire tout
 re: fclean all
