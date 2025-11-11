@@ -4,11 +4,37 @@
 
 //check request avec port et nom de domaine ici ou aprse?
 
+/*TEMP FUNCTION TO REMOVE WHEN THE REQUEST PARSING IS DONE !!!!*/
+std::string getRequestHost(std::string req)
+{
+    std::string::size_type pos = 0;
+	std::string host;
+    while (true) {
+        std::string::size_type end = req.find('\n', pos);
+        if (end == std::string::npos) break;
+
+        std::string line = req.substr(pos, end - pos);
+        if (!line.empty() && line[line.size() - 1] == '\r')
+            line.erase(line.size() - 1);
+
+        if (line.size() >= 5 && line.substr(0, 5) == "Host:") {
+			host = line.substr(6);
+            break;
+        }
+
+        pos = end + 1;
+	}
+	return host;
+}
+
+
 void WebServ::handleRequest(int indexServ, int connexion_fd)
 {
 	HttpRequest	Request;
+	ServerConfig thisServer;
+	char buf[4096];
+	int n;
 	(void) indexServ;
-	//struct ServerConfig *thisServer;//find a better name just a pointer to the server
 
 	Request.setSocketFd(connexion_fd);
 //	Request.linkServer(indexServ);// ZOGZOGISSUE COMMENT ON LIE LE SERVER ICI??? CE SERAIT MIEUX D'AVOIR LE INDEX SERV EST LE MEME QUE LE I SERVER FDS
@@ -27,6 +53,26 @@ void WebServ::handleRequest(int indexServ, int connexion_fd)
 
 	Request.setSocketFd(connexion_fd);
 	Request.sendAnswerToRequest();
+
+	//Store request head
+
+	while ((n = recv(connexion_fd, buf, sizeof(buf), 0)) > 0)
+		Request.RequestHead.append(buf, buf + n);
+	
+	if (n < -1)
+	{
+		std::cout << "Error receiving request body" << std::endl;
+		return;
+	}
+	if (Request.RequestHead.empty())
+	{
+		std::cout << "Empty request body" << std::endl;
+		return;
+	}
+
+	thisServer = getServer(getRequestHost(Request.RequestHead));
+	std::cout << "Request received on server: " << thisServer.server_name << " on port " << thisServer.listen_port << std::endl;
+	std::cout << thisServer.root << std::endl;
 }
 
 void HttpRequest::setSocketFd(int fd)
