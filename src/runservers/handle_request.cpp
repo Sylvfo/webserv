@@ -125,6 +125,7 @@ void HttpRequest::Answerlocal()
 	{
 		AnswerBody += buff;
 	}
+	//check eof
 	close(fd_file);
 	std::cout << "AnswerBody " << AnswerBody << std::endl;
 	HTTPAnswer.append(IntToString(AnswerBody.size()));
