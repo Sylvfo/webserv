@@ -8,20 +8,20 @@ void setNonBlocking(int fd)
 
 void WebServ::startServers()
 {
-	std::cout << "Starting servers..." << std::endl;
-
+//	std::cout << "Starting servers..." << std::endl;
 	this->initServers();
+//	std::cout << "Servers started..." << std::endl;
 	this->initPoll();
+//	std::cout << "epoll started..." << std::endl;
 }
 
 void WebServ::initServers()
 {
-	std::cout << "Init Serv " << std::endl;
-	
+//	std::cout << "Init Serv " << std::endl;
 	for (size_t i = 0; i < servers.size(); i++)
 	{
 		if (checkExistingPort(i) == false)
-			this->fds[i] = initSocket(servers[i]);
+			fds.push_back(initSocket(servers[i]));
 	}
 }
 
@@ -63,7 +63,7 @@ int WebServ::initSocket(struct ServerConfig &server)
 
 void WebServ::initPoll()
 {
-	epollFd = epoll_create(0);//pk zero?? const?? mettre dans 
+	this->epollFd = epoll_create(1);//pk zero?? const?? mettre dans 
 	if (epollFd < 0)
 		throw 6;
 	for (size_t i = 0; i < fds.size(); i++)

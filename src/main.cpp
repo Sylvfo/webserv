@@ -3,15 +3,22 @@
 //signal handler return NULL au debut du programme
 
 //http://127.0.0.1:80
-/*int main(int ac, char **av)
+int main(int ac, char **av)
 {
 	WebServ *WeServ = NULL; //allouer ici ??
-	signal(SIGINT, handleSignInt);
+//	signal(SIGINT, handleSignInt);
 	std::cout << "Enter webserv" << std::endl;
+
+	WeServ = new WebServ;
 	// check args
 
 	try
 	{
+		if (ac == 2)
+		{
+			WeServ->parseConfig(av[1]);
+			//WeServ->printConfig();
+		}
 		WeServ->startServers();//(epoll starting);
 		while(WeServ->epollWaiting() == true) //listening
 			;
@@ -20,10 +27,11 @@
 	{
 		std::cout << "Error code: " << errCode << std::endl;
 	}
-	WeServ->free_webserv();
-}*/
+	delete WeServ;
+	//WeServ->free_webserv();
+}
 
-
+/*
 //	Main to test parsing only
 int main(int ac, char **av)
 {
@@ -47,4 +55,4 @@ int main(int ac, char **av)
 		std::cerr << "Usage: " << av[0] << " <config_file>" << std::endl;
 		return 1;
 	}
-}
+}*/
