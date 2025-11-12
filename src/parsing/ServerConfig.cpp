@@ -6,7 +6,7 @@
 /*   By: beboccas <beboccas@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 15:07:41 by beboccas          #+#    #+#             */
-/*   Updated: 2025/11/10 16:53:41 by beboccas         ###   ########.fr       */
+/*   Updated: 2025/11/12 15:03:24 by beboccas         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,9 @@ std::string toString(int value) {
 //hostReq format: "hostname:port"
 ServerConfig WebServ::getServer(std::string hostReq)
 {
+	ServerConfig emptyServer;
+	emptyServer.listen_port = -1;
+	emptyServer.server_name = "";
 	//for each server create string that match the request format
 	std::string serverHostPort;
 	for (size_t i = 0; i < servers.size(); ++i)
@@ -43,7 +46,8 @@ ServerConfig WebServ::getServer(std::string hostReq)
 		if (serverHostPort == hostReq)
 			return servers[i];
 	}
-	throw std::runtime_error("No server matches the requested host: " + hostReq);
+	std::cout << "No server matches the requested host:" << hostReq << std::endl;
+	return emptyServer;
 	
 }
 
