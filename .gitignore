@@ -24,3 +24,5 @@ obj/
 .vscode/
 *.code-workspace
 
+./webserv
+webserv
