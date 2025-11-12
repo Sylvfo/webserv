@@ -56,7 +56,7 @@ int WebServ::initSocket(struct ServerConfig &server)
 	if (listen(wsocket, 20) != 0)
 		throw 5;
 	setNonBlocking(wsocket);
-	std::cout << "Listening on 127.0.0.1:" << server.listen_port << std::endl;
+	std::cout << "Listening on http://127.0.0.1:" << server.listen_port << std::endl;
 	server.fd_socket_serv = wsocket;//utile?
 	return wsocket;//fd du socket
 }
