@@ -13,22 +13,55 @@ enum AnswerType {
 	CGI,
 };
 
+enum AcceptType {
+	NONE,
+	TXT,
+	IMG,
+};
 
 struct server;
+
+class RequestHeader
+{
+private:
+	std::string method;
+	std::string uri;
+	std::string version;
+	std::map<std::string, std::string> headers;
+	//std::string Host;
+	std::string Accept;
+	std::string Path;
+public:
+	RequestHeader();
+	~RequestHeader();
+	void    parseRequest(const std::string& request);
+	void	parseHeaderRequest();//done by Syl
+	std::map<std::string, std::string> getHeaders() const;
+	void	printHeaders() const;
+	std::string getUri();
+	std::string getPath();
+	std::string getMethod();
+	std::string getAccept();
+};
 
 class HttpRequest{
 
 	public:
 	
-	std::string Request;//usefull??
-	std::string RequestHead;
+	std::string RawRequest;
+	RequestHeader HTTPHeader;
 	std::string RequestBody;
-	std::string AnswerHead;
-	std::string AnswerBody;
 	std::string HTTPAnswer;
+	std::string AnswerBody;
+
+	
 	int	socket_fd;
 	int AnswerType;
 	int HttpMethod;
+	ServerConfig	Server;//pointer?
+
+	int errorCode;
+	
 
 	void setSocketFd(int fd);
 	void linkServer(int index);
@@ -39,7 +72,14 @@ class HttpRequest{
 	void errortype();
 	void Answerlocal();
 	void AnswerCGI();
+
+	void CreateHttpAnswerHead();
+
+	void loadIndexPage();
+	void loadPage();
 };
+
+
 
 std::string IntToString(int numb);
 

@@ -19,6 +19,7 @@ void RequestHeader::parseRequest(const std::string& request)
 	uri.clear();
 	version.clear();
 	headers.clear();
+	Accept.clear();
 
 	// isolate header section (stop at first empty line)
 	std::string head;
@@ -82,7 +83,7 @@ std::map<std::string, std::string> RequestHeader::getHeaders() const
 // CPP98 style for compatibility
 void RequestHeader::printHeaders() const
 {
-	std::cout << "Method: " << method << std::endl;
+	std::cout << DARK_MAGENTA  "Method: " << method << std::endl;
 	std::cout << "URI: " << uri << std::endl;
 	std::cout << "Version: " << version << std::endl;
 	std::cout << "Headers:" << std::endl;
@@ -90,4 +91,47 @@ void RequestHeader::printHeaders() const
 	{
 		std::cout << it->first << ": " << it->second << std::endl;
 	}
+	std::cout << "Path: " << Path << std::endl;
+	std::cout << "Accept: " << Accept << RESET << std::endl;
+}
+
+std::string RequestHeader::getUri()
+{
+	return this->uri;
+}
+
+std::string RequestHeader::getPath()
+{
+	return this->Path;
+}
+
+
+std::string RequestHeader::getMethod()
+{
+	return this->method;
+}
+
+std::string RequestHeader::getAccept()
+{
+	return this->Accept;
+}
+
+void RequestHeader::parseHeaderRequest()
+{
+	std::map<std::string, std::string>::const_iterator it = headers.find("Accept");
+	if (it != headers.end())
+	{
+		if (it->second.find("text") == true)
+			Accept = "text/html";//en fait ça va dépendre de la réponse...
+		else if (it->second.find("image") == true)
+			Accept = "image/jpg";	
+	}
+	else
+		Accept = "something else";
+	
+	it =  headers.find("PATH");
+	if (it != headers.end())
+		Path = it->second;
+	else
+		Path = "";
 }
