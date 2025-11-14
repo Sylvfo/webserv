@@ -6,7 +6,7 @@
 /*   By: beboccas <beboccas@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 15:07:41 by beboccas          #+#    #+#             */
-/*   Updated: 2025/11/14 03:03:50 by beboccas         ###   ########.fr       */
+/*   Updated: 2025/11/14 03:07:38 by beboccas         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,13 @@ ServerConfig WebServ::getServer(std::string hostReq)
 	for (size_t i = 0; i < servers.size(); ++i)
 	{
 		serverHostPort = servers[i].server_name + ":" + toString(servers[i].listen_port);
+		if (serverHostPort == hostReq)
+			return servers[i];
+	}
+	for (size_t i = 0; i < servers.size(); ++i)
+	{
+		//if no exact match found, try to match only by port
+		serverHostPort = ":" + toString(servers[i].listen_port);
 		if (serverHostPort == hostReq)
 			return servers[i];
 	}
