@@ -6,7 +6,7 @@
 /*   By: beboccas <beboccas@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 15:07:41 by beboccas          #+#    #+#             */
-/*   Updated: 2025/11/14 03:07:38 by beboccas         ###   ########.fr       */
+/*   Updated: 2025/11/14 03:10:52 by beboccas         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ ServerConfig WebServ::getServer(std::string hostReq)
 			return servers[i];
 	}
 	std::cout << "No server matches the requested host:" << hostReq << ". Returning the first one." << std::endl;
-	return servers[0];//return first server as default
+	return emptyServer;//return first server as default
 	
 }
 
