@@ -3,6 +3,11 @@
 #include <iostream>
 #include <map>
 
+	
+	//"400"
+	//; Bad Request
+	
+
 RequestHeader::RequestHeader()
 {
 }
@@ -83,6 +88,8 @@ std::map<std::string, std::string> RequestHeader::getHeaders() const
 // CPP98 style for compatibility
 void RequestHeader::printHeaders() const
 {
+
+	
 	std::cout << DARK_MAGENTA  "Method: " << method << std::endl;
 	std::cout << "URI: " << uri << std::endl;
 	std::cout << "Version: " << version << std::endl;

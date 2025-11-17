@@ -1,7 +1,5 @@
 #include "Webserv.hpp"
 
-//to test send the answer on an other fd that can be used 
-
 //check request avec port et nom de domaine ici ou aprse?
 
 /*TEMP FUNCTION TO REMOVE WHEN THE REQUEST PARSING IS DONE !!!!*/
@@ -34,19 +32,36 @@ void WebServ::handleRequest(int indexServ, int connexion_fd)
 	ServerConfig thisServer;// to put in the request...
 	(void) indexServ;
 
+	////////////////////////////////////////////////////////////
+	//PARSING TO DO BETTER
+	//todoparsing see how server, fd, domain name are connected. 
 	Request.setSocketFd(connexion_fd);
 	Request.Server = getServer(0);
 	Request.linkServer(indexServ);// ZOGZOGISSUE COMMENT ON LIE LE SERVER ICI??? CE SERAIT MIEUX D'AVOIR LE INDEX SERV EST LE MEME QUE LE I SERVER FDS
 	Request.recieveRequest();//to do better
+	//std::cout << LIGHT_ORANGE "RawRequest: " << Request.RawRequest << RESET << std::endl;
 	Request.parseRequest(); //to do 
+	Request.method = Request.HTTPHeader.getMethod();// pas bien à refaire. 
+	Request.uri = Request.HTTPHeader.getUri();
+	Request.printHttpRequest();
 	Request.HTTPHeader.printHeaders();
 	Request.checkRequest(); //to do 
+
+	////////////////////////////////////////////////////////////
+	//CREATING THE ANSWER
 //	if (Request.AnswerType == ERROR)
 //		Request.errortype();//to do 
 //	else if (Request.AnswerType == LOCAL)
+	if (Request.RawRequest.empty() || Request.HTTPHeader.getMethod().empty())
+    {
+		// todoparsing why they are empty request????
+    //    std::cout << "Empty request, closing connection" << std::endl;
+        return;
+    }
 	Request.Answerlocal();//to do 
 //	else if (Request.AnswerType == CGI)
 //		Request.AnswerCGI();//to do
+	////////////////////////////////////////////////////////////
 	Request.sendAnswerToRequest();
 }
 
@@ -69,9 +84,9 @@ void HttpRequest::sendAnswerToRequest()
 
 	std::cout << "socket fd " << socket_fd << std::endl;
 	// is it non blocking?
-	while(totalBytesSent < (int)HTTPAnswer.size())
+	while(totalBytesSent < (int)HttpAnswer.size())
 	{
-		bytesSent = send(socket_fd, HTTPAnswer.c_str(), HTTPAnswer.size(), 0);
+		bytesSent = send(socket_fd, HttpAnswer.c_str(), HttpAnswer.size(), 0);
 		if (bytesSent < 0)
 		{
 			std::cout << "Could not send response";
@@ -79,9 +94,6 @@ void HttpRequest::sendAnswerToRequest()
 		}
 		totalBytesSent += bytesSent;
 	}
-	//change socket mode... ready for new request.
-	//change socket mode... sending....
-	//comment couper en morceaux??? par epoll??
 }
 
 std::string IntToString(int numb)

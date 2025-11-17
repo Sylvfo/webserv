@@ -1,7 +1,9 @@
 #include "Webserv.hpp"
 
+//some checks to do
 void HttpRequest::recieveRequest() 
 {
+		//	if (std::cin.eof())
 	//what mistake tye can happen?
 	// how to do it non blocking
 	int BUFFER_SIZE = 30720;//??
@@ -18,19 +20,23 @@ void HttpRequest::parseRequest()
 {
 	HTTPHeader.parseRequest(RawRequest);
 	HTTPHeader.parseHeaderRequest();
-	//link with the socket and the connexion and the server???
+	HTTPHeader.printHeaders();
+	//à changer
+	//link with the socket and the connexion and the server here?????
 }
 
 void HttpRequest::checkRequest()
 {
-//	if (HTTPHeader.getMethod() == "GET")
 	AnswerType = LOCAL;
-	//thisServer = getServer(getRequestHost(Request.RequestHead));
 	//std::cout << "Request received on server: " << thisServer.server_name << " on port " << thisServer.listen_port << std::endl;
 	// to do 
 	// answer type??
 	//check request avec port et nom de domaine
 	// check if data exist and are accessible
+}
 
-	
+void HttpRequest::printHttpRequest()
+{
+	std::cout << "printHttpRequest \n" <<
+	"method " << method << " uri " << uri << std::endl;
 }

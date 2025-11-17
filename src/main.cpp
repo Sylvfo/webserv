@@ -26,6 +26,7 @@ int main(int ac, char **av)
 	catch (int errCode)
 	{
 		std::cout << "Error code: " << errCode << std::endl;
+		//send response with "500"; Internal Server Error???
 	}
 	delete WeServ;
 	//WeServ->free_webserv();

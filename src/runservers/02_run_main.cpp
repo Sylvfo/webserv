@@ -84,6 +84,7 @@ bool WebServ::epollWaiting()//eventListent= // epollscanning
 		}
 		else
 		{
+			// todoparsing why they are empty request????
 			handleRequest(index, current_events[i].data.fd);
 			std::cout << "Request answered" << std::endl;
 		}
