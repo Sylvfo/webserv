@@ -1,15 +1,7 @@
-
-
 #ifndef HTTPREQUEST_HPP
 #define HTTPREQUEST_HPP
 
 #include "Webserv.hpp"
-/*
-enum HttpMethod {
-	GET_METHOD,
-	POST_METHOD,
-	DELETE_METHOD // renamed to avoid conflict with C++ keyword
-};*/
 
 enum AnswerType {
 	ERROR,
@@ -17,15 +9,9 @@ enum AnswerType {
 	CGI,
 };
 
-/*
-enum AcceptType {
-	NONE,
-	TXT,
-	IMG,
-};*/
-
 struct server;
 
+// todoparsing : erase this class and let these info only in HttpRequest class
 class RequestHeader
 {
 private:
@@ -33,7 +19,6 @@ private:
 	std::string uri;
 	std::string version;
 	std::map<std::string, std::string> headers;
-	//std::string Host;
 	std::string Accept;
 	std::string Path;
 public:
@@ -49,71 +34,65 @@ public:
 	std::string getAccept();
 };
 
+// todoparsing : put things in private + getter / setter
 class HttpRequest
 {
-
 	public:
 	std::map<std::string, std::string> mimeTypes; //à déplacer
 	void initMimeTypes();//à déplacer
-	//maps....
-	std::string RawRequest;
-	RequestHeader HTTPHeader; //RequestHeader a effacer après new parsing. 
-	std::string RequestBody;
+	
+	RequestHeader	HTTPHeader; //RequestHeader a effacer après new parsing. 
 
 	//Request
-	std::string method;// a double pour l instant
+	std::string		RawRequest;
+	std::string		method;// a double pour l instant
 	std::string uri;// a double pour l instant
 	std::string version;// a double pour l instant
 	std::map<std::string, std::string> headers;// a double pour l instant
-//	std::string Accept;//apparement pas demandé dans webserv... (gpt)
-//	std::string Path;//nécessaire??
-
-	int AnswerType;
+	std::string RequestBody;
+	ServerConfig	Server;//pointer?
+	int	socket_fd;
 
 	//Response
-	std::string StatusCode; //int?? pas besoin je pense pc on peut mettre direct dans HttpAnswer
+	int			AnswerType;
+	std::string StatusCode; //pas besoin je pense pc on peut mettre direct dans HttpAnswer
 	std::string HttpAnswer; //=)
 	std::string ContentLenght; //=)
 	std::string ContentType;
-	
-	int fd_Ressource;
-	bool loadRessource();
-
-	void SetStatusLine();
-	void SetResponseHeader();
-	void SetContentType(std::string &makingPath);
-	//void loadResponseBody(); //ancien load page
 	std::string AnswerBody;//row... a voir...
+	int			fd_Ressource;
 
-	
-//	int AnswerType;
-//	int HttpMethod;
-	ServerConfig	Server;//pointer?
-	int	socket_fd;
-//	int errorCode;
-	
-	//03_handle_request
+	//recieve request
 	void setSocketFd(int fd);
 	void linkServer(int index);
 	void recieveRequest();
-	void sendAnswerToRequest();
 	void parseRequest();
 	void checkRequest();
-	void errortype();
+
+	//answer request
 	void Answerlocal();
 	void AnswerCGI();
-
+	void errortype();
+	//GET
 	void GetRequest();
 	bool GetAccessRessource();
-
+	bool loadRessource();
+	void SetStatusLine();
+	void SetResponseHeader();
+	void SetContentType(std::string &makingPath);
+	void sendAnswerToRequest();
+	//POST
 	void PostRequest();
+
+	//DELETE
 	void DeleteRequest();
+
+	//make the request
+
 	void printHttpRequest();
 };
 
 #endif
-
-
 
 std::string IntToString(int numb);
 
