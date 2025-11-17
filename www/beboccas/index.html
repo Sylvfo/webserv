@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Simple API tester - GET POST DELETE</title>
+  <style>
+    :root{--bg:#0f1724;--card:#111827;--accent:#06b6d4;--muted:#94a3b8}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Arial;background:linear-gradient(180deg,var(--bg),#071124);color:#e6eef6;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
+    .card{width:720px;max-width:96vw;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.04));border-radius:12px;padding:20px;box-shadow:0 6px 30px rgba(2,6,23,0.6)}
+    h1{font-size:18px;margin:0 0 12px}
+    .row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+    input,button,textarea,select{background:#0b1220;border:1px solid rgba(255,255,255,0.04);color:inherit;padding:10px;border-radius:8px;font-size:14px}
+    button{cursor:pointer;border:none;padding:10px 14px}
+    .btn-get{background:transparent;color:var(--accent);border:1px solid rgba(6,182,212,0.15)}
+    .btn-post{background:var(--accent);color:#052025}
+    .btn-delete{background:#ef4444;color:#fff}
+    label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+    .flex{display:flex;gap:8px}
+    textarea{width:100%;min-height:120px;resize:vertical}
+    .output{background:#061221;padding:12px;border-radius:8px;font-family:monospace;font-size:13px;color:#cfeef8;white-space:pre-wrap;max-height:220px;overflow:auto;border:1px solid rgba(255,255,255,0.02)}
+    .footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;color:var(--muted);font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Tester une API simple — GET / POST / DELETE</h1>
+    <div class="row">
+      <div style="flex:1">
+        <label for="endpoint">Endpoint</label>
+        <input id="endpoint" value="/api/resource" placeholder="/api/resource" />
+      </div>
+      <div style="width:120px">
+        <label for="id">ID (pour DELETE)</label>
+        <input id="id" placeholder="123" />
+      </div>
+    </div>
+    <div class="row">
+      <div style="flex:1">
+        <label for="payload">Payload JSON (pour POST)</label>
+        <textarea id="payload">{"title":"Bonjour","body":"Contenu"}</textarea>
+      </div>
+    </div>
+    <div class="row">
+      <div class="flex">
+        <button class="btn-get" id="btnGet">GET</button>
+        <button class="btn-post" id="btnPost">POST</button>
+        <button class="btn-delete" id="btnDelete">DELETE</button>
+      </div>
+    </div>
+    <div>
+      <label>Réponse</label>
+      <div class="output" id="output">Prêt.</div>
+    </div>
+    <div class="footer">
+      <div>Méthodes: GET · POST · DELETE</div>
+      <div id="status">statut: inactif</div>
+    </div>
+  </div>
+  <script>
+    const endpointInput=document.getElementById('endpoint');
+    const payloadInput=document.getElementById('payload');
+    const idInput=document.getElementById('id');
+    const out=document.getElementById('output');
+    const status=document.getElementById('status');
+    function show(txt){out.textContent=txt}
+    async function doFetch(method){
+      const base=endpointInput.value.trim();
+      if(!base){show('Entrez un endpoint valide');return}
+      let url=base;
+      const opts={method,headers:{'Accept':'application/json'}}
+      if(method==='POST'){
+        try{opts.headers['Content-Type']='application/json';opts.body=JSON.stringify(JSON.parse(payloadInput.value))}catch(e){show('Payload JSON invalide');return}
+      }
+      if(method==='DELETE'){
+        const id=idInput.value.trim();
+        if(!id){show('Entrez un ID pour DELETE');return}
+        if(!url.endsWith('/'))url+='/';
+        url+=encodeURIComponent(id);
+      }
+      status.textContent=`statut: en cours (${method})`;
+      try{
+        const res=await fetch(url,opts);
+        const text=await res.text();
+        let pretty=text;
+        try{const j=JSON.parse(text);pretty=JSON.stringify(j,null,2)}catch(e){}
+        show(`${res.status} ${res.statusText}\n\n${pretty}`);
+      }catch(err){show('Erreur réseau : '+err.message)}
+      status.textContent='statut: inactif';
+    }
+    document.getElementById('btnGet').addEventListener('click',()=>doFetch('GET'));
+    document.getElementById('btnPost').addEventListener('click',()=>doFetch('POST'));
+    document.getElementById('btnDelete').addEventListener('click',()=>doFetch('DELETE'));
+  </script>
+</body>
+</html>
