@@ -10,3 +10,4 @@ bool checkArgs(int argc, char **argv)
 	}
 	return true;
 }
+

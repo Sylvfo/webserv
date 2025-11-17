@@ -2,6 +2,7 @@
 
 #include "Webserv.hpp"
 
+/*
 class RequestHeader
 {
 private:
@@ -15,4 +16,4 @@ public:
 	void    parseRequest(const std::string& request);
 	std::map<std::string, std::string> getHeaders() const;
 	void	printHeaders() const;
-};
+};*/

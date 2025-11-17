@@ -33,9 +33,11 @@
 //(#include <sys/types.h>)
 //(#include <sys/socket.h>)
 #include <netdb.h>
+#include <sys/stat.h>
 //getaddrinfo()
 //freeaddrinfo()
 //gai_strerro()
+#include <cerrno>
 #include <fcntl.h>
 #include <unistd.h>
 #include <string>
@@ -47,6 +49,7 @@
 #include "ServerConfig.hpp"
 #include "HttpRequest.hpp"
 #include "RequestHeader.hpp"
+#include "colors.hpp"
 
 #define MAX_EVENTS 100 //A voir
 
@@ -54,6 +57,7 @@ class WebServ
 {
 	private:
 		std::vector<ServerConfig> servers;
+
 	public:
 		WebServ();
 		~WebServ();
@@ -68,6 +72,8 @@ class WebServ
 		bool checkExistingPort(int index);
 		void initPoll();
 		void startServers();
+
+		
 		
 		//epoll
 		bool epollWaiting();
