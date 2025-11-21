@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: beboccas <beboccas@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: bschmid <bschmid@student.42lausanne.ch>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 15:07:41 by beboccas          #+#    #+#             */
-/*   Updated: 2025/11/14 03:10:52 by beboccas         ###   ########.fr       */
+/*   Updated: 2025/11/21 16:01:05 by bschmid          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ ServerConfig WebServ::getServer(std::string hostReq)
 	}
 	std::cout << "No server matches the requested host:" << hostReq << ". Returning the first one." << std::endl;
 	return emptyServer;//return first server as default
-	
+
 }
 
 void WebServ::addServer(ServerConfig config)
@@ -270,9 +270,21 @@ void WebServ::parseConfig(std::string path)
 				currentLocation.root = tmp;
 			}
 			else if (key == "upload_path")
-				iss >> currentLocation.upload_path;
+			{
+				std::string tmp;
+				iss >> tmp;
+				if (!tmp.empty() && tmp[tmp.size() - 1] == ';')
+					tmp = tmp.substr(0, tmp.size() - 1);
+				currentLocation.upload_path = tmp;
+			}
 			else if (key == "cgi_path")
-				iss >> currentLocation.cgi_path;
+			{
+				std::string tmp;
+				iss >> tmp;
+				if (!tmp.empty() && tmp[tmp.size() - 1] == ';')
+					tmp = tmp.substr(0, tmp.size() - 1);
+				currentLocation.cgi_path = tmp;
+			}
 			else if (key == "return")
 			{
 				int code;
