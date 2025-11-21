@@ -45,6 +45,9 @@
 #include <map>
 #include <signal.h>
 #include <sstream>
+#include <fstream>
+#include <ctime>
+#include <cstdlib>
 
 #include "ServerConfig.hpp"
 #include "HttpRequest.hpp"
@@ -73,8 +76,8 @@ class WebServ
 		void initPoll();
 		void startServers();
 
-		
-		
+
+
 		//epoll
 		bool epollWaiting();
 		int		newConnection(epoll_event new_event);

@@ -40,8 +40,8 @@ class HttpRequest
 	public:
 	std::map<std::string, std::string> mimeTypes; //à déplacer
 	void initMimeTypes();//à déplacer
-	
-	RequestHeader	HTTPHeader; //RequestHeader a effacer après new parsing. 
+
+	RequestHeader	HTTPHeader; //RequestHeader a effacer après new parsing.
 
 	//Request
 	std::string		RawRequest;
@@ -67,6 +67,7 @@ class HttpRequest
 	void linkServer(int index);
 	void recieveRequest();
 	void parseRequest();
+	void extractRequestBody(); //necessary to implement POST
 	void checkRequest();
 
 	//answer request
@@ -83,7 +84,10 @@ class HttpRequest
 	void sendAnswerToRequest();
 	//POST
 	void PostRequest();
-
+	void HandleFormData();
+	std::map<std::string, std::string> parseFormData(const std::string &body);
+	std::string urlDecode(const std::string &str);
+	std::string getCurrentTimestamp();
 	//DELETE
 	void DeleteRequest();
 
@@ -123,7 +127,7 @@ servers should be aware that either party may close the connection
 prematurely, due to user action, automated time-out, or program
 failure, and should handle such closing in a predictable fashion.
 
-MIME are for mails. 
+MIME are for mails.
 
 Uniform Resource Identifiers are
 simply formatted strings which identify--via name, location, or any
