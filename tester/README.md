@@ -19,6 +19,7 @@ This tester validates your webserv by:
 ## ✅ Prerequisites
 
 - **Docker** & **Docker Compose** installed
+- docker-compose installde `sudo apt-get install docker-compose`
 - `curl` command-line tool
 - Bash shell
 - Your compiled **webserv binary**
