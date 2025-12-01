@@ -3,7 +3,7 @@
 // create body + find values Header fieds.
 void HttpRequest::GetRequest()
 {
-	std::cout << PASTEL_AQUA "Enter GET Local Answer " << RESET << std::endl;
+//	std::cout << PASTEL_AQUA "Enter GET Local Answer " << RESET << std::endl;
 	initMimeTypes();
 	if (GetAccessRessource() == true)
 	{
@@ -23,7 +23,7 @@ bool HttpRequest::GetAccessRessource()
 	else
 		makingPath = Server.root + HTTPHeader.getUri();
 	const char *path = makingPath.c_str();
-	std::cout << LIGHT_ROSE "PATH " << path << RESET << std::endl;
+//	std::cout << LIGHT_ROSE "PATH " << path << RESET << std::endl;
 	fd_Ressource = open(path , O_RDONLY);
 	if (fd_Ressource < 0)
 	{
@@ -50,7 +50,7 @@ bool HttpRequest::loadRessource()
 	//check eof
 	close(fd_Ressource);
 	ContentLenght = IntToString(AnswerBody.size()); //pas le droit
-	std::cout << "CONTENT LENGTH " << ContentLenght << std::endl;
+//	std::cout << "CONTENT LENGTH " << ContentLenght << std::endl;
 	return true;
 }
 
@@ -66,7 +66,7 @@ void HttpRequest::SetContentType(std::string &makingPath)
 	std::map<std::string, std::string>::iterator it = mimeTypes.find(Extension);
 	ContentType = it->second;
 
-	std::cout << BRIGHT_LIME << "content type " << ContentType << "till here" << std::endl;
+//	std::cout << BRIGHT_LIME << "content type " << ContentType << "till here" << std::endl;
 }
 
 void HttpRequest::initMimeTypes() {

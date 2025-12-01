@@ -43,8 +43,8 @@ void WebServ::handleRequest(int indexServ, int connexion_fd)
 	Request.parseRequest(); //to do 
 	Request.method = Request.HTTPHeader.getMethod();// pas bien à refaire. 
 	Request.uri = Request.HTTPHeader.getUri();
-	Request.printHttpRequest();
-	Request.HTTPHeader.printHeaders();
+	//Request.printHttpRequest();
+	//Request.HTTPHeader.printHeaders();
 	Request.checkRequest(); //to do 
 
 	////////////////////////////////////////////////////////////
