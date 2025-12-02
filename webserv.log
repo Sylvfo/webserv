@@ -2,6 +2,49 @@ Enter webserv
 Listening on http://127.0.0.1:8080
 new connection accepted
 [38;5;90mMethod: GET
+URI: /index.html
+Version: HTTP/1.0
+Headers:
+Accept: */*
+Host: localhost:8080
+User-Agent: curl/7.81.0
+Path: 
+Accept: [0m
+printHttpRequest 
+method GET uri /index.html
+[38;5;90mMethod: GET
+URI: /index.html
+Version: HTTP/1.0
+Headers:
+Accept: */*
+Host: localhost:8080
+User-Agent: curl/7.81.0
+Path: 
+Accept: [0m
+[38;5;159mEnter local Answer [0m
+[38;5;159mEnter GET Local Answer [0m
+[38;5;210mPATH tester_v2/www/index.html[0m
+[38;5;190mcontent type text/htmltill here
+CONTENT LENGTH 139
+socket fd 5
+Request answered
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+printHttpRequest 
+method  uri 
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+Request answered
+new connection accepted
+[38;5;90mMethod: GET
 URI: /tiny.html
 Version: HTTP/1.0
 Headers:
@@ -23,10 +66,454 @@ Path:
 Accept: [0m
 [38;5;159mEnter local Answer [0m
 [38;5;159mEnter GET Local Answer [0m
-[38;5;210mPATH tester_v2/fixtures/html/tiny.html[0m
+[38;5;210mPATH tester_v2/www/tiny.html[0m
 [38;5;190mcontent type text/htmltill here
 CONTENT LENGTH 27
-socket fd 5
+socket fd 6
+Request answered
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+printHttpRequest 
+method  uri 
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+Request answered
+new connection accepted
+[38;5;90mMethod: GET
+URI: /medium.html
+Version: HTTP/1.0
+Headers:
+Accept: */*
+Host: localhost:8080
+User-Agent: curl/7.81.0
+Path: 
+Accept: [0m
+printHttpRequest 
+method GET uri /medium.html
+[38;5;90mMethod: GET
+URI: /medium.html
+Version: HTTP/1.0
+Headers:
+Accept: */*
+Host: localhost:8080
+User-Agent: curl/7.81.0
+Path: 
+Accept: [0m
+[38;5;159mEnter local Answer [0m
+[38;5;159mEnter GET Local Answer [0m
+[38;5;210mPATH tester_v2/www/medium.html[0m
+[38;5;190mcontent type text/htmltill here
+CONTENT LENGTH 904
+socket fd 7
+Request answered
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+printHttpRequest 
+method  uri 
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+Request answered
+new connection accepted
+[38;5;90mMethod: GET
+URI: /large.html
+Version: HTTP/1.0
+Headers:
+Accept: */*
+Host: localhost:8080
+User-Agent: curl/7.81.0
+Path: 
+Accept: [0m
+printHttpRequest 
+method GET uri /large.html
+[38;5;90mMethod: GET
+URI: /large.html
+Version: HTTP/1.0
+Headers:
+Accept: */*
+Host: localhost:8080
+User-Agent: curl/7.81.0
+Path: 
+Accept: [0m
+[38;5;159mEnter local Answer [0m
+[38;5;159mEnter GET Local Answer [0m
+[38;5;210mPATH tester_v2/www/large.html[0m
+[38;5;190mcontent type text/htmltill here
+CONTENT LENGTH 686110
+socket fd 8
+Request answered
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+printHttpRequest 
+method  uri 
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+Request answered
+new connection accepted
+[38;5;90mMethod: GET
+URI: /test.jpg
+Version: HTTP/1.0
+Headers:
+Accept: */*
+Host: localhost:8080
+User-Agent: curl/7.81.0
+Path: 
+Accept: [0m
+printHttpRequest 
+method GET uri /test.jpg
+[38;5;90mMethod: GET
+URI: /test.jpg
+Version: HTTP/1.0
+Headers:
+Accept: */*
+Host: localhost:8080
+User-Agent: curl/7.81.0
+Path: 
+Accept: [0m
+[38;5;159mEnter local Answer [0m
+[38;5;159mEnter GET Local Answer [0m
+[38;5;210mPATH tester_v2/www/test.jpg[0m
+[38;5;190mcontent type image/jpegtill here
+CONTENT LENGTH 4131
+socket fd 9
+Request answered
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+printHttpRequest 
+method  uri 
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+Request answered
+new connection accepted
+[38;5;90mMethod: GET
+URI: /errors/404_not_found.html
+Version: HTTP/1.0
+Headers:
+Accept: */*
+Host: localhost:8080
+User-Agent: curl/7.81.0
+Path: 
+Accept: [0m
+printHttpRequest 
+method GET uri /errors/404_not_found.html
+[38;5;90mMethod: GET
+URI: /errors/404_not_found.html
+Version: HTTP/1.0
+Headers:
+Accept: */*
+Host: localhost:8080
+User-Agent: curl/7.81.0
+Path: 
+Accept: [0m
+[38;5;159mEnter local Answer [0m
+[38;5;159mEnter GET Local Answer [0m
+[38;5;210mPATH tester_v2/www/errors/404_not_found.html[0m
+[38;5;190mcontent type text/htmltill here
+CONTENT LENGTH 171
+socket fd 10
+Request answered
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+printHttpRequest 
+method  uri 
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+Request answered
+new connection accepted
+[38;5;90mMethod: GET
+URI: /errors/403_forbidden.html
+Version: HTTP/1.0
+Headers:
+Accept: */*
+Host: localhost:8080
+User-Agent: curl/7.81.0
+Path: 
+Accept: [0m
+printHttpRequest 
+method GET uri /errors/403_forbidden.html
+[38;5;90mMethod: GET
+URI: /errors/403_forbidden.html
+Version: HTTP/1.0
+Headers:
+Accept: */*
+Host: localhost:8080
+User-Agent: curl/7.81.0
+Path: 
+Accept: [0m
+[38;5;159mEnter local Answer [0m
+[38;5;159mEnter GET Local Answer [0m
+[38;5;210mPATH tester_v2/www/errors/403_forbidden.html[0m
+[38;5;190mcontent type text/htmltill here
+CONTENT LENGTH 170
+socket fd 11
+Request answered
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+printHttpRequest 
+method  uri 
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+Request answered
+new connection accepted
+[38;5;90mMethod: GET
+URI: /uploads/
+Version: HTTP/1.0
+Headers:
+Accept: */*
+Host: localhost:8080
+User-Agent: curl/7.81.0
+Path: 
+Accept: [0m
+printHttpRequest 
+method GET uri /uploads/
+[38;5;90mMethod: GET
+URI: /uploads/
+Version: HTTP/1.0
+Headers:
+Accept: */*
+Host: localhost:8080
+User-Agent: curl/7.81.0
+Path: 
+Accept: [0m
+[38;5;159mEnter local Answer [0m
+[38;5;159mEnter GET Local Answer [0m
+[38;5;210mPATH tester_v2/www/uploads/[0m
+[38;5;190mcontent type application/octet-streamtill here
+CONTENT LENGTH 0
+socket fd 12
+Request answered
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+printHttpRequest 
+method  uri 
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+Request answered
+new connection accepted
+Exracted body (19 bytes): Hello_World_Content
+[38;5;90mMethod: POST
+URI: /uploads/new_file.txt
+Version: HTTP/1.0
+Headers:
+Accept: */*
+Content-Length: 19
+Content-Type: application/x-www-form-urlencoded
+Host: localhost:8080
+User-Agent: curl/7.81.0
+Path: 
+Accept: [0m
+printHttpRequest 
+method POST uri /uploads/new_file.txt
+[38;5;90mMethod: POST
+URI: /uploads/new_file.txt
+Version: HTTP/1.0
+Headers:
+Accept: */*
+Content-Length: 19
+Content-Type: application/x-www-form-urlencoded
+Host: localhost:8080
+User-Agent: curl/7.81.0
+Path: 
+Accept: [0m
+[38;5;159mEnter local Answer [0m
+POST method to do 
+[38;5;159mEnter POST Request Handler[0m
+Content-Type: application/x-www-form-urlencoded
+Request Body: Hello_World_Content
+Handling form data...
+Matched location: /
+Upload path from config: ''
+No upload_path configured, using default: tester_v2/www/uploads
+Attempting to save to: tester_v2/www/uploads/post_1764716737.txt
+socket fd 13
+Request answered
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+printHttpRequest 
+method  uri 
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+Request answered
+new connection accepted
+Exracted body (13 bytes): CGI_POST_Data
+[38;5;90mMethod: POST
+URI: /cgi-bin/echo.sh
+Version: HTTP/1.0
+Headers:
+Accept: */*
+Content-Length: 13
+Content-Type: application/x-www-form-urlencoded
+Host: localhost:8080
+User-Agent: curl/7.81.0
+Path: 
+Accept: [0m
+printHttpRequest 
+method POST uri /cgi-bin/echo.sh
+[38;5;90mMethod: POST
+URI: /cgi-bin/echo.sh
+Version: HTTP/1.0
+Headers:
+Accept: */*
+Content-Length: 13
+Content-Type: application/x-www-form-urlencoded
+Host: localhost:8080
+User-Agent: curl/7.81.0
+Path: 
+Accept: [0m
+[38;5;159mEnter local Answer [0m
+POST method to do 
+[38;5;159mEnter POST Request Handler[0m
+Content-Type: application/x-www-form-urlencoded
+Request Body: CGI_POST_Data
+Handling form data...
+Matched location: /cgi-bin/
+Upload path from config: ''
+No upload_path configured, using default: tester_v2/www/uploads
+Attempting to save to: tester_v2/www/uploads/post_1764716737.txt
+socket fd 14
+Request answered
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+printHttpRequest 
+method  uri 
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+Request answered
+new connection accepted
+[38;5;90mMethod: DELETE
+URI: /test.jpg
+Version: HTTP/1.0
+Headers:
+Accept: */*
+Host: localhost:8080
+User-Agent: curl/7.81.0
+Path: 
+Accept: [0m
+printHttpRequest 
+method DELETE uri /test.jpg
+[38;5;90mMethod: DELETE
+URI: /test.jpg
+Version: HTTP/1.0
+Headers:
+Accept: */*
+Host: localhost:8080
+User-Agent: curl/7.81.0
+Path: 
+Accept: [0m
+[38;5;159mEnter local Answer [0m
+DELETE method to do 
+socket fd 15
+Request answered
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+printHttpRequest 
+method  uri 
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+Request answered
+new connection accepted
+[38;5;90mMethod: DELETE
+URI: /tiny.html
+Version: HTTP/1.0
+Headers:
+Accept: */*
+Host: localhost:8080
+User-Agent: curl/7.81.0
+Path: 
+Accept: [0m
+printHttpRequest 
+method DELETE uri /tiny.html
+[38;5;90mMethod: DELETE
+URI: /tiny.html
+Version: HTTP/1.0
+Headers:
+Accept: */*
+Host: localhost:8080
+User-Agent: curl/7.81.0
+Path: 
+Accept: [0m
+[38;5;159mEnter local Answer [0m
+DELETE method to do 
+socket fd 16
 Request answered
 [38;5;90mMethod: 
 URI: 
