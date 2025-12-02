@@ -1,0 +1,29 @@
+services:
+  nginx:
+    # Build from Dockerfile in current directory
+    build: .
+
+    # Container name
+    container_name: webserv_test_nginx
+
+    # Port mapping: your_computer:container
+    ports:
+      - "8080:80"
+
+    # Mount fixture directories
+    # Format: host_path:container_path:mode
+    volumes:
+      # HTML files (read-only)
+      - ../fixtures/html:/var/www/html:ro
+
+      # CGI scripts (read-only)
+      - ../fixtures/cgi:/var/www/cgi:ro
+
+      # Error pages (read-only)
+      - ../fixtures/errors:/var/www/errors:ro
+
+      # Upload directory (read-write for POST/DELETE tests)
+      - ../fixtures/uploads:/var/www/uploads:rw
+
+    # Restart policy
+    restart: unless-stopped

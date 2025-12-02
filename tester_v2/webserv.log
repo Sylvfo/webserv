@@ -1,0 +1,43 @@
+Enter webserv
+Listening on http://127.0.0.1:8080
+new connection accepted
+[38;5;90mMethod: GET
+URI: /tiny.html
+Version: HTTP/1.0
+Headers:
+Accept: */*
+Host: localhost:8080
+User-Agent: curl/7.81.0
+Path: 
+Accept: [0m
+printHttpRequest 
+method GET uri /tiny.html
+[38;5;90mMethod: GET
+URI: /tiny.html
+Version: HTTP/1.0
+Headers:
+Accept: */*
+Host: localhost:8080
+User-Agent: curl/7.81.0
+Path: 
+Accept: [0m
+[38;5;159mEnter local Answer [0m
+[38;5;159mEnter GET Local Answer [0m
+[38;5;210mPATH tester_v2/fixtures/html/tiny.html[0m
+socket fd 5
+Request answered
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+printHttpRequest 
+method  uri 
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+Request answered

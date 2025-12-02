@@ -1,0 +1,10 @@
+HTTP/1.1 200 OK
+Server: nginx/1.18.0 (Ubuntu)
+Date: Tue, 02 Dec 2025 17:41:58 GMT
+Content-Type: text/html
+Content-Length: 27
+Last-Modified: Tue, 02 Dec 2025 12:42:41 GMT
+Connection: keep-alive
+ETag: "692edec1-1b"
+Accept-Ranges: bytes
+
