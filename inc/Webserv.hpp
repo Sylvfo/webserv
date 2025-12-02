@@ -56,6 +56,14 @@
 
 #define MAX_EVENTS 100 //A voir
 
+/*
+struct ConnectionInfo
+{
+    int client_fd;
+    int server_index;  // Index dans servers[]
+    ServerConfig* server; // Pointeur direct
+};*/
+
 class WebServ
 {
 	private:
@@ -76,12 +84,11 @@ class WebServ
 		void initPoll();
 		void startServers();
 
-
-
 		//epoll
 		bool epollWaiting();
 		int		newConnection(epoll_event new_event);
 		bool	acceptConnection(int index);
+		void	closeConnection(int fd);
 		//free
 		void free_webserv();
 
@@ -102,13 +109,20 @@ class WebServ
 		//comment on sait quelle fds est en lien avec quel serveur??
 		std::vector<int> ports;
 		std::vector<int> fds;// fd server
-		int epollFd;
+		int epollFd; // file desciptor epoll. fds[0] ??
+		//std::map<int, ConnectionInfo*> connections;
 		std::vector<int> fdconn;// fd connections
 	//	handel
+
+		void printfds();
+		void printfdconn();//sert a rien??
+		void printepollwait(struct epoll_event *csurrent_events, int ndfs);
 
 };
 
 void setNonBlocking(int fd);
 void handleSignInt(int sign);
+
+void printcurrentevent(struct epoll_event *current_events, int ndfs);
 
 #endif

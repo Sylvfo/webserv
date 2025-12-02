@@ -25,6 +25,8 @@ std::string getRequestHost(std::string req)
 	return host;
 }
 
+
+//current_events[i].data.fd
 //main HTTP handling function
 void WebServ::handleRequest(int indexServ, int connexion_fd)
 {
@@ -36,11 +38,14 @@ void WebServ::handleRequest(int indexServ, int connexion_fd)
 	//PARSING TO DO BETTER
 	//todoparsing see how server, fd, domain name are connected. 
 	Request.setSocketFd(connexion_fd);
-	Request.Server = getServer(0);
-	Request.linkServer(indexServ);// ZOGZOGISSUE COMMENT ON LIE LE SERVER ICI??? CE SERAIT MIEUX D'AVOIR LE INDEX SERV EST LE MEME QUE LE I SERVER FDS
+	
+//	Request.linkServer(indexServ);// ZOGZOGISSUE COMMENT ON LIE LE SERVER ICI??? CE SERAIT MIEUX D'AVOIR LE INDEX SERV EST LE MEME QUE LE I SERVER FDS
 	Request.recieveRequest();//to do better
 	//std::cout << LIGHT_ORANGE "RawRequest: " << Request.RawRequest << RESET << std::endl;
 	Request.parseRequest(); //to do 
+	Request.printHttpRequest();
+	Request.Server = getServer(0);
+	//here get server 
 	Request.method = Request.HTTPHeader.getMethod();// pas bien à refaire. 
 	Request.uri = Request.HTTPHeader.getUri();
 	//Request.printHttpRequest();
@@ -94,6 +99,8 @@ void HttpRequest::sendAnswerToRequest()
 		}
 		totalBytesSent += bytesSent;
 	}
+	//epoll_ctl(epollFd, EPOLL_CTL_DEL, socket_fd, NULL);
+//	close(socket_fd);
 }
 
 std::string IntToString(int numb)

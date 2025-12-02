@@ -24,7 +24,7 @@ void HttpRequest::parseRequest()
 	// extract body for POST requests
 	extractRequestBody();
 
-	//HTTPHeader.printHeaders();
+	HTTPHeader.printHeaders();
 	//à changer
 	//link with the socket and the connexion and the server here?????
 }
