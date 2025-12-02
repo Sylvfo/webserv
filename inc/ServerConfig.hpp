@@ -18,7 +18,7 @@
 #include <map>
 #include <utility>
 
-//struct pour la classse serveur config
+//struct pour la classe serveur config
 struct LocationConfig
 {
     std::string path;

@@ -71,15 +71,10 @@ void WebServ::initPoll()
 		struct epoll_event event;
 		event.events = EPOLLIN | EPOLLET;
 		ConnectionInfo* connInfo = new ConnectionInfo();
-		//event.data.ptr = new ConnectionInfo();
 		connInfo->client_fd = 0;
 		connInfo->server_fd = fds[i];
 		//connInfo->server = &servers[i];
 		event.data.ptr = connInfo;
-		//event.data.fd = fds[i];
-		
-		//event.data.u32 = i;
-		//event.data.ptr = NULL;
 		if (epoll_ctl(epollFd, EPOLL_CTL_ADD,fds[i], &event) < 0)
 			throw 7;
 	}

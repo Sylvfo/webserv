@@ -93,7 +93,6 @@ class WebServ
 		void free_webserv();
 
 		//handle request
-		//void handleRequest(int indexServ, int connexion_fd);
 		void handleRequest(epoll_event current_event);
 
 		/* Server Config related functions */	 			/* **************************************************** */
@@ -106,15 +105,14 @@ class WebServ
 		void printConfig();									/* Print the entire config (DEBUG ONLY)					*/
 		/* End of the server config functions */			/* **************************************************** */
 
-
 		//comment on sait quelle fds est en lien avec quel serveur??
-		std::vector<int> ports;
+		//std::vector<int> ports;
+		//std::vector<int> fdconn;// fd connections
 		std::vector<int> fds;// fd server
 		int epollFd; // file desciptor epoll. fds[0] ??
 		std::map<int, ConnectionInfo*> connections;
-		//std::vector<int> fdconn;// fd connections
+		
 	//	handel
-
 		void printfds();
 		void printfdconn();//sert a rien??
 		void printepollwait(struct epoll_event *csurrent_events, int ndfs);
