@@ -56,13 +56,13 @@
 
 #define MAX_EVENTS 100 //A voir
 
-/*
 struct ConnectionInfo
 {
     int client_fd;
+	int server_fd;
     int server_index;  // Index dans servers[]
     ServerConfig* server; // Pointeur direct
-};*/
+};
 
 class WebServ
 {
@@ -93,7 +93,8 @@ class WebServ
 		void free_webserv();
 
 		//handle request
-		void handleRequest(int indexServ, int connexion_fd);
+		//void handleRequest(int indexServ, int connexion_fd);
+		void handleRequest(epoll_event current_event);
 
 		/* Server Config related functions */	 			/* **************************************************** */
 		ServerConfig getServer(int index);	 				/* Can be searched by port or by server name. 			*/
@@ -110,8 +111,8 @@ class WebServ
 		std::vector<int> ports;
 		std::vector<int> fds;// fd server
 		int epollFd; // file desciptor epoll. fds[0] ??
-		//std::map<int, ConnectionInfo*> connections;
-		std::vector<int> fdconn;// fd connections
+		std::map<int, ConnectionInfo*> connections;
+		//std::vector<int> fdconn;// fd connections
 	//	handel
 
 		void printfds();

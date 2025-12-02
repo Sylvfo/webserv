@@ -50,7 +50,7 @@ class HttpRequest
 	std::string version;// a double pour l instant
 	std::map<std::string, std::string> headers;// a double pour l instant
 	std::string RequestBody;
-	ServerConfig	Server;//pointer?
+	ServerConfig	*Server;//pointer?
 	int	socket_fd;
 
 	//Response

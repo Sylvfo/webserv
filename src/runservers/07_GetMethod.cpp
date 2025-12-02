@@ -19,9 +19,9 @@ bool HttpRequest::GetAccessRessource()
 	//create path
 	std::string makingPath;
 	if (HTTPHeader.getUri() == "/") //root URI
-		makingPath = Server.root + "/" + Server.locations[0].index;
+		makingPath = Server->root + "/" + Server->locations[0].index;
 	else
-		makingPath = Server.root + HTTPHeader.getUri();
+		makingPath = Server->root + HTTPHeader.getUri();
 	const char *path = makingPath.c_str();
 //	std::cout << LIGHT_ROSE "PATH " << path << RESET << std::endl;
 	fd_Ressource = open(path , O_RDONLY);

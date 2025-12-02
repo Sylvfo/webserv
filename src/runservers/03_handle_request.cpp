@@ -28,23 +28,32 @@ std::string getRequestHost(std::string req)
 
 //current_events[i].data.fd
 //main HTTP handling function
-void WebServ::handleRequest(int indexServ, int connexion_fd)
+//void WebServ::handleRequest(int indexServ, int connexion_fd)
+void WebServ::handleRequest(epoll_event current_event)
 {
 	HttpRequest	Request;
-	ServerConfig thisServer;// to put in the request...
-	(void) indexServ;
+
+	std::cout << "enter handlerequest" << std::endl;
+	//ServerConfig thisServer;// to put in the request...
+	//(void) indexServ;
+	ConnectionInfo* connInfo = static_cast<ConnectionInfo*>(current_event.data.ptr);
+   	if (!connInfo)
+    {
+        std::cerr << "Error: NULL connection info" << std::endl;
+        return;
+    }
 
 	////////////////////////////////////////////////////////////
 	//PARSING TO DO BETTER
 	//todoparsing see how server, fd, domain name are connected. 
-	Request.setSocketFd(connexion_fd);
-	
-//	Request.linkServer(indexServ);// ZOGZOGISSUE COMMENT ON LIE LE SERVER ICI??? CE SERAIT MIEUX D'AVOIR LE INDEX SERV EST LE MEME QUE LE I SERVER FDS
+	Request.socket_fd = connInfo->client_fd;
+	Request.Server = connInfo->server;
 	Request.recieveRequest();//to do better
 	//std::cout << LIGHT_ORANGE "RawRequest: " << Request.RawRequest << RESET << std::endl;
 	Request.parseRequest(); //to do 
 	Request.printHttpRequest();
-	Request.Server = getServer(0);
+	
+	//Request.Server = static_cast<ServerConfig*>(current_event.data.ptr);
 	//here get server 
 	Request.method = Request.HTTPHeader.getMethod();// pas bien à refaire. 
 	Request.uri = Request.HTTPHeader.getUri();
