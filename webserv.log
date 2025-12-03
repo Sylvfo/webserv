@@ -87,6 +87,21 @@ Path:
 Accept: something else[0m
 Request answered
 new connection accepted
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+printHttpRequest 
+method  uri 
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+Request answered
 [38;5;90mMethod: GET
 URI: /medium.html
 Version: HTTP/1.0
@@ -301,21 +316,6 @@ Headers:
 Path: 
 Accept: something else[0m
 Request answered
-[38;5;90mMethod: 
-URI: 
-Version: 
-Headers:
-Path: 
-Accept: something else[0m
-printHttpRequest 
-method  uri 
-[38;5;90mMethod: 
-URI: 
-Version: 
-Headers:
-Path: 
-Accept: something else[0m
-Request answered
 new connection accepted
 [38;5;90mMethod: GET
 URI: /uploads/
@@ -392,7 +392,7 @@ Handling form data...
 Matched location: /
 Upload path from config: ''
 No upload_path configured, using default: tester_v2/www/uploads
-Attempting to save to: tester_v2/www/uploads/post_1764748394.txt
+Attempting to save to: tester_v2/www/uploads/post_1764752525.txt
 socket fd 13
 Request answered
 [38;5;90mMethod: 
@@ -445,7 +445,7 @@ Handling form data...
 Matched location: /cgi-bin/
 Upload path from config: ''
 No upload_path configured, using default: tester_v2/www/uploads
-Attempting to save to: tester_v2/www/uploads/post_1764748394.txt
+Attempting to save to: tester_v2/www/uploads/post_1764752525.txt
 socket fd 14
 Request answered
 [38;5;90mMethod: 
