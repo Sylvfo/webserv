@@ -1,50 +1,77 @@
-# Webserv Tester
+# Webserv Tester V2
 
-Compares your webserv against nginx to verify HTTP compliance.
+A comparative testing suite that verifies your `webserv` implementation against a reference Nginx server.
 
-## Usage
+---
+
+## 🚀 Quick Start & Setup
+
+### 1. Prerequisites
+Before running the tester, ensure you have:
+- **Docker** installed and running (for the Nginx reference).
+- **docker-compose** installed
+- **Curl** installed (for sending requests).
+- Your **Webserv** compiled.
+
+
+2. **Check Configuration:**
+   The tester expects your webserv to:
+   - Run on **Port 8080**.
+   - Use the configuration file `config/webserv.conf`.
+   - Serve files from the `tester_v2/www` directory (which is automatically created).
+
+   *Note: The script automatically handles the creation of the `www` folder from `fixtures`.*
+
+### 3. Run the Tester
+Navigate to the `tester_v2` directory and run:
 
 ```bash
-./run-tests.sh          # Run all tests
-./run-tests.sh clean    # Remove generated files
+cd tester_v2
+./run-tests.sh
 ```
 
-## What It Tests
+To clean up generated files (logs, results, temporary www folder):
+```bash
+./run-tests.sh clean
+```
 
-| Category | Tests |
-|----------|-------|
-| **GET** | `index.html`, `tiny.html`, `medium.html`, `large.html`, `test.jpg` |
-| **Errors** | `404_not_found.html`, `403_forbidden.html` |
-| **Directory** | `uploads/` (autoindex) |
-| **POST** | `uploads/new_file.txt`, `cgi-bin/echo.sh` |
-| **DELETE** | `test.jpg`, `tiny.html` |
+---
 
-## How It Works
+## 🔍 How It Works & What It Tests
 
-1. Resets `www/` from `fixtures/`
-2. Starts nginx → runs GET tests → stops
-3. Resets `www/` from `fixtures/`
-4. Starts webserv → runs GET/POST/DELETE tests → stops
-5. Compares responses (body, status, content-length)
+This tester works on the principle of **Differential Testing**. It runs the same requests against a standard Nginx server and your Webserv, then compares the results.
 
-## Output Files
+### The Testing Workflow
+1. **Environment Reset:** 
+   Before testing each server, the script deletes the `www/` folder and recreates it from `fixtures/`. This ensures a clean state for every run, which is critical for testing stateful methods like POST and DELETE.
 
-| Path | Contents |
-|------|----------|
-| `test_results/nginx/` | Nginx responses |
-| `test_results/webserv/` | Webserv responses |
-| `webserv.log` | Server stdout/stderr |
-| `www/` | Runtime test directory |
+2. **Nginx Phase (The "Ground Truth"):**
+   - Starts Nginx in a Docker container.
+   - Runs a batch of GET requests.
+   - Saves headers and bodies to `test_results/nginx/`.
 
-## Adding Tests
+3. **Webserv Phase (Your Server):**
+   - Starts your `./webserv` binary.
+   - Runs the same GET requests.
+   - Runs additional POST and DELETE tests.
+   - Saves headers and bodies to `test_results/webserv/`.
 
-Edit arrays in `run-tests.sh`:
-- `TESTS_BASIC` - static files
-- `TESTS_ERRORS` - error pages
-- `TESTS_POST` - format: `"url|data"`
-- `TESTS_DELETE` - files to delete
+4. **Comparison Phase:**
+   - **GET Requests:** Compares Status Code, Content-Length, and Body content exactly against Nginx.
+   - **POST/DELETE:** Checks for specific success criteria (e.g., Did the file actually get deleted? Did the server return 201 Created?).
 
-## Requirements
+### Test Coverage
 
-- Docker (for nginx)
-- `fixtures/` directory with test files
+| Category | Description | What is checked? |
+|----------|-------------|------------------|
+| **Static Content** | `index.html`, `tiny.html`, images | Exact match with Nginx (Body & Headers). |
+| **Error Handling** | `404 Not Found`, `403 Forbidden` | Status code match. |
+| **Directory Listing** | Requesting a directory path | Checks if autoindex or default file works. |
+| **POST** | Uploading files & CGI | Checks for `201 Created` or `200 OK`. |
+| **DELETE** | Deleting files | Checks for `204 No Content` or `200 OK` and verifies file is gone from disk. |
+
+### Directory Structure
+- `fixtures/`: The source of truth for test files. Never modified.
+- `www/`: The runtime directory. Created/Deleted automatically. **Do not edit manually.**
+- `test_results/`: Contains the raw output (headers and bodies) from both servers.
+- `docker/`: Configuration for the reference Nginx container.

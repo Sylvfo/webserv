@@ -7,7 +7,7 @@ Version: HTTP/1.0
 Headers:
 Accept: */*
 Host: localhost:8080
-User-Agent: curl/7.81.0
+User-Agent: curl/8.5.0
 Path: 
 Accept: [0m
 printHttpRequest 
@@ -18,7 +18,7 @@ Version: HTTP/1.0
 Headers:
 Accept: */*
 Host: localhost:8080
-User-Agent: curl/7.81.0
+User-Agent: curl/8.5.0
 Path: 
 Accept: [0m
 [38;5;159mEnter local Answer [0m
@@ -50,7 +50,7 @@ Version: HTTP/1.0
 Headers:
 Accept: */*
 Host: localhost:8080
-User-Agent: curl/7.81.0
+User-Agent: curl/8.5.0
 Path: 
 Accept: [0m
 printHttpRequest 
@@ -61,7 +61,7 @@ Version: HTTP/1.0
 Headers:
 Accept: */*
 Host: localhost:8080
-User-Agent: curl/7.81.0
+User-Agent: curl/8.5.0
 Path: 
 Accept: [0m
 [38;5;159mEnter local Answer [0m
@@ -93,7 +93,7 @@ Version: HTTP/1.0
 Headers:
 Accept: */*
 Host: localhost:8080
-User-Agent: curl/7.81.0
+User-Agent: curl/8.5.0
 Path: 
 Accept: [0m
 printHttpRequest 
@@ -104,7 +104,7 @@ Version: HTTP/1.0
 Headers:
 Accept: */*
 Host: localhost:8080
-User-Agent: curl/7.81.0
+User-Agent: curl/8.5.0
 Path: 
 Accept: [0m
 [38;5;159mEnter local Answer [0m
@@ -136,7 +136,7 @@ Version: HTTP/1.0
 Headers:
 Accept: */*
 Host: localhost:8080
-User-Agent: curl/7.81.0
+User-Agent: curl/8.5.0
 Path: 
 Accept: [0m
 printHttpRequest 
@@ -147,7 +147,7 @@ Version: HTTP/1.0
 Headers:
 Accept: */*
 Host: localhost:8080
-User-Agent: curl/7.81.0
+User-Agent: curl/8.5.0
 Path: 
 Accept: [0m
 [38;5;159mEnter local Answer [0m
@@ -179,7 +179,7 @@ Version: HTTP/1.0
 Headers:
 Accept: */*
 Host: localhost:8080
-User-Agent: curl/7.81.0
+User-Agent: curl/8.5.0
 Path: 
 Accept: [0m
 printHttpRequest 
@@ -190,7 +190,7 @@ Version: HTTP/1.0
 Headers:
 Accept: */*
 Host: localhost:8080
-User-Agent: curl/7.81.0
+User-Agent: curl/8.5.0
 Path: 
 Accept: [0m
 [38;5;159mEnter local Answer [0m
@@ -222,7 +222,7 @@ Version: HTTP/1.0
 Headers:
 Accept: */*
 Host: localhost:8080
-User-Agent: curl/7.81.0
+User-Agent: curl/8.5.0
 Path: 
 Accept: [0m
 printHttpRequest 
@@ -233,7 +233,7 @@ Version: HTTP/1.0
 Headers:
 Accept: */*
 Host: localhost:8080
-User-Agent: curl/7.81.0
+User-Agent: curl/8.5.0
 Path: 
 Accept: [0m
 [38;5;159mEnter local Answer [0m
@@ -265,7 +265,7 @@ Version: HTTP/1.0
 Headers:
 Accept: */*
 Host: localhost:8080
-User-Agent: curl/7.81.0
+User-Agent: curl/8.5.0
 Path: 
 Accept: [0m
 printHttpRequest 
@@ -276,7 +276,7 @@ Version: HTTP/1.0
 Headers:
 Accept: */*
 Host: localhost:8080
-User-Agent: curl/7.81.0
+User-Agent: curl/8.5.0
 Path: 
 Accept: [0m
 [38;5;159mEnter local Answer [0m
@@ -301,6 +301,21 @@ Headers:
 Path: 
 Accept: something else[0m
 Request answered
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+printHttpRequest 
+method  uri 
+[38;5;90mMethod: 
+URI: 
+Version: 
+Headers:
+Path: 
+Accept: something else[0m
+Request answered
 new connection accepted
 [38;5;90mMethod: GET
 URI: /uploads/
@@ -308,7 +323,7 @@ Version: HTTP/1.0
 Headers:
 Accept: */*
 Host: localhost:8080
-User-Agent: curl/7.81.0
+User-Agent: curl/8.5.0
 Path: 
 Accept: [0m
 printHttpRequest 
@@ -319,14 +334,12 @@ Version: HTTP/1.0
 Headers:
 Accept: */*
 Host: localhost:8080
-User-Agent: curl/7.81.0
+User-Agent: curl/8.5.0
 Path: 
 Accept: [0m
 [38;5;159mEnter local Answer [0m
 [38;5;159mEnter GET Local Answer [0m
 [38;5;210mPATH tester_v2/www/uploads/[0m
-[38;5;190mcontent type application/octet-streamtill here
-CONTENT LENGTH 0
 socket fd 12
 Request answered
 [38;5;90mMethod: 
@@ -354,7 +367,7 @@ Accept: */*
 Content-Length: 19
 Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
-User-Agent: curl/7.81.0
+User-Agent: curl/8.5.0
 Path: 
 Accept: [0m
 printHttpRequest 
@@ -367,7 +380,7 @@ Accept: */*
 Content-Length: 19
 Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
-User-Agent: curl/7.81.0
+User-Agent: curl/8.5.0
 Path: 
 Accept: [0m
 [38;5;159mEnter local Answer [0m
@@ -379,7 +392,7 @@ Handling form data...
 Matched location: /
 Upload path from config: ''
 No upload_path configured, using default: tester_v2/www/uploads
-Attempting to save to: tester_v2/www/uploads/post_1764716737.txt
+Attempting to save to: tester_v2/www/uploads/post_1764748394.txt
 socket fd 13
 Request answered
 [38;5;90mMethod: 
@@ -407,7 +420,7 @@ Accept: */*
 Content-Length: 13
 Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
-User-Agent: curl/7.81.0
+User-Agent: curl/8.5.0
 Path: 
 Accept: [0m
 printHttpRequest 
@@ -420,7 +433,7 @@ Accept: */*
 Content-Length: 13
 Content-Type: application/x-www-form-urlencoded
 Host: localhost:8080
-User-Agent: curl/7.81.0
+User-Agent: curl/8.5.0
 Path: 
 Accept: [0m
 [38;5;159mEnter local Answer [0m
@@ -432,7 +445,7 @@ Handling form data...
 Matched location: /cgi-bin/
 Upload path from config: ''
 No upload_path configured, using default: tester_v2/www/uploads
-Attempting to save to: tester_v2/www/uploads/post_1764716737.txt
+Attempting to save to: tester_v2/www/uploads/post_1764748394.txt
 socket fd 14
 Request answered
 [38;5;90mMethod: 
@@ -457,7 +470,7 @@ Version: HTTP/1.0
 Headers:
 Accept: */*
 Host: localhost:8080
-User-Agent: curl/7.81.0
+User-Agent: curl/8.5.0
 Path: 
 Accept: [0m
 printHttpRequest 
@@ -468,7 +481,7 @@ Version: HTTP/1.0
 Headers:
 Accept: */*
 Host: localhost:8080
-User-Agent: curl/7.81.0
+User-Agent: curl/8.5.0
 Path: 
 Accept: [0m
 [38;5;159mEnter local Answer [0m
@@ -497,7 +510,7 @@ Version: HTTP/1.0
 Headers:
 Accept: */*
 Host: localhost:8080
-User-Agent: curl/7.81.0
+User-Agent: curl/8.5.0
 Path: 
 Accept: [0m
 printHttpRequest 
@@ -508,7 +521,7 @@ Version: HTTP/1.0
 Headers:
 Accept: */*
 Host: localhost:8080
-User-Agent: curl/7.81.0
+User-Agent: curl/8.5.0
 Path: 
 Accept: [0m
 [38;5;159mEnter local Answer [0m
