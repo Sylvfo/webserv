@@ -1,0 +1,29 @@
+services:
+  nginx:
+    # Build from Dockerfile in current directory
+    build: .
+
+    # Container name
+    container_name: webserv_test_nginx
+
+    # Port mapping: your_computer:container
+    ports:
+      - "8080:80"
+
+    # Mount fixture directories from the runtime 'www' folder
+    # Format: host_path:container_path:mode
+    volumes:
+      # HTML files (root) - Mount the whole www folder
+      - ../www:/var/www/html:ro
+
+      # CGI scripts (mapped to alias)
+      - ../www/cgi:/var/www/cgi:ro
+
+      # Error pages (mapped to alias)
+      - ../www/errors:/var/www/errors:ro
+
+      # Upload directory (read-write for POST/DELETE tests)
+      - ../www/uploads:/var/www/uploads:rw
+
+    # Restart policy
+    restart: unless-stopped
