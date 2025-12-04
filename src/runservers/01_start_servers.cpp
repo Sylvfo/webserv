@@ -1,27 +1,17 @@
 #include "Webserv.hpp"
 
-void setNonBlocking(int fd)
-{
-	int flags = fcntl(fd, F_GETFL, 0);
-	fcntl(fd, F_SETFL, flags |O_NONBLOCK);
-}
-
 void WebServ::startServers()
 {
-//	std::cout << "Starting servers..." << std::endl;
 	this->initServers();
-//	std::cout << "Servers started..." << std::endl;
 	this->initPoll();
-//	std::cout << "epoll started..." << std::endl;
 }
 
 void WebServ::initServers()
 {
-//	std::cout << "Init Serv " << std::endl;
 	for (size_t i = 0; i < servers.size(); i++)
 	{
 		if (checkExistingPort(i) == false)
-			fds.push_back(initSocket(servers[i]));
+			fd_servers.push_back(initServerSocket(servers[i]));
 	}
 }
 
@@ -35,30 +25,30 @@ bool WebServ::checkExistingPort(int index)
 	return false;
 }
 
-int WebServ::initSocket(struct ServerConfig &server)
+int WebServ::initServerSocket(struct ServerConfig &server)
 {
-	int wsocket;//fd_socket_servers
+	int fd_socket_servers;//fd_socket_servers
 
-	wsocket = socket(AF_INET, SOCK_STREAM, 0); // = IPV4, stream, 0 = TCP
-	if (wsocket == -1)
+	fd_socket_servers = socket(AF_INET, SOCK_STREAM, 0); // = IPV4, stream, 0 = TCP
+	if (fd_socket_servers == -1)
 		throw 3;// a voir apres
 	
 	int opt = 1;
-	setsockopt(wsocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));//mieux comprendre
+	setsockopt(fd_socket_servers, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));//mieux comprendre
 
 	//bind on local address		
 	server.sockaddr.sin_family = AF_INET;//tout le temps pareil
 	server.sockaddr.sin_addr.s_addr = INADDR_ANY;//inet_addr("127.0.0.1");
 	server.sockaddr.sin_port = htons(server.listen_port);// 
 	server.server_len = sizeof(sockaddr);
-	if (bind(wsocket, (struct sockaddr *)&server.sockaddr, server.server_len)!= 0)
+	if (bind(fd_socket_servers, (struct sockaddr *)&server.sockaddr, server.server_len)!= 0)
 		throw 4;
-	if (listen(wsocket, 20) != 0)
+	if (listen(fd_socket_servers, 20) != 0)
 		throw 5;
-	setNonBlocking(wsocket);
+	setNonBlocking(fd_socket_servers);
 	std::cout << "Listening on http://127.0.0.1:" << server.listen_port << std::endl;
-	server.fd_socket_serv = wsocket;//utile?
-	return wsocket;//fd du socket
+	server.fd_socket_serv = fd_socket_servers;//utile oui :)
+	return fd_socket_servers;
 }
 
 void WebServ::initPoll()
@@ -66,18 +56,24 @@ void WebServ::initPoll()
 	this->epollFd = epoll_create(1);//pk zero?? const?? mettre dans 
 	if (epollFd < 0)
 		throw 6;
-	for (size_t i = 0; i < fds.size(); i++)
+	for (size_t i = 0; i < fd_servers.size(); i++)
 	{
 		struct epoll_event event;
 		event.events = EPOLLIN | EPOLLET;
-		ConnectionInfo* connInfo = new ConnectionInfo();
+		ConnectionData* connInfo = new ConnectionData();
 		connInfo->client_fd = 0;
-		connInfo->server_fd = fds[i];
+		connInfo->server_fd = fd_servers[i];
 		//connInfo->server = &servers[i];
 		event.data.ptr = connInfo;
-		if (epoll_ctl(epollFd, EPOLL_CTL_ADD,fds[i], &event) < 0)
+		if (epoll_ctl(epollFd, EPOLL_CTL_ADD,fd_servers[i], &event) < 0)
 			throw 7;
 	}
+}
+
+void setNonBlocking(int fd)
+{
+	int flags = fcntl(fd, F_GETFL, 0);
+	fcntl(fd, F_SETFL, flags |O_NONBLOCK);
 }
 
 /*

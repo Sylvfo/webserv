@@ -56,7 +56,7 @@
 
 #define MAX_EVENTS 100 //A voir
 
-struct ConnectionInfo
+struct ConnectionData
 {
     int client_fd;
 	int server_fd;
@@ -68,6 +68,12 @@ class WebServ
 {
 	private:
 		std::vector<ServerConfig> servers;
+		std::vector<int> fd_servers;//ancien fds
+		int epollFd; // file desciptor epoll. fds[0] ??
+		std::map<int, ConnectionData*> ServersConnections;
+		std::map<int, ConnectionData*> ClientsConnections;
+		//std::map<int, ConnectionData*> connections; //client connection??
+		//std::vector<int> ports;
 
 	public:
 		WebServ();
@@ -76,25 +82,6 @@ class WebServ
 		//parsing
 		void defaultConfig();
 		void FileConfig();
-
-		//start servers
-		void initServers();
-		int initSocket(struct ServerConfig &server);
-		bool checkExistingPort(int index);
-		void initPoll();
-		void startServers();
-
-		//epoll
-		bool epollWaiting();
-		int		newConnection(epoll_event new_event);
-		bool	acceptConnection(int index);
-		void	closeConnection(int fd);
-		//free
-		void free_webserv();
-
-		//handle request
-		void handleRequest(epoll_event current_event);
-
 		/* Server Config related functions */	 			/* **************************************************** */
 		ServerConfig getServer(int index);	 				/* Can be searched by port or by server name. 			*/
 		ServerConfig getServer(std::string hostReq);		/* Can be searched by port or by server name. 			*/
@@ -105,16 +92,28 @@ class WebServ
 		void printConfig();									/* Print the entire config (DEBUG ONLY)					*/
 		/* End of the server config functions */			/* **************************************************** */
 
-		//comment on sait quelle fds est en lien avec quel serveur??
-		//std::vector<int> ports;
-		//std::vector<int> fdconn;// fd connections
-		std::vector<int> fds;// fd server
-		int epollFd; // file desciptor epoll. fds[0] ??
-		std::map<int, ConnectionInfo*> connections;
-		
+		//start servers
+		void initServers();
+		int initServerSocket(struct ServerConfig &server);
+		bool checkExistingPort(int index);
+		void initPoll();
+		void startServers();
+
+		//epoll
+		bool	epollWaiting();
+		int		newConnection(epoll_event new_event);
+		ConnectionData* CreateConnection(int index, int new_socket);
+		bool	acceptConnection(int index);
+		void	closeConnection(epoll_event current_event);
+
+		//handle request
+		void handleRequest(epoll_event current_event);
+		//free
+		void free_webserv();
+
 	//	handel
 		void printfds();
-		void printfdconn();//sert a rien??
+	//	void printfdconn();//sert a rien??
 		void printepollwait(struct epoll_event *csurrent_events, int ndfs);
 
 };

@@ -25,18 +25,13 @@ std::string getRequestHost(std::string req)
 	return host;
 }
 
-
-//current_events[i].data.fd
 //main HTTP handling function
-//void WebServ::handleRequest(int indexServ, int connexion_fd)
 void WebServ::handleRequest(epoll_event current_event)
 {
 	HttpRequest	Request;
 
 	std::cout << "enter handlerequest" << std::endl;
-	//ServerConfig thisServer;// to put in the request...
-	//(void) indexServ;
-	ConnectionInfo* connInfo = static_cast<ConnectionInfo*>(current_event.data.ptr);
+	ConnectionData* connInfo = static_cast<ConnectionData*>(current_event.data.ptr);
    	if (!connInfo)
     {
         std::cerr << "Error: NULL connection info" << std::endl;
@@ -45,7 +40,6 @@ void WebServ::handleRequest(epoll_event current_event)
 
 	////////////////////////////////////////////////////////////
 	//PARSING TO DO BETTER
-	//todoparsing see how server, fd, domain name are connected. 
 	Request.socket_fd = connInfo->client_fd;
 	Request.Server = connInfo->server;
 	Request.recieveRequest();//to do better
@@ -53,8 +47,6 @@ void WebServ::handleRequest(epoll_event current_event)
 	Request.parseRequest(); //to do 
 	Request.printHttpRequest();
 	
-	//Request.Server = static_cast<ServerConfig*>(current_event.data.ptr);
-	//here get server 
 	Request.method = Request.HTTPHeader.getMethod();// pas bien à refaire. 
 	Request.uri = Request.HTTPHeader.getUri();
 	//Request.printHttpRequest();
@@ -72,22 +64,11 @@ void WebServ::handleRequest(epoll_event current_event)
     //    std::cout << "Empty request, closing connection" << std::endl;
         return;
     }
-	Request.Answerlocal();//to do 
+	Request.Answerlocal();
 //	else if (Request.AnswerType == CGI)
 //		Request.AnswerCGI();//to do
 	////////////////////////////////////////////////////////////
 	Request.sendAnswerToRequest();
-}
-
-void HttpRequest::setSocketFd(int fd)
-{
-	socket_fd = fd;
-}
-
-void HttpRequest::linkServer(int index)
-{
-	(void) index;
-	// to do 
 }
 
 //download???

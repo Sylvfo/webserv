@@ -2,8 +2,8 @@
 
 void WebServ::printfds()
 {
-	for (size_t i = 0; i < fds.size(); i++)
-		std::cout << "fds " << i << ": " << fds[i] << std::endl;
+	for (size_t i = 0; i < fd_servers.size(); i++)
+		std::cout << "fds " << i << ": " << fd_servers[i] << std::endl;
 }
 
 void printcurrentevent(struct epoll_event *current_events, int ndfs)
@@ -14,12 +14,6 @@ void printcurrentevent(struct epoll_event *current_events, int ndfs)
 		std::cout << current_events[i].data.fd << " ";
 	std::cout << std::endl;
 }
-/*
-void WebServ::printfdconn()
-{
-	for (size_t i = 0; i < fdconn.size(); i++)
-		std::cout << "fdconn " << i << ": " << fdconn[i] << std::endl;
-}*/
 
 void WebServ::printepollwait(struct epoll_event *current_events, int ndfs)
 {

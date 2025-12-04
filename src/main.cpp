@@ -6,12 +6,11 @@
 int main(int ac, char **av)
 {
 	WebServ *WeServ = NULL; //allouer ici ??
-//	signal(SIGINT, handleSignInt);
+	signal(SIGINT, handleSignInt);
 	std::cout << "Enter webserv" << std::endl;
 
 	WeServ = new WebServ;
 	// check args
-
 	try
 	{
 		if (ac == 2)
@@ -29,8 +28,9 @@ int main(int ac, char **av)
 		std::cout << "Error code: " << errCode << std::endl;
 		//send response with "500"; Internal Server Error???
 	}
-	delete WeServ;
+	std::cout <<  DARK_PURPLE "Ending: " RESET << std::endl;
 	//WeServ->free_webserv();
+	delete WeServ;
 }
 
 /*
