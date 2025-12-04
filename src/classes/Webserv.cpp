@@ -9,11 +9,26 @@ WebServ::WebServ()
 
 WebServ::~WebServ()
 {
-	servers.empty();
+	servers.clear();
 	close(epollFd);
-	for (size_t i = 0; i < fd_servers.size(); i++)
+	std::map<int, ConnectionData*>::iterator it;
+	for (it = ServersConnections.begin(); it != ServersConnections.end(); ++it) {
+		delete it->second;
+		it->second = NULL;
+	}
+	ServersConnections.clear();
+	for (it = ClientsConnections.begin(); it != ClientsConnections.end(); ++it) {
+		delete it->second;
+		it->second = NULL;
+	}
+	ClientsConnections.clear();
+	// a modifier
+	/*for (size_t i = 0; i < fd_servers.size(); i++)
+	{
 		close(fd_servers[i]);
-	fd_servers.empty();
+	}*/
+	//ServersConnections
+	//fd_servers.clear();
 //	fd_servers.clear();
 	std::cout << "destr called";
 }

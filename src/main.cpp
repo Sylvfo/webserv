@@ -19,7 +19,7 @@ int main(int ac, char **av)
 			//WeServ->printConfig();
 		}
 		WeServ->startServers();//(epoll starting);
-		WeServ->printfds();
+	//	WeServ->printfds();
 		while(WeServ->epollWaiting() == true) //listening
 			;
 	}

@@ -68,11 +68,9 @@ class WebServ
 {
 	private:
 		std::vector<ServerConfig> servers;
-		std::vector<int> fd_servers;//ancien fds
 		int epollFd; // file desciptor epoll. fds[0] ??
-		std::map<int, ConnectionData*> ServersConnections;
+		std::map<int, ConnectionData*> ServersConnections; //on ports....
 		std::map<int, ConnectionData*> ClientsConnections;
-		//std::map<int, ConnectionData*> connections; //client connection??
 		//std::vector<int> ports;
 
 	public:
@@ -94,7 +92,7 @@ class WebServ
 
 		//start servers
 		void initServers();
-		int initServerSocket(struct ServerConfig &server);
+		int initServerSocket(struct ServerConfig &server, int index);
 		bool checkExistingPort(int index);
 		void initPoll();
 		void startServers();
