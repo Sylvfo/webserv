@@ -62,9 +62,9 @@ void HttpRequest::HandleFormData()
     size_t longestMatch = 0;
     int matchedIndex = -1;
 
-    for (size_t i = 0; i < Server.locations.size(); i++)
+    for (size_t i = 0; i < Server->locations.size(); i++)
     {
-        std::string locationPath = Server.locations[i].path;
+        std::string locationPath = Server->locations[i].path;
         // Check if URI starts with this location path
         if (currentUri.find(locationPath) == 0)
         {
@@ -79,14 +79,14 @@ void HttpRequest::HandleFormData()
 
     if (matchedIndex >= 0)
     {
-        uploadPath = Server.locations[matchedIndex].upload_path;
-        std::cout << "Matched location: " << Server.locations[matchedIndex].path << std::endl;
+        uploadPath = Server->locations[matchedIndex].upload_path;
+        std::cout << "Matched location: " << Server->locations[matchedIndex].path << std::endl;
         std::cout << "Upload path from config: '" << uploadPath << "'" << std::endl;
     }
 
     if (uploadPath.empty())
     {
-        uploadPath = Server.root + "/uploads";
+        uploadPath = Server->root + "/uploads";
         std::cout << "No upload_path configured, using default: " << uploadPath << std::endl;
     }
 

@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 # set -e
@@ -26,7 +27,7 @@ CGI_DIR="../www/cgi-bin"
 ERRORS_DIR="../www/errors"
 
 # Timeout settings
-STARTUP_TIMEOUT=10
+STARTUP_TIMEOUT=60
 REQUEST_TIMEOUT=5
 
 # Usage

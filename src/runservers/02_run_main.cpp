@@ -58,78 +58,106 @@ struct epoll_event
   epoll_data_t data;	 User data variable 
 } __EPOLL_PACKED;*/
 
-bool WebServ::epollWaiting()//eventListent= // epollscanning
-{
-	int index = -1;//pk??
-	struct epoll_event current_events[MAX_EVENTS];//struct?
 
-	//avec epoll, va passer sur tous les fd des sockets pour voir s il se passe qqch
-	int const ndfs = epoll_wait(epollFd, current_events,MAX_EVENTS, -1); // -1 infinite
+#include "Webserv.hpp"
+
+bool WebServ::epollWaiting()
+{
+	struct epoll_event current_events[MAX_EVENTS];
+
+	int const ndfs = epoll_wait(epollFd, current_events, MAX_EVENTS, -1);
 	if (ndfs < 0)
 		throw 8;
 	for (int i = 0; i < ndfs; i++)
 	{
-		// nouvelle connection
-		if ((index = newConnection(current_events[i])) != -1)// a definir si c est une nouvelle connection
+		if ((current_events[i].events & EPOLLERR) || 
+			(current_events[i].events & EPOLLHUP) || 
+			!(current_events[i].events & EPOLLIN))
 		{
-			if (!(acceptConnection(index)))
-				return false;
+			//std::cout << "close connection in error" << std::endl;
+			closeConnection(current_events[i]);
+			continue;
 		}
-		//close connection
-		else if ((current_events[i].events & EPOLLERR) || (current_events[i].events & EPOLLHUP) || !(current_events[i].events && EPOLLIN))
+		int index = newConnection(current_events[i]);
+		if (index != -1)
 		{
-			std::cout << "close connection" << std::endl;
-			close(current_events[i].data.fd);
-			return true;
+			if (!acceptConnection(index))
+				return false;
 		}
 		else
 		{
-			// todoparsing why they are empty request????
-			handleRequest(index, current_events[i].data.fd);
-			std::cout << "Request answered" << std::endl;
+			handleRequest(current_events[i]);
+			//std::cout << "Request answered" << std::endl;
+			closeConnection(current_events[i]);
 		}
 	}
 	return true;
 }
 
-
-
 int	WebServ::newConnection(epoll_event new_event)
 {
-	//std::cout << "new connection coming" << std::endl;
-	for (size_t i = 0; i < fds.size(); i++)
+	ConnectionData* connInfo = static_cast<ConnectionData*>(new_event.data.ptr);
+	std::map<int, ConnectionData*>::iterator it = ServersConnections.find(connInfo->server_fd);
+	if (it != ServersConnections.end() && (new_event.events & EPOLLIN))
 	{
-		if (new_event.data.fd == fds[i] && new_event.events == EPOLLIN)
-		{
-			return i;
-		}	
+		//std::cout << LIGHT_RED "it is a new connection on fd" << it->first << RESET << std::endl;
+		return it->second->server_index;
 	}
 	return -1;
 }
 
-bool	WebServ::acceptConnection(int index)
+bool WebServ::acceptConnection(int index)
 {
-	//create new socket, set it 
 	int new_socket;
-	struct sockaddr_in client_addr;//mettre dans data struct???
-	socklen_t client_len = sizeof(client_addr); //mettre dans data struct???
-	
-	new_socket = accept(servers[index].fd_socket_serv, (struct sockaddr *)&client_addr, &client_len);
+	struct sockaddr_in client_addr;
+	socklen_t client_len = sizeof(client_addr);
+
+	new_socket = accept(servers[index].fd_socket_serv, 
+						(struct sockaddr *)&client_addr, &client_len);
 	if (new_socket < 0)
 	{
-		std::cout << "new connection not accepted " << std::endl;
+		//std::cout << "new connection not accepted" << std::endl;
 		return false;
 	}
 	setNonBlocking(new_socket);
-	fdconn.push_back(new_socket);
-	//CREATE EVENT
-	//socketpair,
+	ConnectionData* connectionInfo = CreateConnection(index, new_socket);
+
 	struct epoll_event event;
-	event.events = EPOLLIN | EPOLLET | EPOLLOUT;//?? QUELS FLAGS????
-	event.data.fd = new_socket;//!!!!! A LIER AVEC fdconn
-	if (epoll_ctl(epollFd, EPOLL_CTL_ADD,new_socket, &event) < 0) //PAREIL FAUX
+	event.events = EPOLLIN | EPOLLET;
+	event.data.ptr = connectionInfo;
+	if (epoll_ctl(epollFd, EPOLL_CTL_ADD, new_socket, &event) < 0)
+	{
+		delete connectionInfo;
+	//	connections.erase(new_socket);
 		throw 9;
-	std::cout << "new connection accepted" << std::endl;
+	}
+	ClientsConnections.insert(std::make_pair(new_socket, connectionInfo));
+
+	//std::cout << "new connection accepted fd: " << new_socket << std::endl;
 	return true;
 }
-//bind / accept
+
+void WebServ::closeConnection(epoll_event current_event)
+{
+	ConnectionData* connInfo = static_cast<ConnectionData*>(current_event.data.ptr);
+	if (connInfo->client_fd != 0)
+	{
+		close(connInfo->client_fd);
+		std::map<int, ConnectionData*>::iterator it = ClientsConnections.find(connInfo->client_fd);
+		ClientsConnections.erase(it);
+	}	
+	current_event.data.ptr = NULL;
+	//std::cout << "connection closed fd: " << connInfo->client_fd << std::endl;
+	epoll_ctl(epollFd, EPOLL_CTL_DEL, connInfo->client_fd, NULL);
+	delete (connInfo);
+	
+}
+
+ConnectionData* WebServ::CreateConnection(int index, int new_socket)
+{
+	ConnectionData* NewConnection= new ConnectionData();
+	NewConnection->client_fd = new_socket;
+	NewConnection->server_index = index;
+	NewConnection->server = &servers[index];
+	return (NewConnection);
+}

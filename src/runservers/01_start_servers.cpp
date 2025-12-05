@@ -1,27 +1,17 @@
 #include "Webserv.hpp"
 
-void setNonBlocking(int fd)
-{
-	int flags = fcntl(fd, F_GETFL, 0);
-	fcntl(fd, F_SETFL, flags |O_NONBLOCK);
-}
-
 void WebServ::startServers()
 {
-//	std::cout << "Starting servers..." << std::endl;
 	this->initServers();
-//	std::cout << "Servers started..." << std::endl;
 	this->initPoll();
-//	std::cout << "epoll started..." << std::endl;
 }
 
 void WebServ::initServers()
 {
-//	std::cout << "Init Serv " << std::endl;
 	for (size_t i = 0; i < servers.size(); i++)
 	{
 		if (checkExistingPort(i) == false)
-			fds.push_back(initSocket(servers[i]));
+			initServerSocket(servers[i], i);
 	}
 }
 
@@ -35,59 +25,58 @@ bool WebServ::checkExistingPort(int index)
 	return false;
 }
 
-int WebServ::initSocket(struct ServerConfig &server)
+//revoir la théorie
+int WebServ::initServerSocket(struct ServerConfig &server, int index)
 {
-	int wsocket;//fd_socket_servers
+	int fd_socket_servers;
 
-	wsocket = socket(AF_INET, SOCK_STREAM, 0); // = IPV4, stream, 0 = TCP
-	if (wsocket == -1)
+	fd_socket_servers = socket(AF_INET, SOCK_STREAM, 0); // = IPV4, stream, 0 = TCP
+	if (fd_socket_servers == -1)
 		throw 3;// a voir apres
 	
 	int opt = 1;
-	setsockopt(wsocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));//mieux comprendre
+	setsockopt(fd_socket_servers, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));//mieux comprendre
 
 	//bind on local address		
 	server.sockaddr.sin_family = AF_INET;//tout le temps pareil
 	server.sockaddr.sin_addr.s_addr = INADDR_ANY;//inet_addr("127.0.0.1");
 	server.sockaddr.sin_port = htons(server.listen_port);// 
 	server.server_len = sizeof(sockaddr);
-	if (bind(wsocket, (struct sockaddr *)&server.sockaddr, server.server_len)!= 0)
+	if (bind(fd_socket_servers, (struct sockaddr *)&server.sockaddr, server.server_len)!= 0)
 		throw 4;
-	if (listen(wsocket, 20) != 0)
+	if (listen(fd_socket_servers, 20) != 0)
 		throw 5;
-	setNonBlocking(wsocket);
+	setNonBlocking(fd_socket_servers);
 	std::cout << "Listening on http://127.0.0.1:" << server.listen_port << std::endl;
-	server.fd_socket_serv = wsocket;//utile?
-	return wsocket;//fd du socket
+	server.fd_socket_serv = fd_socket_servers;//utile oui :)
+	//std::cout << "server.fd_socket_serv " << server.fd_socket_serv << std::endl;
+	ConnectionData* connInfo = new ConnectionData();
+	connInfo->server_index = index;
+	ServersConnections.insert(std::make_pair(fd_socket_servers, connInfo));
+	return fd_socket_servers;
 }
+
 
 void WebServ::initPoll()
 {
 	this->epollFd = epoll_create(1);//pk zero?? const?? mettre dans 
 	if (epollFd < 0)
 		throw 6;
-	for (size_t i = 0; i < fds.size(); i++)
+	std::map<int, ConnectionData*>::iterator it;
+	for (it = ServersConnections.begin(); it != ServersConnections.end(); ++it)
 	{
 		struct epoll_event event;
 		event.events = EPOLLIN | EPOLLET;
-		event.data.fd = fds[i];
-		if (epoll_ctl(epollFd, EPOLL_CTL_ADD,fds[i], &event) < 0)
+		it->second->client_fd = 0;
+		it->second->server_fd = it->first;
+		event.data.ptr = it->second;
+		if (epoll_ctl(epollFd, EPOLL_CTL_ADD,it->first, &event) < 0)
 			throw 7;
 	}
 }
 
-/*
-
-	fcntl
-	File CoNtroL
-	manipuler les descripteur de fichiers
-	change le comportement d une socket dj ouvert (ou file)
-
-	int fcntl(int fd, int cmd, ... args)
-
-	rendre un fd non bloquant:
-
+void setNonBlocking(int fd)
+{
 	int flags = fcntl(fd, F_GETFL, 0);
-	fcntl(fd, F_SETFL, flags | O_NONBLOCK);
-
-*/
+	fcntl(fd, F_SETFL, flags |O_NONBLOCK);
+}

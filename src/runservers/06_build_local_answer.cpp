@@ -2,7 +2,7 @@
 
 void HttpRequest::Answerlocal()
 {
-	std::cout << PASTEL_AQUA "Enter local Answer " << RESET << std::endl;
+	//std::cout << PASTEL_AQUA "Enter local Answer " << RESET << std::endl;
 
 	if (method == "GET")
 		GetRequest();
