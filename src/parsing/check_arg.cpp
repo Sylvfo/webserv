@@ -1,5 +1,6 @@
 #include "Webserv.hpp"
 
+/*
 bool checkArgs(int argc, char **argv)
 {
 	(void) argv;
@@ -9,5 +10,5 @@ bool checkArgs(int argc, char **argv)
 		return false;
 	}
 	return true;
-}
+}*/
 
