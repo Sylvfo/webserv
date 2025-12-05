@@ -11,20 +11,17 @@ void HttpRequest::recieveRequest()
 	int bytes = recv(socket_fd, buff, BUFFER_SIZE, 0);
 //	if (bytes < 0)
 //		throw 11;
-	(void) bytes;
 	RawRequest = buff;
-
 }
 
 void HttpRequest::parseRequest()
 {
 	HTTPHeader.parseRequest(RawRequest);
 	HTTPHeader.parseHeaderRequest();
-
 	// extract body for POST requests
 	extractRequestBody();
 
-	HTTPHeader.printHeaders();
+	//HTTPHeader.printHeaders();
 	//à changer
 	//link with the socket and the connexion and the server here?????
 }
@@ -49,7 +46,6 @@ void HttpRequest::extractRequestBody()
 {
 	//body is after header
 	//should be seperated by: \r\n\r\n
-
 	size_t pos = RawRequest.find("\r\n\r\n");
 
 	if (pos != std::string::npos)

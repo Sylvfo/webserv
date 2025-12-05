@@ -68,10 +68,9 @@ class WebServ
 {
 	private:
 		std::vector<ServerConfig> servers;
-		int epollFd; // file desciptor epoll. fds[0] ??
-		std::map<int, ConnectionData*> ServersConnections; //on ports....
+		int epollFd; 
+		std::map<int, ConnectionData*> ServersConnections;
 		std::map<int, ConnectionData*> ClientsConnections;
-		//std::vector<int> ports;
 
 	public:
 		WebServ();
@@ -111,9 +110,7 @@ class WebServ
 
 	//	handel
 		void printfds();
-	//	void printfdconn();//sert a rien??
 		void printepollwait(struct epoll_event *csurrent_events, int ndfs);
-
 };
 
 void setNonBlocking(int fd);

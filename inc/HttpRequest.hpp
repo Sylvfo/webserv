@@ -63,8 +63,6 @@ class HttpRequest
 	int			fd_Ressource;
 
 	//recieve request
-	//void setSocketFd(int fd);
-	//void linkServer(int index);
 	void recieveRequest();
 	void parseRequest();
 	void extractRequestBody(); //necessary to implement POST
@@ -91,20 +89,12 @@ class HttpRequest
 	//DELETE
 	void DeleteRequest();
 
-	//make the request
-
 	void printHttpRequest();
 };
 
 #endif
 
 std::string IntToString(int numb);
-
-/*
-bool parseHttpRequest(HttpRequest Request, server &ThisServer)
-{
-
-}*/
 
 /*
 

@@ -1,11 +1,9 @@
 #include "Webserv.hpp"
 
-//signal handler return NULL au debut du programme
-
 //http://127.0.0.1:80
 int main(int ac, char **av)
 {
-	WebServ *WeServ = NULL; //allouer ici ??
+	WebServ *WeServ = NULL;
 	signal(SIGINT, handleSignInt);
 	std::cout << "Enter webserv" << std::endl;
 
@@ -16,10 +14,8 @@ int main(int ac, char **av)
 		if (ac == 2)
 		{
 			WeServ->parseConfig(av[1]);
-			//WeServ->printConfig();
 		}
-		WeServ->startServers();//(epoll starting);
-	//	WeServ->printfds();
+		WeServ->startServers();
 		while(WeServ->epollWaiting() == true) //listening
 			;
 	}
@@ -29,7 +25,6 @@ int main(int ac, char **av)
 		//send response with "500"; Internal Server Error???
 	}
 	std::cout <<  DARK_PURPLE "Ending: " RESET << std::endl;
-	//WeServ->free_webserv();
 	delete WeServ;
 }
 

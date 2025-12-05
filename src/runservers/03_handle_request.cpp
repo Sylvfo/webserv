@@ -30,7 +30,7 @@ void WebServ::handleRequest(epoll_event current_event)
 {
 	HttpRequest	Request;
 
-	std::cout << "enter handlerequest" << std::endl;
+	//std::cout << "enter handlerequest" << std::endl;
 	ConnectionData* connInfo = static_cast<ConnectionData*>(current_event.data.ptr);
    	if (!connInfo)
     {
@@ -45,14 +45,11 @@ void WebServ::handleRequest(epoll_event current_event)
 	Request.recieveRequest();//to do better
 	//std::cout << LIGHT_ORANGE "RawRequest: " << Request.RawRequest << RESET << std::endl;
 	Request.parseRequest(); //to do 
-	Request.printHttpRequest();
+	//Request.printHttpRequest();
 	
 	Request.method = Request.HTTPHeader.getMethod();// pas bien à refaire. 
 	Request.uri = Request.HTTPHeader.getUri();
-	//Request.printHttpRequest();
-	//Request.HTTPHeader.printHeaders();
 	Request.checkRequest(); //to do 
-
 	////////////////////////////////////////////////////////////
 	//CREATING THE ANSWER
 //	if (Request.AnswerType == ERROR)
@@ -77,7 +74,7 @@ void HttpRequest::sendAnswerToRequest()
 	int bytesSent = 0;
 	int totalBytesSent = 0;
 
-	std::cout << "socket fd " << socket_fd << std::endl;
+	//std::cout << "socket fd " << socket_fd << std::endl;
 	// is it non blocking?
 	while(totalBytesSent < (int)HttpAnswer.size())
 	{

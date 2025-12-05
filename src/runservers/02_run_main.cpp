@@ -74,7 +74,7 @@ bool WebServ::epollWaiting()
 			(current_events[i].events & EPOLLHUP) || 
 			!(current_events[i].events & EPOLLIN))
 		{
-			std::cout << "close connection in error" << std::endl;
+			//std::cout << "close connection in error" << std::endl;
 			closeConnection(current_events[i]);
 			continue;
 		}
@@ -87,13 +87,12 @@ bool WebServ::epollWaiting()
 		else
 		{
 			handleRequest(current_events[i]);
-			std::cout << "Request answered" << std::endl;
+			//std::cout << "Request answered" << std::endl;
 			closeConnection(current_events[i]);
 		}
 	}
 	return true;
 }
-
 
 int	WebServ::newConnection(epoll_event new_event)
 {
@@ -101,10 +100,9 @@ int	WebServ::newConnection(epoll_event new_event)
 	std::map<int, ConnectionData*>::iterator it = ServersConnections.find(connInfo->server_fd);
 	if (it != ServersConnections.end() && (new_event.events & EPOLLIN))
 	{
-		std::cout << LIGHT_RED "it is a new connection on fd" << it->first << RESET << std::endl;
+		//std::cout << LIGHT_RED "it is a new connection on fd" << it->first << RESET << std::endl;
 		return it->second->server_index;
 	}
-	std::cout << "Return -1" << std::endl;
 	return -1;
 }
 
@@ -114,13 +112,11 @@ bool WebServ::acceptConnection(int index)
 	struct sockaddr_in client_addr;
 	socklen_t client_len = sizeof(client_addr);
 
-	std::cout << "in accept connection index = " << index << std::endl;
-	std::cout << "servers[index].fd_socket_serv = " << servers[index].fd_socket_serv << std::endl;
 	new_socket = accept(servers[index].fd_socket_serv, 
 						(struct sockaddr *)&client_addr, &client_len);
 	if (new_socket < 0)
 	{
-		std::cout << "new connection not accepted" << std::endl;
+		//std::cout << "new connection not accepted" << std::endl;
 		return false;
 	}
 	setNonBlocking(new_socket);
@@ -137,7 +133,7 @@ bool WebServ::acceptConnection(int index)
 	}
 	ClientsConnections.insert(std::make_pair(new_socket, connectionInfo));
 
-	std::cout << "new connection accepted fd: " << new_socket << std::endl;
+	//std::cout << "new connection accepted fd: " << new_socket << std::endl;
 	return true;
 }
 
@@ -151,7 +147,7 @@ void WebServ::closeConnection(epoll_event current_event)
 		ClientsConnections.erase(it);
 	}	
 	current_event.data.ptr = NULL;
-	std::cout << "connection closed fd: " << connInfo->client_fd << std::endl;
+	//std::cout << "connection closed fd: " << connInfo->client_fd << std::endl;
 	epoll_ctl(epollFd, EPOLL_CTL_DEL, connInfo->client_fd, NULL);
 	delete (connInfo);
 	
@@ -163,6 +159,5 @@ ConnectionData* WebServ::CreateConnection(int index, int new_socket)
 	NewConnection->client_fd = new_socket;
 	NewConnection->server_index = index;
 	NewConnection->server = &servers[index];
-	//connections[new_socket] = NewConnection;
 	return (NewConnection);
 }

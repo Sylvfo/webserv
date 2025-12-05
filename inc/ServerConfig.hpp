@@ -3,16 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: beboccas <beboccas@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: syl <syl@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/07 15:17:09 by beboccas          #+#    #+#             */
-/*   Updated: 2025/11/07 15:28:28 by beboccas         ###   ########.fr       */
+/*   Updated: 2025/12/05 10:49:08 by syl              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-// Avoid including Webserv.hpp here to avoid circular includes.
 #include <string>
 #include <vector>
 #include <map>
