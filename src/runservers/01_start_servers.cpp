@@ -47,7 +47,7 @@ int WebServ::initServerSocket(struct ServerConfig &server, int index)
 	if (listen(fd_socket_servers, 20) != 0)
 		throw 5;
 	setNonBlocking(fd_socket_servers);
-	std::cout << "Listening on http://127.0.0.1:" << server.listen_port << std::endl;
+	std::cout << "Listening on http://" << server.server_name << ":" << server.listen_port << std::endl;
 	server.fd_socket_serv = fd_socket_servers;//utile oui :)
 	//std::cout << "server.fd_socket_serv " << server.fd_socket_serv << std::endl;
 	ConnectionData* connInfo = new ConnectionData();

@@ -1,0 +1,10 @@
+run --rm --network=host lopezs/siege -t1M -c2 http://ip:port
+
+create a file ~/siege-sites.txt
+Then :
+docker run --rm --network=host -v ~/siege-sites.txt:/siege-sites.txt lopezs/siege -t10s -c100 -f /siege-sites.txt
+
+
+ifconfig pour trouver ip
+
+ou mettre localhost??
