@@ -11,10 +11,7 @@ void WebServ::initServers()
 	for (size_t i = 0; i < servers.size(); i++)
 	{
 		if (checkExistingPort(i) == false)
-		{
 			initServerSocket(servers[i], i);
-		}	
-		//	fd_servers.push_back(initServerSocket(servers[i]));
 	}
 }
 
@@ -31,7 +28,7 @@ bool WebServ::checkExistingPort(int index)
 
 int WebServ::initServerSocket(struct ServerConfig &server, int index)
 {
-	int fd_socket_servers;//fd_socket_servers
+	int fd_socket_servers;
 
 	fd_socket_servers = socket(AF_INET, SOCK_STREAM, 0); // = IPV4, stream, 0 = TCP
 	if (fd_socket_servers == -1)
