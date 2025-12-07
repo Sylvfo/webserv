@@ -26,27 +26,30 @@ std::string getRequestHost(std::string req)
 }
 
 //main HTTP handling function
-void WebServ::handleRequest(int indexServ, int connexion_fd)
+void WebServ::handleRequest(epoll_event current_event)
 {
 	HttpRequest	Request;
-	ServerConfig thisServer;// to put in the request...
-	(void) indexServ;
+
+	//std::cout << "enter handlerequest" << std::endl;
+	ConnectionData* connInfo = static_cast<ConnectionData*>(current_event.data.ptr);
+   	if (!connInfo)
+    {
+        std::cerr << "Error: NULL connection info" << std::endl;
+        return;
+    }
 
 	////////////////////////////////////////////////////////////
 	//PARSING TO DO BETTER
-	//todoparsing see how server, fd, domain name are connected. 
-	Request.setSocketFd(connexion_fd);
-	Request.Server = getServer(0);
-	Request.linkServer(indexServ);// ZOGZOGISSUE COMMENT ON LIE LE SERVER ICI??? CE SERAIT MIEUX D'AVOIR LE INDEX SERV EST LE MEME QUE LE I SERVER FDS
+	Request.socket_fd = connInfo->client_fd;
+	Request.Server = connInfo->server;
 	Request.recieveRequest();//to do better
 	//std::cout << LIGHT_ORANGE "RawRequest: " << Request.RawRequest << RESET << std::endl;
 	Request.parseRequest(); //to do 
+	//Request.printHttpRequest();
+	
 	Request.method = Request.HTTPHeader.getMethod();// pas bien à refaire. 
 	Request.uri = Request.HTTPHeader.getUri();
-	Request.printHttpRequest();
-	Request.HTTPHeader.printHeaders();
 	Request.checkRequest(); //to do 
-
 	////////////////////////////////////////////////////////////
 	//CREATING THE ANSWER
 //	if (Request.AnswerType == ERROR)
@@ -58,22 +61,11 @@ void WebServ::handleRequest(int indexServ, int connexion_fd)
     //    std::cout << "Empty request, closing connection" << std::endl;
         return;
     }
-	Request.Answerlocal();//to do 
+	Request.Answerlocal();
 //	else if (Request.AnswerType == CGI)
 //		Request.AnswerCGI();//to do
 	////////////////////////////////////////////////////////////
 	Request.sendAnswerToRequest();
-}
-
-void HttpRequest::setSocketFd(int fd)
-{
-	socket_fd = fd;
-}
-
-void HttpRequest::linkServer(int index)
-{
-	(void) index;
-	// to do 
 }
 
 //download???
@@ -82,7 +74,7 @@ void HttpRequest::sendAnswerToRequest()
 	int bytesSent = 0;
 	int totalBytesSent = 0;
 
-	std::cout << "socket fd " << socket_fd << std::endl;
+	//std::cout << "socket fd " << socket_fd << std::endl;
 	// is it non blocking?
 	while(totalBytesSent < (int)HttpAnswer.size())
 	{
@@ -94,6 +86,8 @@ void HttpRequest::sendAnswerToRequest()
 		}
 		totalBytesSent += bytesSent;
 	}
+	//epoll_ctl(epollFd, EPOLL_CTL_DEL, socket_fd, NULL);
+//	close(socket_fd);
 }
 
 std::string IntToString(int numb)
