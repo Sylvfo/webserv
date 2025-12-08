@@ -95,7 +95,7 @@ class WebServ
 		void initPoll();
 		void startServers();
 		void initErroCode(struct ServerConfig &server);
-
+		void initMimeTypes(struct ServerConfig &server);
 		//epoll
 		bool	epollWaiting();
 		int		newConnection(epoll_event new_event);

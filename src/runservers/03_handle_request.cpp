@@ -69,7 +69,6 @@ void WebServ::handleRequest(epoll_event current_event)
 	Request.sendAnswerToRequest();
 }
 
-//download???
 void HttpRequest::sendAnswerToRequest()
 {
 	int bytesSent = 0;

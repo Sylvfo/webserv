@@ -16,3 +16,5 @@ ERROR + status Code
 STATIC (local)
 CGI
 UNKNOWN request??
+
+canonical class for HttpRequest.hpp
