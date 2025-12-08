@@ -10,9 +10,6 @@ void HttpRequest::Answerlocal()
 		PostRequest();
 	else if (method == "DELETE")
 		DeleteRequest();
-
-	//error??
-
 	SetStatusLine();
 	SetResponseHeader();
 }

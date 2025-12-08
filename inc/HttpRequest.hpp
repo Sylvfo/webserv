@@ -5,7 +5,7 @@
 
 enum AnswerType {
 	ERROR,
-	LOCAL,//find a better name??
+	STATIC,//ancien Local
 	CGI,
 };
 
@@ -71,7 +71,7 @@ class HttpRequest
 	//answer request
 	void Answerlocal();
 	void AnswerCGI();
-	void errortype();
+	void AnswerError();
 	//GET
 	void GetRequest();
 	bool GetAccessRessource();

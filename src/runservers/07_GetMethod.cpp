@@ -43,7 +43,7 @@ bool HttpRequest::loadRessource()
 	char buff[4096];  // Buffer de 4KB
 	ssize_t bytesRead;
 
-	 while ((bytesRead = read(fd_Ressource, buff, sizeof(buff))) > 0)
+	while ((bytesRead = read(fd_Ressource, buff, sizeof(buff))) > 0)
     {
         AnswerBody.append(buff, bytesRead);
     }
