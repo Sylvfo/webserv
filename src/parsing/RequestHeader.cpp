@@ -1,13 +1,8 @@
-#include "Webserv.hpp"
-
+#include "HttpRequest.hpp"
+#include "colors.hpp"
 #include <sstream>
 #include <iostream>
 #include <map>
-
-	
-	//"400"
-	//; Bad Request
-	
 
 RequestHeader::RequestHeader()
 {
@@ -89,8 +84,6 @@ std::map<std::string, std::string> RequestHeader::getHeaders() const
 // CPP98 style for compatibility
 void RequestHeader::printHeaders() const
 {
-
-	
 	std::cout << DARK_MAGENTA  "Method: " << method << std::endl;
 	std::cout << "URI: " << uri << std::endl;
 	std::cout << "Version: " << version << std::endl;
@@ -103,23 +96,23 @@ void RequestHeader::printHeaders() const
 	std::cout << "Accept: " << Accept << RESET << std::endl;
 }
 
-std::string RequestHeader::getUri()
+std::string RequestHeader::getUri() const
 {
 	return this->uri;
 }
 
-std::string RequestHeader::getPath()
+std::string RequestHeader::getPath() const
 {
 	return this->Path;
 }
 
 
-std::string RequestHeader::getMethod()
+std::string RequestHeader::getMethod() const
 {
 	return this->method;
 }
 
-std::string RequestHeader::getAccept()
+std::string RequestHeader::getAccept() const
 {
 	return this->Accept;
 }

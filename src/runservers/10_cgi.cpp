@@ -2,9 +2,60 @@
 
 void HttpRequest::AnswerCGI()
 {
-	// to do 
+	// Find matching location for this URI
+	LocationConfig* matchingLocation = NULL;
+	size_t bestMatchLength = 0;
+	
+	// Find the best matching location (longest prefix match)
+	for (size_t i = 0; i < Server->locations.size(); ++i)
+	{
+		const std::string& locationPath = Server->locations[i].path;
+		if (uri.find(locationPath) == 0 && locationPath.length() > bestMatchLength)
+		{
+			matchingLocation = &Server->locations[i];
+			bestMatchLength = locationPath.length();
+		}
+	}
+	
+	if (!matchingLocation)
+	{
+		HttpAnswer = "HTTP/1.1 404 Not Found\r\n\r\nLocation not found";
+		return;
+	}
 
-	//environement variables??
+	// Create CGI handler
+	CGIHandler cgiHandler;
+	
+	// Build script path - combine server root with URI (without query string)
+	std::string cleanUri = uri;
+	size_t queryPos = cleanUri.find('?');
+	if (queryPos != std::string::npos)
+	{
+		cleanUri = cleanUri.substr(0, queryPos);
+	}
+	
+	std::string scriptPath;
+	if (!matchingLocation->root.empty())
+	{
+		scriptPath = matchingLocation->root;
+		if (scriptPath[scriptPath.length() - 1] != '/')
+			scriptPath += "/";
 
-	//pid child fork wait...
+		std::string relativePath = cleanUri.substr(matchingLocation->path.length());
+		if (!relativePath.empty() && relativePath[0] == '/')
+			relativePath = relativePath.substr(1);
+		scriptPath += relativePath;
+	}
+	else
+	{
+		scriptPath = Server->root;
+		if (scriptPath[scriptPath.length() - 1] != '/')
+			scriptPath += "/";
+		scriptPath += cleanUri.substr(1); // Remove leading /
+	}	
+
+	HttpAnswer = cgiHandler.executeCGI(scriptPath, HTTPHeader, *matchingLocation, RequestBody);
+	
+	// Log response info
+	std::string statusLine = HttpAnswer.substr(0, HttpAnswer.find('\r'));
 }

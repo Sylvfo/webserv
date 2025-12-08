@@ -28,10 +28,10 @@ public:
 	void	parseHeaderRequest();//done by Syl
 	std::map<std::string, std::string> getHeaders() const;
 	void	printHeaders() const;
-	std::string getUri();
-	std::string getPath();
-	std::string getMethod();
-	std::string getAccept();
+	std::string getUri() const;
+	std::string getPath() const;
+	std::string getMethod() const;
+	std::string getAccept() const;
 };
 
 // todoparsing : put things in private + getter / setter

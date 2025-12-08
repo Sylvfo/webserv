@@ -29,12 +29,31 @@ void HttpRequest::parseRequest()
 
 void HttpRequest::checkRequest()
 {
+	// Default to LOCAL
 	AnswerType = LOCAL;
-	//std::cout << "Request received on server: " << thisServer.server_name << " on port " << thisServer.listen_port << std::endl;
-	// to do
-	// answer type??
-	//check request avec port et nom de domaine
-	// check if data exist and are accessible
+	
+	// Find matching location for this URI
+	LocationConfig* matchingLocation = NULL;
+	size_t bestMatchLength = 0;
+
+	for (size_t i = 0; i < Server->locations.size(); ++i)
+	{
+		const std::string& locationPath = Server->locations[i].path;
+		if (uri.find(locationPath) == 0 && locationPath.length() > bestMatchLength)
+		{
+			matchingLocation = &Server->locations[i];
+			bestMatchLength = locationPath.length();
+		}
+	}
+
+	if (matchingLocation)
+	{
+		CGIHandler cgiHandler;
+		if (cgiHandler.isCGI(uri, *matchingLocation))
+		{
+			AnswerType = ::CGI;
+		}
+	}
 }
 
 void HttpRequest::printHttpRequest()

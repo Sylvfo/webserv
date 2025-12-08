@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CGI Test Suite</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; text-align: center; margin-bottom: 30px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9; }
+        .test-link { display: inline-block; margin: 5px 10px 5px 0; padding: 10px 15px; background: #3498db; color: white; text-decoration: none; border-radius: 5px; transition: background 0.3s; }
+        .test-link:hover { background: #2980b9; }
+        .description { color: #666; margin-top: 10px; font-style: italic; }
+        .emoji { font-size: 1.2em; }
+        .highlight { background: #e8f5e8; border-left: 4px solid #27ae60; padding: 10px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 CGI Test Suite for Webserv</h1>
+        
+        <div class="highlight">
+            <strong>📋 Instructions:</strong> Click on any test below to verify your CGI implementation. Each test covers different aspects of CGI functionality.
+        </div>
+
+        <div class="test-section">
+            <h2><span class="emoji">🏠</span> Basic Tests</h2>
+            <a href="/cgi-bin/test.cgi?name=basic_test" class="test-link">Basic CGI Test</a>
+            <a href="/cgi-bin/info.cgi" class="test-link">Environment Info</a>
+            <div class="description">
+                Test basic CGI functionality, environment variables, and request parsing.
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2><span class="emoji">📝</span> Form Handling</h2>
+            <a href="/cgi-bin/form.cgi" class="test-link">Form Handler (GET/POST)</a>
+            <div class="description">
+                Test GET and POST form handling, parameter parsing, and data processing.
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2><span class="emoji">🐍</span> Python CGI</h2>
+            <a href="/cgi-bin/python_test.py" class="test-link">Python CGI Script</a>
+            <a href="/cgi-bin/python_test.py?a=10&op=*&b=5" class="test-link">Calculator (10×5)</a>
+            <div class="description">
+                Test Python CGI execution, dynamic content generation, and calculations.
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2><span class="emoji">📁</span> File Upload</h2>
+            <a href="/cgi-bin/upload.cgi" class="test-link">File Upload Test</a>
+            <div class="description">
+                Test multipart form data handling and file upload processing.
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2><span class="emoji">🍪</span> Cookie Management</h2>
+            <a href="/cgi-bin/cookie.cgi" class="test-link">Cookie Test</a>
+            <div class="description">
+                Test cookie setting, reading, and visitor counting functionality.
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2><span class="emoji">🚨</span> Error Handling</h2>
+            <a href="/cgi-bin/error_test.cgi" class="test-link">Error Test Suite</a>
+            <a href="/cgi-bin/error_test.cgi?404" class="test-link">404 Test</a>
+            <a href="/cgi-bin/error_test.cgi?500" class="test-link">500 Test</a>
+            <a href="/cgi-bin/error_test.cgi?redirect" class="test-link">Redirect Test</a>
+            <div class="description">
+                Test various error conditions, HTTP status codes, and error handling.
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2><span class="emoji">🔧</span> Advanced Features</h2>
+            <a href="/cgi-bin/test.cgi?query=advanced&mode=debug&user=tester" class="test-link">Complex Query String</a>
+            <a href="/cgi-bin/info.cgi" class="test-link">Full Environment Dump</a>
+            <div class="description">
+                Test complex query strings, environment variable handling, and debugging features.
+            </div>
+        </div>
+
+        <div class="highlight">
+            <h3>✅ What These Tests Verify:</h3>
+            <ul>
+                <li><strong>Process Management:</strong> fork(), execve(), waitpid()</li>
+                <li><strong>IPC Communication:</strong> pipe(), read(), write()</li>
+                <li><strong>Environment Variables:</strong> CGI standard variables</li>
+                <li><strong>HTTP Protocol:</strong> Headers, status codes, redirects</li>
+                <li><strong>Data Handling:</strong> GET/POST data, cookies, file uploads</li>
+                <li><strong>Error Handling:</strong> Various error conditions</li>
+                <li><strong>Multiple Languages:</strong> Bash and Python scripts</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px; color: #666;">
+            <p>🎯 <strong>CGI Implementation Status:</strong> All tests ready!</p>
+            <p>Built for 42 School Webserv project with C++98 compliance</p>
+        </div>
+    </div>
+</body>
+</html>

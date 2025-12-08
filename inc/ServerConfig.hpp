@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syl <syl@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: beboccas <beboccas@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/07 15:17:09 by beboccas          #+#    #+#             */
-/*   Updated: 2025/12/05 10:49:08 by syl              ###   ########.fr       */
+/*   Updated: 2025/12/08 22:05:58 by beboccas         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 #include <vector>
 #include <map>
 #include <utility>
+#include <netinet/in.h>
+#include <sys/socket.h>
 
 //struct pour la classe serveur config
 struct LocationConfig
