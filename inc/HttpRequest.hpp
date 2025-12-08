@@ -90,6 +90,7 @@ class HttpRequest
 	void DeleteRequest();
 
 	void printHttpRequest();
+
 };
 
 #endif
