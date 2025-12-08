@@ -21,15 +21,11 @@ void HttpRequest::parseRequest()
 	HTTPHeader.parseHeaderRequest();
 	// extract body for POST requests
 	extractRequestBody();
-
-	//HTTPHeader.printHeaders();
-	//à changer
-	//link with the socket and the connexion and the server here?????
 }
 
 void HttpRequest::checkRequest()
 {
-	AnswerType = LOCAL;
+	AnswerType = STATIC;
 	//std::cout << "Request received on server: " << thisServer.server_name << " on port " << thisServer.listen_port << std::endl;
 	// to do
 	// answer type??

@@ -5,7 +5,7 @@
 
 enum AnswerType {
 	ERROR,
-	LOCAL,//find a better name??
+	STATIC,//ancien Local
 	CGI,
 };
 
@@ -55,7 +55,8 @@ class HttpRequest
 
 	//Response
 	int			AnswerType;
-	std::string StatusCode; //pas besoin je pense pc on peut mettre direct dans HttpAnswer
+	//std::string StatusCode; //pas besoin je pense pc on peut mettre direct dans HttpAnswer
+	int			StatusCodeI;
 	std::string HttpAnswer; //=)
 	std::string ContentLenght; //=)
 	std::string ContentType;
@@ -71,7 +72,7 @@ class HttpRequest
 	//answer request
 	void Answerlocal();
 	void AnswerCGI();
-	void errortype();
+	void AnswerError();
 	//GET
 	void GetRequest();
 	bool GetAccessRessource();
@@ -89,12 +90,19 @@ class HttpRequest
 	//DELETE
 	void DeleteRequest();
 
+	//ERRORS
+	std::string ErrorCodeInServer();
+	void OpenErrorFile(const char *path);
+	void DefaultErrorPage();
+	void NoErrorPage();
 	void printHttpRequest();
 };
 
 #endif
 
 std::string IntToString(int numb);
+
+
 
 /*
 

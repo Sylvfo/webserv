@@ -67,7 +67,7 @@ bool WebServ::epollWaiting()
 
 	int const ndfs = epoll_wait(epollFd, current_events, MAX_EVENTS, -1);
 	if (ndfs < 0)
-		throw 8;
+		throw  8;//std::runtime_error("Error in epollWaiting");
 	for (int i = 0; i < ndfs; i++)
 	{
 		if ((current_events[i].events & EPOLLERR) || 
@@ -129,7 +129,7 @@ bool WebServ::acceptConnection(int index)
 	{
 		delete connectionInfo;
 	//	connections.erase(new_socket);
-		throw 9;
+		throw std::runtime_error("epoll_ctl() for clients failed");
 	}
 	ClientsConnections.insert(std::make_pair(new_socket, connectionInfo));
 
@@ -150,7 +150,6 @@ void WebServ::closeConnection(epoll_event current_event)
 	//std::cout << "connection closed fd: " << connInfo->client_fd << std::endl;
 	epoll_ctl(epollFd, EPOLL_CTL_DEL, connInfo->client_fd, NULL);
 	delete (connInfo);
-	
 }
 
 ConnectionData* WebServ::CreateConnection(int index, int new_socket)

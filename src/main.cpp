@@ -15,7 +15,7 @@ int main(int ac, char **av)
 			WeServ->parseConfig(av[1]);
 		if (ac == 1)
 			WeServ->parseConfig("config/default.conf");
-
+		//WeServ->printConfig();
 		WeServ->startServers();
 		while(WeServ->epollWaiting() == true) //listening
 			;
