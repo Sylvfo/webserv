@@ -147,7 +147,7 @@ void WebServ::closeConnection(epoll_event current_event)
 		ClientsConnections.erase(it);
 	}	
 	current_event.data.ptr = NULL;
-	std::cout << "connection closed fd: " << connInfo->client_fd << std::endl;
+	//std::cout << "connection closed fd: " << connInfo->client_fd << std::endl;
 	epoll_ctl(epollFd, EPOLL_CTL_DEL, connInfo->client_fd, NULL);
 	delete (connInfo);
 }

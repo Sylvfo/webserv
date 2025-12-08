@@ -32,6 +32,14 @@ void HttpRequest::SetStatusLine()
 {
 	HttpAnswer.clear();
 	HttpAnswer = "HTTP/1.0 "; //put in constructor
-	HttpAnswer += StatusCode;
+	//HttpAnswer += StatusCode;
+	std::map<int, std::string>::iterator it = this->Server->error_code_message.find(StatusCodeI);
+	if (it == Server->error_pages.end())
+	{
+		HttpAnswer +="404 Not Found";
+	}
+	HttpAnswer += it->second;
+	///
 	HttpAnswer += "\r\n";
+
 }

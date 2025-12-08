@@ -94,6 +94,7 @@ class WebServ
 		bool checkExistingPort(int index);
 		void initPoll();
 		void startServers();
+		void initErroCode(struct ServerConfig &server);
 
 		//epoll
 		bool	epollWaiting();

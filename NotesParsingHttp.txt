@@ -6,6 +6,11 @@ Checks:
 empty request?
 Max body size
 
+is this method accepted by the server?
+
+do we have access to the ressource??
+error codes...
+
 set the request type:
 ERROR + status Code 
 STATIC (local)

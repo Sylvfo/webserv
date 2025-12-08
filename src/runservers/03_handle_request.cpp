@@ -50,7 +50,7 @@ void WebServ::handleRequest(epoll_event current_event)
 	Request.checkRequest(); //to do
 	Request.AnswerType = STATIC; 
 	//Request.AnswerType = ERROR;// LOCAL; //to remove when parsing is done
-	//Request.StatusCode = "404";
+	//Request.StatusCodeI = 404;
 	
 	if (Request.RawRequest.empty() || Request.HTTPHeader.getMethod().empty())
     {

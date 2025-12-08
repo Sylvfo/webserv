@@ -27,7 +27,8 @@ void HttpRequest::PostRequest()
 	else if (ContentType.find("multipart/form-data") != std::string::npos)
 	{
 		// File upload - too complex for now
-		StatusCode = "501 Not Implemented";
+		StatusCodeI = 501;
+		//StatusCode = "501 Not Implemented";
 		AnswerBody = "File upload not yet implemented";
 		ContentType = "text/plain";
 		ContentLenght = IntToString(AnswerBody.size());
@@ -35,7 +36,8 @@ void HttpRequest::PostRequest()
 	else if (ContentType.find("application/json") != std::string::npos)
 	{
 		// JSON - not implemented yet
-		StatusCode = "501 Not Implemented";
+		StatusCodeI = 501;
+		//StatusCode = "501 Not Implemented";
 		AnswerBody = "JSON support coming soon!";
 		ContentType = "text/plain";
 		ContentLenght = IntToString(AnswerBody.size());
@@ -43,7 +45,8 @@ void HttpRequest::PostRequest()
 	else
 	{
 		// Unknown type
-		StatusCode = "415 Unsupported Media Type";
+		StatusCodeI = 415;
+	//	StatusCode = "415 Unsupported Media Type";
 		AnswerBody = "Content-Type not supported: " + ContentType;
 		ContentType = "text/plain";
 		ContentLenght = IntToString(AnswerBody.size());
@@ -110,7 +113,8 @@ void HttpRequest::HandleFormData()
     std::ofstream outFile(filename.c_str());
     if (!outFile.is_open())
     {
-        StatusCode = "500 Internal Server Error";
+		StatusCodeI = 500;
+        //StatusCode = "500 Internal Server Error";
         AnswerBody = "Failed to save data";
         ContentType = "text/plain";
         ContentLenght = IntToString(AnswerBody.size());
@@ -126,7 +130,8 @@ void HttpRequest::HandleFormData()
     outFile.close();
 
     // STEP 5: Build success response
-    StatusCode = "201 Created";
+	StatusCodeI = 201;
+    //StatusCode = "201 Created";
     AnswerBody = "Data saved successfully!\n";
     ContentType = "text/plain";
     ContentLenght = IntToString(AnswerBody.size());
