@@ -61,10 +61,9 @@ void HttpRequest::DeleteRequest()
 	std::string relativePath = uri.substr(locationPath.length());
 	std::string filePath;
 	if (root[root.length() - 1] == '/')
-		filePath = root + relativePath;
+		filePath = root + locationPath.substr(1) + relativePath;  // Remove leading / from locationPath
 	else
-		filePath = root + "/" + relativePath;
-
+		filePath = root + locationPath + relativePath;
 	// Prevent deleting directory itself
 	if (relativePath.empty() || relativePath == "/")
 	{
