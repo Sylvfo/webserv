@@ -9,7 +9,7 @@ void HttpRequest::GetRequest()
 	{
 		if (loadRessource() == true)
 		{
-			StatusCode = "200 OK";
+			StatusCodeI = 200;
 		}
 	}
 }
@@ -27,23 +27,28 @@ bool HttpRequest::GetAccessRessource()
 	fd_Ressource = open(path , O_RDONLY);
 	if (fd_Ressource < 0)
 	{
-		StatusCode = "403 Forbidden";
+		StatusCodeI = 404;//other error??? 404??
 		return (false);
 	}
 	SetContentType(makingPath);
 	return true;
 }
 
-
 bool HttpRequest::loadRessource()
 {
+//	DefaultErrorPage();
 	AnswerBody.clear();
 	//Content-Length
 	//what problem??
 	char buff[4096];  // Buffer de 4KB
 	ssize_t bytesRead;
 
-	 while ((bytesRead = read(fd_Ressource, buff, sizeof(buff))) > 0)
+	if (fd_Ressource == -1)
+	{
+		NoErrorPage();
+		return true;
+	}
+	while ((bytesRead = read(fd_Ressource, buff, sizeof(buff))) > 0)
     {
         AnswerBody.append(buff, bytesRead);
     }
