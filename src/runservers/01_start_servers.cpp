@@ -13,6 +13,7 @@ void WebServ::initServers()
 		if (checkExistingPort(i) == false)
 			initServerSocket(servers[i], i);
 		initErroCode(servers[i]);
+		initMimeTypes(servers[i]);
 	}
 
 }

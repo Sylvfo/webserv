@@ -38,9 +38,8 @@ public:
 class HttpRequest
 {
 	public:
-	std::map<std::string, std::string> mimeTypes; //à déplacer
-	void initMimeTypes();//à déplacer
 
+	//private:
 	RequestHeader	HTTPHeader; //RequestHeader a effacer après new parsing.
 
 	//Request
@@ -55,8 +54,7 @@ class HttpRequest
 
 	//Response
 	int			AnswerType;
-	//std::string StatusCode; //pas besoin je pense pc on peut mettre direct dans HttpAnswer
-	int			StatusCodeI;
+	int			StatusCode;
 	std::string HttpAnswer; //=)
 	std::string ContentLenght; //=)
 	std::string ContentType;

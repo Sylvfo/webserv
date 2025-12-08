@@ -6,7 +6,7 @@
 /*   By: syl <syl@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/07 15:17:09 by beboccas          #+#    #+#             */
-/*   Updated: 2025/12/05 10:49:08 by syl              ###   ########.fr       */
+/*   Updated: 2025/12/08 20:49:32 by syl              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ struct ServerConfig
 	struct sockaddr_in sockaddr;
 	socklen_t server_len;
 	std::map<int, std::string> error_code_message;
+	std::map<std::string, std::string> mime_types;
 
 	ServerConfig()
         : listen_port(0), server_name(), error_pages(), root(), client_max_body_size(0), locations(), fd_socket_serv(-1)
