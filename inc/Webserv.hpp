@@ -51,6 +51,7 @@
 
 #include "ServerConfig.hpp"
 #include "HttpRequest.hpp"
+#include "CGIHandler.hpp"
 #include "colors.hpp"
 
 #define MAX_EVENTS 100 //A voir
