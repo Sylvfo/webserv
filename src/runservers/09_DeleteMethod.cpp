@@ -29,7 +29,7 @@ void HttpRequest::DeleteRequest()
 
 	if (matchedIndex == -1)
 	{
-		this->StatusCodeI = 404;
+		this->StatusCode = 404;
 		std::cout << SOFT_RED "No location matched, using server defaults" << RESET << std::endl;
 		return;
 	}
@@ -47,7 +47,7 @@ void HttpRequest::DeleteRequest()
 	}
 	if (!deleteAllowed)
 	{
-		this->StatusCodeI = 405;
+		this->StatusCode = 405;
 		std::cout << SOFT_RED "DELETE method not allowed for this location" << RESET << std::endl;
 		return;
 	}
@@ -67,7 +67,7 @@ void HttpRequest::DeleteRequest()
 	// Prevent deleting directory itself
 	if (relativePath.empty() || relativePath == "/")
 	{
-		this->StatusCodeI = 403;
+		this->StatusCode = 403;
 		std::cout << SOFT_RED "Cannot delete root directory" << RESET << std::endl;
 		return;
 	}
@@ -77,13 +77,13 @@ void HttpRequest::DeleteRequest()
 	struct stat fileInfo;
 	if (stat(filePath.c_str(), &fileInfo) != 0)
 	{
-		this->StatusCodeI = 404;
+		this->StatusCode = 404;
 		std::cout << SOFT_RED "File not found: " << filePath << RESET << std::endl;
 		return;
 	}
 	if (S_ISDIR(fileInfo.st_mode) || !(S_ISREG(fileInfo.st_mode)))
 	{
-		this->StatusCodeI = 403; // forbidden
+		this->StatusCode = 403; // forbidden
 		std::cout << SOFT_RED "Cannot delete directory or unregular files: " << filePath << RESET << std::endl;
 		return;
 	}
@@ -94,18 +94,18 @@ void HttpRequest::DeleteRequest()
 	std::string parentDir = filePath.substr(0, filePath.find_last_of('/'));
 	if (access(parentDir.c_str(), W_OK) != 0)
 	{
-		this->StatusCodeI = 403;
+		this->StatusCode = 403;
 		std::cout << SOFT_RED "No write permission on directory: " << parentDir << RESET << std::endl;
 		return;
 	}
 	if (std::remove(filePath.c_str()) == 0)
 	{
-		this->StatusCodeI = 204; // no content (successful deletion)
+		this->StatusCode = 204; // no content (successful deletion)
 		std::cout << SOFT_GREEN "Successfully deleted: " << filePath << RESET << std::endl;
 	}
 	else
 	{
-		this->StatusCodeI = 500; // internal server error
+		this->StatusCode = 500; // internal server error
 		std::cout << SOFT_RED "Failed to delete: " << filePath << RESET << std::endl;
 	}
 }
