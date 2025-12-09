@@ -31,6 +31,7 @@ void WebServ::handleRequest(epoll_event current_event)
 	HttpRequest	Request;
 
 	//std::cout << "enter handlerequest" << std::endl;
+	//this can be put in a function called takeInfofrom server Pointer
 	ConnectionData* connInfo = static_cast<ConnectionData*>(current_event.data.ptr);
    	if (!connInfo)
     {
@@ -41,7 +42,9 @@ void WebServ::handleRequest(epoll_event current_event)
 	Request.Server = connInfo->server;
 	//////////////////////////////////////////////////////////
 	//PARSING TO DO BETTER
-	Request.recieveRequest();//to do better
+	if (Request.recieveRequest() == false)
+		return;//to do better
+
 	Request.parseRequest(); //to do 
 	//Request.printHttpRequest();
 	
@@ -50,7 +53,7 @@ void WebServ::handleRequest(epoll_event current_event)
 	Request.checkRequest(); //to do
 	Request.AnswerType = STATIC; 
 	//Request.AnswerType = ERROR;// LOCAL; //to remove when parsing is done
-	//Request.StatusCodeI = 404;
+	//Request.StatusCode = 403;
 	
 	if (Request.RawRequest.empty() || Request.HTTPHeader.getMethod().empty())
     {
@@ -61,7 +64,7 @@ void WebServ::handleRequest(epoll_event current_event)
 	////////////////////////////////////////////////////////////
 	//CREATING THE ANSWER
 	if (Request.AnswerType == ERROR)
-		Request.AnswerError(); 
+		Request.AnswerError();
 	else if (Request.AnswerType == STATIC)
 		Request.Answerlocal();
 	else if (Request.AnswerType == CGI)
