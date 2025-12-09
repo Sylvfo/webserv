@@ -1,0 +1,20 @@
+For Bastian.
+It is not exhaustive, but a few ideas. 
+
+Checks:
+
+empty request?
+Max body size
+
+is this method accepted by the server?
+
+do we have access to the ressource??
+error codes...
+
+set the request type:
+ERROR + status Code 
+STATIC (local)
+CGI
+UNKNOWN request??
+
+canonical class for HttpRequest.hpp

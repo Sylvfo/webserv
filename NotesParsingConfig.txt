@@ -1,0 +1,6 @@
+do the canonical class for WebServ
+
+initErroCode(servers[i]);
+initMimeTypes(servers[i]); a mettre dans le constructeur? Demande à Sylvie
+
+if servers on the same port?

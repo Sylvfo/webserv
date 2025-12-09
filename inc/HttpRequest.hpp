@@ -5,7 +5,7 @@
 
 enum AnswerType {
 	ERROR,
-	LOCAL,//find a better name??
+	STATIC,//ancien Local
 	CGI,
 };
 
@@ -38,9 +38,8 @@ public:
 class HttpRequest
 {
 	public:
-	std::map<std::string, std::string> mimeTypes; //à déplacer
-	void initMimeTypes();//à déplacer
 
+	//private:
 	RequestHeader	HTTPHeader; //RequestHeader a effacer après new parsing.
 
 	//Request
@@ -55,7 +54,7 @@ class HttpRequest
 
 	//Response
 	int			AnswerType;
-	std::string StatusCode; //pas besoin je pense pc on peut mettre direct dans HttpAnswer
+	int			StatusCode;
 	std::string HttpAnswer; //=)
 	std::string ContentLenght; //=)
 	std::string ContentType;
@@ -71,7 +70,7 @@ class HttpRequest
 	//answer request
 	void Answerlocal();
 	void AnswerCGI();
-	void errortype();
+	void AnswerError();
 	//GET
 	void GetRequest();
 	bool GetAccessRessource();
@@ -89,6 +88,11 @@ class HttpRequest
 	//DELETE
 	void DeleteRequest();
 
+	//ERRORS
+	std::string ErrorCodeInServer();
+	void OpenErrorFile(const char *path);
+	void DefaultErrorPage();
+	void NoErrorPage();
 	void printHttpRequest();
 
 	// CGI-related getter methods
@@ -105,6 +109,8 @@ class HttpRequest
 #endif
 
 std::string IntToString(int numb);
+
+
 
 /*
 

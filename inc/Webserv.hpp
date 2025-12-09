@@ -54,13 +54,13 @@
 #include "CGI.hpp"
 #include "colors.hpp"
 
-#define MAX_EVENTS 100 //A voir
+#define MAX_EVENTS 300 //A voir
 
 struct ConnectionData
 {
     int client_fd;
 	int server_fd;
-    int server_index;  // Index dans servers[]
+    int server_index;
     ServerConfig* server; // Pointeur direct
 };
 
@@ -95,7 +95,8 @@ class WebServ
 		bool checkExistingPort(int index);
 		void initPoll();
 		void startServers();
-
+		void initErroCode(struct ServerConfig &server);
+		void initMimeTypes(struct ServerConfig &server);
 		//epoll
 		bool	epollWaiting();
 		int		newConnection(epoll_event new_event);

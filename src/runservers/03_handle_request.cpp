@@ -37,24 +37,21 @@ void WebServ::handleRequest(epoll_event current_event)
         std::cerr << "Error: NULL connection info" << std::endl;
         return;
     }
-
-	////////////////////////////////////////////////////////////
-	//PARSING TO DO BETTER
 	Request.socket_fd = connInfo->client_fd;
 	Request.Server = connInfo->server;
+	//////////////////////////////////////////////////////////
+	//PARSING TO DO BETTER
 	Request.recieveRequest();//to do better
-	//std::cout << LIGHT_ORANGE "RawRequest: " << Request.RawRequest << RESET << std::endl;
 	Request.parseRequest(); //to do 
 	//Request.printHttpRequest();
 	
 	Request.method = Request.HTTPHeader.getMethod();// pas bien à refaire. 
 	Request.uri = Request.HTTPHeader.getUri();
-	Request.checkRequest(); //to do 
-	////////////////////////////////////////////////////////////
-	//CREATING THE ANSWER
-//	if (Request.AnswerType == ERROR)
-//		Request.errortype();//to do 
-//	else if (Request.AnswerType == LOCAL)
+	Request.checkRequest(); //to do
+	Request.AnswerType = STATIC; 
+	//Request.AnswerType = ERROR;// LOCAL; //to remove when parsing is done
+	//Request.StatusCodeI = 404;
+	
 	if (Request.RawRequest.empty() || Request.HTTPHeader.getMethod().empty())
     {
 		// todoparsing why they are empty request????
@@ -72,7 +69,6 @@ void WebServ::handleRequest(epoll_event current_event)
 	Request.sendAnswerToRequest();
 }
 
-//download???
 void HttpRequest::sendAnswerToRequest()
 {
 	int bytesSent = 0;

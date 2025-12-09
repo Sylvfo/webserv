@@ -6,7 +6,7 @@
 /*   By: beboccas <beboccas@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/07 15:17:09 by beboccas          #+#    #+#             */
-/*   Updated: 2025/12/09 15:41:35 by beboccas         ###   ########.fr       */
+/*   Updated: 2025/12/09 16:05:12 by beboccas         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,8 +50,11 @@ struct ServerConfig
 	int fd_socket_serv;//a voir si c est utile
 	struct sockaddr_in sockaddr;
 	socklen_t server_len;
+	std::map<int, std::string> error_code_message;
+	std::map<std::string, std::string> mime_types;
 
-    ServerConfig()
+	ServerConfig()
         : listen_port(0), server_name(), error_pages(), root(), client_max_body_size(0), locations(), fd_socket_serv(-1)
     {}
 };
+

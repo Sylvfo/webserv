@@ -12,7 +12,10 @@ void WebServ::initServers()
 	{
 		if (checkExistingPort(i) == false)
 			initServerSocket(servers[i], i);
+		initErroCode(servers[i]);
+		initMimeTypes(servers[i]);
 	}
+
 }
 
 bool WebServ::checkExistingPort(int index)
@@ -32,7 +35,7 @@ int WebServ::initServerSocket(struct ServerConfig &server, int index)
 
 	fd_socket_servers = socket(AF_INET, SOCK_STREAM, 0); // = IPV4, stream, 0 = TCP
 	if (fd_socket_servers == -1)
-		throw 3;// a voir apres
+		throw std::runtime_error("Error in socket server");;// a voir apres
 	
 	int opt = 1;
 	setsockopt(fd_socket_servers, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));//mieux comprendre
@@ -43,11 +46,11 @@ int WebServ::initServerSocket(struct ServerConfig &server, int index)
 	server.sockaddr.sin_port = htons(server.listen_port);// 
 	server.server_len = sizeof(sockaddr);
 	if (bind(fd_socket_servers, (struct sockaddr *)&server.sockaddr, server.server_len)!= 0)
-		throw 4;
-	if (listen(fd_socket_servers, 20) != 0)
-		throw 5;
+		throw std::runtime_error("bind() failed");
+	if (listen(fd_socket_servers, 1024) != 0) //avant ct 20
+		throw std::runtime_error("listen() failed");
 	setNonBlocking(fd_socket_servers);
-	std::cout << "Listening on http://127.0.0.1:" << server.listen_port << std::endl;
+	std::cout << "Listening on http://" << server.server_name << ":" << server.listen_port << std::endl;
 	server.fd_socket_serv = fd_socket_servers;//utile oui :)
 	//std::cout << "server.fd_socket_serv " << server.fd_socket_serv << std::endl;
 	ConnectionData* connInfo = new ConnectionData();
@@ -61,7 +64,7 @@ void WebServ::initPoll()
 {
 	this->epollFd = epoll_create(1);//pk zero?? const?? mettre dans 
 	if (epollFd < 0)
-		throw 6;
+		throw std::runtime_error("epoll_create() failed");
 	std::map<int, ConnectionData*>::iterator it;
 	for (it = ServersConnections.begin(); it != ServersConnections.end(); ++it)
 	{
@@ -71,7 +74,7 @@ void WebServ::initPoll()
 		it->second->server_fd = it->first;
 		event.data.ptr = it->second;
 		if (epoll_ctl(epollFd, EPOLL_CTL_ADD,it->first, &event) < 0)
-			throw 7;
+			throw std::runtime_error("epoll_ctl() for servers failed");
 	}
 }
 
