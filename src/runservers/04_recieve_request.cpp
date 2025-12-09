@@ -29,13 +29,12 @@ void HttpRequest::parseRequest()
 
 void HttpRequest::checkRequest()
 {
-	// Default to LOCAL
 	AnswerType = LOCAL;
 	
-	// Find matching location for this URI
 	LocationConfig* matchingLocation = NULL;
 	size_t bestMatchLength = 0;
-
+	
+	// Find the best matching location (longest prefix match)
 	for (size_t i = 0; i < Server->locations.size(); ++i)
 	{
 		const std::string& locationPath = Server->locations[i].path;
@@ -45,7 +44,7 @@ void HttpRequest::checkRequest()
 			bestMatchLength = locationPath.length();
 		}
 	}
-
+	// if the location is a CGI set it to 'CGI'
 	if (matchingLocation)
 	{
 		CGIHandler cgiHandler;

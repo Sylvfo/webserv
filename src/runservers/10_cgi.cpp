@@ -2,11 +2,9 @@
 
 void HttpRequest::AnswerCGI()
 {
-	// Find matching location for this URI
 	LocationConfig* matchingLocation = NULL;
 	size_t bestMatchLength = 0;
-	
-	// Find the best matching location (longest prefix match)
+
 	for (size_t i = 0; i < Server->locations.size(); ++i)
 	{
 		const std::string& locationPath = Server->locations[i].path;
@@ -23,10 +21,7 @@ void HttpRequest::AnswerCGI()
 		return;
 	}
 
-	// Create CGI handler
 	CGIHandler cgiHandler;
-	
-	// Build script path - combine server root with URI (without query string)
 	std::string cleanUri = uri;
 	size_t queryPos = cleanUri.find('?');
 	if (queryPos != std::string::npos)
@@ -51,11 +46,8 @@ void HttpRequest::AnswerCGI()
 		scriptPath = Server->root;
 		if (scriptPath[scriptPath.length() - 1] != '/')
 			scriptPath += "/";
-		scriptPath += cleanUri.substr(1); // Remove leading /
+		scriptPath += cleanUri.substr(1);
 	}	
 
 	HttpAnswer = cgiHandler.executeCGI(scriptPath, HTTPHeader, *matchingLocation, RequestBody);
-	
-	// Log response info
-	std::string statusLine = HttpAnswer.substr(0, HttpAnswer.find('\r'));
 }

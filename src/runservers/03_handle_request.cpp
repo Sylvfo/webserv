@@ -61,10 +61,14 @@ void WebServ::handleRequest(epoll_event current_event)
     //    std::cout << "Empty request, closing connection" << std::endl;
         return;
     }
-	if (Request.AnswerType == ::CGI)
-		Request.AnswerCGI();
-	else
+	////////////////////////////////////////////////////////////
+	//CREATING THE ANSWER
+	if (Request.AnswerType == ERROR)
+		Request.AnswerError(); 
+	else if (Request.AnswerType == STATIC)
 		Request.Answerlocal();
+	else if (Request.AnswerType == CGI)
+		Request.AnswerCGI();//to do
 	Request.sendAnswerToRequest();
 }
 

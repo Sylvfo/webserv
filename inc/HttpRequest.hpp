@@ -91,6 +91,15 @@ class HttpRequest
 
 	void printHttpRequest();
 
+	// CGI-related getter methods
+	std::string getMethod() const;
+	std::string getScriptName() const;
+	std::string getQueryString() const;
+	std::string getServerName() const;
+	std::string getServerPort() const;
+	std::string getPathInfo() const;
+	std::string getHeader(const std::string& key) const;
+
 };
 
 #endif
