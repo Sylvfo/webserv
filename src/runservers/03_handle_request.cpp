@@ -65,7 +65,10 @@ void WebServ::handleRequest(epoll_event current_event)
 	else if (Request.AnswerType == STATIC)
 		Request.Answerlocal();
 	else if (Request.AnswerType == CGI)
+	{
+		std::cout << "[CGI] Processing CGI request for: " << Request.uri << std::endl;
 		Request.AnswerCGI();//to do
+	}
 	Request.sendAnswerToRequest();
 }
 

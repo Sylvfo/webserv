@@ -2,6 +2,7 @@
 
 void HttpRequest::AnswerCGI()
 {
+	std::cout << "[CGI] Starting CGI execution" << std::endl;
 	LocationConfig* matchingLocation = NULL;
 	size_t bestMatchLength = 0;
 

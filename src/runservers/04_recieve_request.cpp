@@ -46,6 +46,7 @@ void HttpRequest::checkRequest()
 		CGIHandler cgiHandler;
 		if (cgiHandler.isCGI(uri, *matchingLocation))
 		{
+			std::cout << "[CGI] Detected CGI request: " << uri << std::endl;
 			AnswerType = ::CGI;
 		}
 	}
@@ -83,6 +84,6 @@ void HttpRequest::extractRequestBody()
 
 	// Debug
 	if (!RequestBody.empty())
-		std::cout << "Exracted body (" << RequestBody.size() << " bytes): "
+		std::cout << "Extracted body (" << RequestBody.size() << " bytes): "
 			<< RequestBody << std::endl;
 }
