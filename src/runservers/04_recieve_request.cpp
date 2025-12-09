@@ -25,7 +25,7 @@ void HttpRequest::parseRequest()
 
 void HttpRequest::checkRequest()
 {
-	AnswerType = LOCAL;
+	AnswerType = STATIC;
 	
 	LocationConfig* matchingLocation = NULL;
 	size_t bestMatchLength = 0;
