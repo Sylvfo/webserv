@@ -51,7 +51,7 @@ void WebServ::handleRequest(epoll_event current_event)
 	Request.method = Request.HTTPHeader.getMethod();// pas bien à refaire. 
 	Request.uri = Request.HTTPHeader.getUri();
 	Request.checkRequest(); //to do
-	Request.AnswerType = STATIC; 
+	//Request.AnswerType = STATIC; 
 	//Request.AnswerType = ERROR;// LOCAL; //to remove when parsing is done
 	//Request.StatusCode = 403;
 	

@@ -90,9 +90,6 @@ std::string HttpRequest::getServerPort() const {
 }
 
 std::string HttpRequest::getPathInfo() const {
-	// PATH_INFO is the part of the URI after the script name
-	// For CGI: if URI is /cgi-bin/script.py/extra/path?query
-	// PATH_INFO would be /extra/path
 	std::string scriptName = getScriptName();
 	
 	int extPos = findLastChar(scriptName, '.');
