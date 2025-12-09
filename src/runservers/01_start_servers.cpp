@@ -12,10 +12,9 @@ void WebServ::initServers()
 	{
 		if (checkExistingPort(i) == false)
 			initServerSocket(servers[i], i);
-		initErroCode(servers[i]);
-		initMimeTypes(servers[i]);
+		initErroCode(servers[i]);// a deplacer apres parsing
+		initMimeTypes(servers[i]);//a deplacer apres parsing
 	}
-
 }
 
 bool WebServ::checkExistingPort(int index)
@@ -38,13 +37,13 @@ int WebServ::initServerSocket(struct ServerConfig &server, int index)
 		throw std::runtime_error("Error in socket server");;// a voir apres
 	
 	int opt = 1;
-	setsockopt(fd_socket_servers, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));//mieux comprendre
+	setsockopt(fd_socket_servers, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));//mieux comprendre SO_REUSEPORT??
 
 	//bind on local address		
 	server.sockaddr.sin_family = AF_INET;//tout le temps pareil
 	server.sockaddr.sin_addr.s_addr = INADDR_ANY;//inet_addr("127.0.0.1");
 	server.sockaddr.sin_port = htons(server.listen_port);// 
-	server.server_len = sizeof(sockaddr);
+	server.server_len = sizeof(struct sockaddr_in);
 	if (bind(fd_socket_servers, (struct sockaddr *)&server.sockaddr, server.server_len)!= 0)
 		throw std::runtime_error("bind() failed");
 	if (listen(fd_socket_servers, 1024) != 0) //avant ct 20
@@ -70,7 +69,8 @@ void WebServ::initPoll()
 	{
 		struct epoll_event event;
 		event.events = EPOLLIN | EPOLLET;
-		it->second->client_fd = 0;
+		//it->second->client_fd = 0;
+		it->second->is_server = true;
 		it->second->server_fd = it->first;
 		event.data.ptr = it->second;
 		if (epoll_ctl(epollFd, EPOLL_CTL_ADD,it->first, &event) < 0)

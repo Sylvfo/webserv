@@ -13,6 +13,7 @@ WebServ::~WebServ()
 	close(epollFd);
 	std::map<int, ConnectionData*>::iterator it;
 	for (it = ServersConnections.begin(); it != ServersConnections.end(); ++it) {
+		close(it->first);
 		delete it->second;
 		it->second = NULL;
 	}
@@ -33,8 +34,9 @@ WebServ::~WebServ()
 	std::cout << "destr called";
 }
 
+/*
 void WebServ::free_webserv()
 {
 	close(epollFd);
 	std::cout << "Not integrated : Free webserv data.";
-}
+}*/
