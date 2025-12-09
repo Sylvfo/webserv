@@ -9,7 +9,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 //sockets()
-//socketpain()
+//socketpair()
 //accept()
 //listen()
 //send()
@@ -59,7 +59,8 @@
 struct ConnectionData
 {
     int client_fd;
-	int server_fd;
+	int server_fd;//pourrait servir pour virtual host
+	bool is_server;
     int server_index;
     ServerConfig* server; // Pointeur direct
 };

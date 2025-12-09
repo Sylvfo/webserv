@@ -62,7 +62,7 @@ class HttpRequest
 	int			fd_Ressource;
 
 	//recieve request
-	void recieveRequest();
+	bool recieveRequest();
 	void parseRequest();
 	void extractRequestBody(); //necessary to implement POST
 	void checkRequest();

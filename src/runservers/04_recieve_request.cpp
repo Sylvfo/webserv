@@ -1,7 +1,7 @@
 #include "Webserv.hpp"
 
 //some checks to do
-void HttpRequest::recieveRequest()
+bool HttpRequest::recieveRequest()
 {
 		//	if (std::cin.eof())
 	//what mistake tye can happen?
@@ -9,10 +9,10 @@ void HttpRequest::recieveRequest()
 	int BUFFER_SIZE = 30720;//??
 	char buff[30720] = {0};
 	int bytes = recv(socket_fd, buff, BUFFER_SIZE, 0);
-	(void) bytes;
-//	if (bytes < 0)
-//		throw 11;
+	if (bytes < 0)
+		return false;
 	RawRequest = buff;
+	return true;
 }
 
 void HttpRequest::parseRequest()
