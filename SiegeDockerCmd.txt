@@ -9,7 +9,6 @@ siege options:
 -r how many times (requests but I think not per user)
 -c users
 
-
 ifconfig pour trouver ip
 
 ou mettre localhost??

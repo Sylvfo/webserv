@@ -9,8 +9,17 @@ bool HttpRequest::recieveRequest()
 	int BUFFER_SIZE = 30720;//??
 	char buff[30720] = {0};
 	int bytes = recv(socket_fd, buff, BUFFER_SIZE, 0);
+	if (bytes == 0)
+	{
+		std::cout << ".";
+		//return false;
+	}
 	if (bytes < 0)
+	{
+		std::cout << "-";
 		return false;
+	}
+	//	return false;
 	RawRequest = buff;
 	return true;
 }

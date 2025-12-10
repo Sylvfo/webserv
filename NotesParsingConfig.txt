@@ -15,3 +15,8 @@ some stuff in public
 
 si invalide IP??
 pourquoi segfault si port invalid? et refuse bind??
+
+attention verifier si un port est deja bind avec une socket quand on 
+init les serveurs
+
+camelcase functions cpp???

@@ -1,4 +1,3 @@
-
 # Install siege on Linux at 42
 
 BASH
@@ -28,7 +27,6 @@ export PATH=$HOME/SiegeBase/bin:$PATH
 . ~/.zshrc
 ```
 
-
 # Set Parameters
 
 ### webserv config file:
@@ -52,7 +50,10 @@ To increase this limit, search your .siegerc file for 'limit' and change its val
 max fd per process is 1024, so +-/ 800/900 users
 
 #### -b flag
--b for no delay between requests (mandatory in the eval)
+-b *for no delay between requests (mandatory in the eval)*
+
+#### -d flag
+-d3 *This option instructs siege how long to delay between each page request. The value NUM represents the number of seconds between each one. This number can be a decimal value. In fact the default is half a second (--delay=0.5)*
 
 #### -v flag
 -v *verbose = true*
@@ -99,11 +100,20 @@ siege -t1M -c2 http://10.12.3.1:2222
 //run siege multiple URL in a file
 siege -f /home/sforster/SiegeBase/siege-sites.txt -b -t1M -c2
 
+siege -t2M -d3 -c8 http://10.12.3.1:2222 
+
 //run siege with verbose logs in a file:
 siege -t1M -c2 -v http://10.12.3.1:2222 > siege.log
 ```
 
-
 see markdown in vsCode: ctrl k + v
 
-10.12.3.3
+
+# Siege in Docker
+
+Work at school because but too slow for the -b flag
+
+```bash
+docker run --rm --network=host lopezs/siege -t1M -c2 -b http://ip:port
+```
+
