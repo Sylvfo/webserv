@@ -25,6 +25,10 @@ int main(int ac, char **av)
 		std::cout << "Error code: " << errCode << std::endl;
 		//send response with "500"; Internal Server Error???
 	}
+	catch (const std::exception &e)
+	{
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
 	std::cout <<  DARK_PURPLE "Ending: " RESET << std::endl;
 	delete WeServ;
 }
