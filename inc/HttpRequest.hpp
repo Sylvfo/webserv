@@ -44,11 +44,13 @@ class HttpRequest
 
 	//Request
 	std::string		RawRequest;
+	std::string		RequestHeader;
+	std::string 	RequestBody;
 	std::string		method;// a double pour l instant
 	std::string		uri;// a double pour l instant
 	std::string		version;// a double pour l instant
 	std::map<std::string, std::string> headers;// a double pour l instant
-	std::string RequestBody;
+
 	ServerConfig	*Server;//pointer?
 	int	socket_fd;
 
@@ -63,6 +65,7 @@ class HttpRequest
 
 	//recieve request
 	void recieveRequest();
+	void ReceiveRequest();
 	void parseRequest();
 	void extractRequestBody(); //necessary to implement POST
 	void checkRequest();
