@@ -12,3 +12,6 @@ special, and usually require special OS privileges to use.
 
 data in private
 some stuff in public
+
+si invalide IP??
+pourquoi segfault si port invalid? et refuse bind??
