@@ -1,19 +1,19 @@
 #include "Webserv.hpp"
 
-//some checks to do
-void HttpRequest::recieveRequest()
-{
-		//	if (std::cin.eof())
-	//what mistake tye can happen?
-	// how to do it non blocking
-	int BUFFER_SIZE = 30720;//??
-	char buff[30720] = {0};
-	int bytes = recv(socket_fd, buff, BUFFER_SIZE, 0);
-	(void) bytes;
-//	if (bytes < 0)
-//		throw 11;
-	RawRequest = buff;
-}
+// //some checks to do
+// void HttpRequest::recieveRequest()
+// {
+// 		//	if (std::cin.eof())
+// 	//what mistake tye can happen?
+// 	// how to do it non blocking
+// 	int BUFFER_SIZE = 30720;//??
+// 	char buff[30720] = {0};
+// 	int bytes = recv(socket_fd, buff, BUFFER_SIZE, 0);
+// 	(void) bytes;
+// //	if (bytes < 0)
+// //		throw 11;
+// 	RawRequest = buff;
+// }
 
 void HttpRequest::parseRequest()
 {
