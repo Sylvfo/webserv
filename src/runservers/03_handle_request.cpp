@@ -32,6 +32,7 @@ void WebServ::handleRequest(epoll_event current_event)
 	//HttpRequest	Request;
 
 	//std::cout << "enter handlerequest" << std::endl;
+	//this can be put in a function called takeInfofrom server Pointer
 	ConnectionData* connInfo = static_cast<ConnectionData*>(current_event.data.ptr);
    	if (!connInfo)
     {

@@ -12,10 +12,9 @@ void WebServ::initServers()
 	{
 		if (checkExistingPort(i) == false)
 			initServerSocket(servers[i], i);
-		initErroCode(servers[i]);
-		initMimeTypes(servers[i]);
+		initErroCode(servers[i]);// a deplacer apres parsing
+		initMimeTypes(servers[i]);//a deplacer apres parsing
 	}
-
 }
 
 bool WebServ::checkExistingPort(int index)
@@ -38,7 +37,7 @@ int WebServ::initServerSocket(struct ServerConfig &server, int index)
 		throw std::runtime_error("Error in socket server");;// a voir apres
 
 	int opt = 1;
-	setsockopt(fd_socket_servers, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));//mieux comprendre
+	setsockopt(fd_socket_servers, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));//mieux comprendre SO_REUSEPORT??
 
 	//bind on local address
 	server.sockaddr.sin_family = AF_INET;//tout le temps pareil
