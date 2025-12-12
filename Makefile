@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: beboccas <beboccas@student.42lausanne.c    +#+  +:+       +#+         #
+#    By: bschmid <bschmid@student.42lausanne.ch>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/02/12 08:32:46 by cmegret           #+#    #+#              #
-#    Updated: 2025/11/11 19:19:13 by beboccas         ###   ########.fr        #
+#    Updated: 2025/12/12 01:29:01 by bschmid          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,7 +28,7 @@ NAME = webserv
 #NAME2 = webserv_bonus
 CC = c++
 
-CFLAGS = -Wall -Wextra -Werror -std=c++98 #-g
+CFLAGS = -Wall -Wextra -Werror -std=c++98 #-g -fsanitize=address
 
 # Fichiers sources
 INC_DIR = inc/
@@ -64,7 +64,7 @@ $(OBJ_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) -I$(INC_DIR) -c $< -o $@
 	@echo "$(DARK_CYAN)Compiling: $<$(RESET)"
-	
+
 #a revoir...
 debug: CFLAGS += -g
 debug: re
