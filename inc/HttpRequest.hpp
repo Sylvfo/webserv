@@ -1,7 +1,7 @@
 #ifndef HTTPREQUEST_HPP
 #define HTTPREQUEST_HPP
 
-#include "Webserv.hpp"
+#include "ServerConfig.hpp"
 
 enum AnswerType {
 	ERROR,
@@ -12,44 +12,60 @@ enum AnswerType {
 struct server;
 
 // todoparsing : erase this class and let these info only in HttpRequest class
-class RequestHeader
-{
-private:
-	std::string method;
-	std::string uri;
-	std::string version;
-	std::map<std::string, std::string> headers;
-	std::string Accept;
-	std::string Path;
-public:
-	RequestHeader();
-	~RequestHeader();
-	void    parseRequest(const std::string& request);
-	void	parseHeaderRequest();//done by Syl
-	std::map<std::string, std::string> getHeaders() const;
-	void	printHeaders() const;
-	std::string getUri();
-	std::string getPath();
-	std::string getMethod();
-	std::string getAccept();
-};
+// class RequestHeader
+// {
+// private:
+// 	std::string method;
+// 	std::string uri;
+// 	std::string version;
+// 	std::map<std::string, std::string> headers;
+// 	std::string Accept;
+// 	std::string Path;
+// public:
+// 	RequestHeader();
+// 	~RequestHeader();
+// 	void    parseRequest(const std::string& request);
+// 	void	parseHeaderRequest();//done by Syl
+// 	std::map<std::string, std::string> getHeaders() const;
+// 	void	printHeaders() const;
+// 	std::string getUri();
+// 	std::string getPath();
+// 	std::string getMethod();
+// 	std::string getAccept();
+// };
 
 // todoparsing : put things in private + getter / setter
 class HttpRequest
 {
 	public:
+	// Constructor and Destructor
+	HttpRequest();
+	~HttpRequest();
+
+	// Constants for header parsing (RFC 7230 compliance)
+	static const size_t MAX_HEADER_SIZE = 8192;      // 8KB - nginx standard
+	static const size_t RECEIVE_CHUNK_SIZE = 1024;   // 1KB receive buffer
 
 	//private:
-	RequestHeader	HTTPHeader; //RequestHeader a effacer après new parsing.
+	//RequestHeader	HTTPHeader; //RequestHeader a effacer après new parsing.
 
 	//Request
-	std::string		RawRequest;
-	std::string		RequestHeader;
-	std::string 	RequestBody;
+	bool 			HeaderComplete;
+	std::string		PartialRequest;
+	std::string		RawHeader;
+	std::string 	RawBody;
+	std::string		PartialBody;
 	std::string		method;// a double pour l instant
 	std::string		uri;// a double pour l instant
+	std::string		Path;
 	std::string		version;// a double pour l instant
 	std::map<std::string, std::string> headers;// a double pour l instant
+
+	//Body
+	bool 			IsChunked;
+	bool			ExpectingBody;
+	bool 			BodyComplete;
+	size_t			ContentLength;
 
 	ServerConfig	*Server;//pointer?
 	int	socket_fd;
@@ -58,17 +74,28 @@ class HttpRequest
 	int			AnswerType;
 	int			StatusCode;
 	std::string HttpAnswer; //=)
-	std::string ContentLenght; //=)
+	// std::string ContentLength; // Duplicate
 	std::string ContentType;
 	std::string AnswerBody;//row... a voir...
 	int			fd_Ressource;
 
 	//recieve request
-	void recieveRequest();
-	void ReceiveRequest();
-	void parseRequest();
-	void extractRequestBody(); //necessary to implement POST
-	void checkRequest();
+	//void recieveRequest();
+	// void ReceiveHeader(); // Duplicate
+	//void parseRequest();
+	//void extractRequestBody(); //necessary to implement POST
+	//void checkRequest();
+	void CheckRequest();
+
+	//new
+	bool ReceiveHeader();
+	bool ParseHeader();
+	bool ParseRequestLine(const std::string&);
+	bool ParseOneHeader(const std::string&);
+	bool ValidateHeader();
+	bool ReceiveBody();
+	//bool ParseBody();
+
 
 	//answer request
 	void Answerlocal();

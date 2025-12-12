@@ -7,7 +7,7 @@ void HttpRequest::DeleteRequest()
 
 	//get uri from server
 
-	std::string uri = HTTPHeader.getUri();
+	std::string uri = this->uri;
 
 	// loop through locations to find longest match
 	// finde longest match

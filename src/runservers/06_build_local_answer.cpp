@@ -18,12 +18,12 @@ void HttpRequest::Answerlocal()
 void HttpRequest::SetResponseHeader()
 {
 	HttpAnswer += "Content-Length: ";
-	HttpAnswer += ContentLenght;
+	HttpAnswer += IntToString(ContentLength);
 	HttpAnswer += "\r\n";
 	HttpAnswer += "Content-Type: ";
 	HttpAnswer += ContentType;
 	HttpAnswer += "\r\n";
-	HttpAnswer += "Connection: close\r\n"; 
+	HttpAnswer += "Connection: close\r\n";
 	HttpAnswer += "\r\n";  // Séparation headers/body
 	HttpAnswer += AnswerBody;
 }
