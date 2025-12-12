@@ -1,51 +1,79 @@
 #!/bin/bash
-# File upload test CGI
 
-echo "Content-Type: text/html; charset=UTF-8"
+# Upload CGI script
+echo "Content-Type: application/json; charset=UTF-8"
 echo ""
-echo "<html>"
-echo "<head>"
-echo "<meta charset='UTF-8'>"
-echo "<title>File Upload Test</title>"
-echo "</head>"
-echo "<body style='font-family: Arial, sans-serif; margin: 20px;'>"
-echo "<h1>📁 File Upload CGI Test</h1>"
 
-if [ "$REQUEST_METHOD" = "GET" ]; then
-    echo "<h2>Upload a File</h2>"
-    echo "<form method='POST' action='/cgi-bin/upload.cgi' enctype='multipart/form-data'>"
-    echo "<p>Select file: <input type='file' name='upload'></p>"
-    echo "<p>Description: <input type='text' name='description' placeholder='File description'></p>"
-    echo "<p><input type='submit' value='Upload File'></p>"
-    echo "</form>"
-    
-elif [ "$REQUEST_METHOD" = "POST" ]; then
-    echo "<h2>Upload Processing</h2>"
-    echo "<p><strong>Content-Type:</strong> $CONTENT_TYPE</p>"
-    echo "<p><strong>Content-Length:</strong> $CONTENT_LENGTH bytes</p>"
-    
-    if [ -n "$CONTENT_LENGTH" ] && [ "$CONTENT_LENGTH" -gt 0 ]; then
-        echo "<h3>Received Data:</h3>"
-        echo "<p>⚠️ This is a demo - file data would normally be processed here</p>"
-        echo "<pre style='background: #f5f5f5; padding: 10px; border: 1px solid #ddd; max-height: 200px; overflow-y: scroll;'>"
-        # Read limited amount for demo (first 500 chars)
-        head -c 500
-        if [ "$CONTENT_LENGTH" -gt 500 ]; then
-            echo ""
-            echo "... (truncated - total size: $CONTENT_LENGTH bytes)"
-        fi
-        echo "</pre>"
-        
-        # Create upload directory if it doesn't exist
-        mkdir -p ../uploads
-        echo "<p>✅ Upload directory ready: ../uploads/</p>"
-        echo "<p>📝 In a real implementation, the file would be saved here</p>"
-    else
-        echo "<p>❌ No data received</p>"
-    fi
-    
-    echo "<p><a href='/cgi-bin/upload.cgi'>← Back to upload form</a></p>"
+# Set upload directory
+UPLOAD_DIR="/home/zarcross/goinfre/webserv/www/beboccas/uploads"
+
+# Create upload directory if it doesn't exist
+mkdir -p "$UPLOAD_DIR"
+
+# Check if this is a POST request
+if [ "$REQUEST_METHOD" != "POST" ]; then
+    echo '{"error": "Method not allowed", "message": "Only POST method is supported"}'
+    exit 1
 fi
 
-echo "</body>"
-echo "</html>"
+# Check if Content-Type contains multipart/form-data
+if [[ "$CONTENT_TYPE" != *"multipart/form-data"* ]]; then
+    echo '{"error": "Invalid content type", "message": "Expected multipart/form-data"}'
+    exit 1
+fi
+
+# Read the POST data
+POST_DATA=$(cat)
+
+# Extract boundary from Content-Type
+BOUNDARY=$(echo "$CONTENT_TYPE" | grep -o 'boundary=[^;]*' | cut -d= -f2)
+
+if [ -z "$BOUNDARY" ]; then
+    echo '{"error": "No boundary found", "message": "Invalid multipart data"}'
+    exit 1
+fi
+
+# Create temporary file for processing
+TEMP_FILE="/tmp/upload_$$.tmp"
+echo "$POST_DATA" > "$TEMP_FILE"
+
+# Extract filename from the multipart data
+FILENAME=$(grep -A 10 "filename=" "$TEMP_FILE" | head -1 | grep -o 'filename="[^"]*"' | cut -d'"' -f2)
+
+if [ -z "$FILENAME" ]; then
+    echo '{"error": "No filename found", "message": "Could not extract filename from upload"}'
+    rm -f "$TEMP_FILE"
+    exit 1
+fi
+
+# Sanitize filename (remove path components and dangerous characters)
+FILENAME=$(basename "$FILENAME" | tr -d '/../' | sed 's/[^a-zA-Z0-9._-]/_/g')
+
+if [ -z "$FILENAME" ]; then
+    FILENAME="uploaded_file_$(date +%s)"
+fi
+
+# Extract file data (everything after the first empty line following Content-Type)
+awk "
+/Content-Type: / { 
+    getline; 
+    if (\$0 == \"\r\" || \$0 == \"\") {
+        while ((getline) > 0) {
+            if (\$0 ~ /^--$BOUNDARY/) break;
+            print \$0;
+        }
+        exit;
+    }
+}" "$TEMP_FILE" > "$UPLOAD_DIR/$FILENAME"
+
+# Check if file was created and has content
+if [ -f "$UPLOAD_DIR/$FILENAME" ] && [ -s "$UPLOAD_DIR/$FILENAME" ]; then
+    FILE_SIZE=$(stat -f%z "$UPLOAD_DIR/$FILENAME" 2>/dev/null || stat -c%s "$UPLOAD_DIR/$FILENAME" 2>/dev/null)
+    echo "{\"success\": true, \"message\": \"File uploaded successfully\", \"filename\": \"$FILENAME\", \"size\": $FILE_SIZE}"
+else
+    echo '{"error": "Upload failed", "message": "Could not save file"}'
+    rm -f "$UPLOAD_DIR/$FILENAME"
+fi
+
+# Clean up
+rm -f "$TEMP_FILE"
