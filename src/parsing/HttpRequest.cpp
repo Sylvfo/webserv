@@ -114,7 +114,7 @@ bool HttpRequest::ParseHeader()
 		}
 	}
 
-	if (this->version == "HTTP/1.1" && this->headers.find("host") == this->headers.end())
+	if (this->version == "HTTP/1.1" && (this->headers.find("host") == this->headers.end()))
 	{
 		this->AnswerType = ERROR;
 		this->StatusCode = 400;
