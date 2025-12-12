@@ -11,27 +11,22 @@
 
 // Constructor
 HttpRequest::HttpRequest()
-	: HeaderComplete(false)
-	, PartialRequest()
-	, RawHeader()
-	, RawBody()
-	, PartialBody()
-	, method()
-	, uri()
-	, Path()
-	, version()
-	, headers()
-	, IsChunked(false)
+	// --- Server & Connection ---
+	: Server(NULL)
+	, socket_fd(-1)
+
+	// --- Request State ---
+	, HeaderComplete(false)
+
+	// --- Body Handling ---
 	, ExpectingBody(false)
+	, IsChunked(false)
 	, BodyComplete(false)
 	, ContentLength(0)
-	, Server(NULL)
-	, socket_fd(-1)
+
+	// --- Response ---
 	, AnswerType(STATIC)
 	, StatusCode(200)
-	, HttpAnswer()
-	, ContentType()
-	, AnswerBody()
 	, fd_Ressource(-1)
 {
 }
