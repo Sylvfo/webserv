@@ -49,10 +49,13 @@ if [ -z "$FILENAME" ]; then
 fi
 
 # Sanitize filename (remove path components and dangerous characters)
-# Remove any path traversal attempts and sanitize
+# Remove any path traversal attempts while preserving Unicode characters
 FILENAME=$(basename "$FILENAME")
+# Remove path traversal patterns
 FILENAME=$(echo "$FILENAME" | sed 's/\.\.\///g')
-FILENAME=$(echo "$FILENAME" | sed 's/[^a-zA-Z0-9._-]/_/g')
+# Only remove truly dangerous characters: / \ : * ? " < > | and null bytes
+# This preserves spaces, accented characters, and most Unicode
+FILENAME=$(echo "$FILENAME" | sed 's/[\/\\:*?"<>|]/_/g' | tr -d '\000')
 
 if [ -z "$FILENAME" ]; then
     FILENAME="uploaded_file_$(date +%s)"
