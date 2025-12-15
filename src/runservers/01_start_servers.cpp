@@ -35,15 +35,15 @@ int WebServ::initServerSocket(struct ServerConfig &server, int index)
 	fd_socket_servers = socket(AF_INET, SOCK_STREAM, 0); // = IPV4, stream, 0 = TCP
 	if (fd_socket_servers == -1)
 		throw std::runtime_error("Error in socket server");;// a voir apres
-	
+
 	int opt = 1;
 	setsockopt(fd_socket_servers, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));//mieux comprendre SO_REUSEPORT??
 
-	//bind on local address		
+	//bind on local address
 	server.sockaddr.sin_family = AF_INET;//tout le temps pareil
 	server.sockaddr.sin_addr.s_addr = INADDR_ANY;//inet_addr("127.0.0.1");
-	server.sockaddr.sin_port = htons(server.listen_port);// 
-	server.server_len = sizeof(struct sockaddr_in);
+	server.sockaddr.sin_port = htons(server.listen_port);//
+	server.server_len = sizeof(sockaddr);
 	if (bind(fd_socket_servers, (struct sockaddr *)&server.sockaddr, server.server_len)!= 0)
 		throw std::runtime_error("bind() failed");
 	if (listen(fd_socket_servers, 1024) != 0) //avant ct 20
@@ -61,16 +61,16 @@ int WebServ::initServerSocket(struct ServerConfig &server, int index)
 
 void WebServ::initPoll()
 {
-	this->epollFd = epoll_create(1);//pk zero?? const?? mettre dans 
+	this->epollFd = epoll_create(1);//pk zero?? const?? mettre dans
 	if (epollFd < 0)
 		throw std::runtime_error("epoll_create() failed");
 	std::map<int, ConnectionData*>::iterator it;
 	for (it = ServersConnections.begin(); it != ServersConnections.end(); ++it)
 	{
 		struct epoll_event event;
-		event.events = EPOLLIN | EPOLLET;
-		//it->second->client_fd = 0;
-		it->second->is_server = true;
+		//event.events = EPOLLIN | EPOLLET;
+		event.events = EPOLLIN; // EPOLLET would force me to use errno after recv which is not allowed
+		it->second->client_fd = 0;
 		it->second->server_fd = it->first;
 		event.data.ptr = it->second;
 		if (epoll_ctl(epollFd, EPOLL_CTL_ADD,it->first, &event) < 0)

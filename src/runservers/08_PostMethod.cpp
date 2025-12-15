@@ -7,14 +7,14 @@ void HttpRequest::PostRequest()
 
 	std::cout << PASTEL_AQUA "Enter POST Request Handler" << RESET << std::endl;
 
-	std::map<std::string, std::string> headers = HTTPHeader.getHeaders();
+	// std::map<std::string, std::string> headers = HTTPHeader.getHeaders();
 	// do we have access to the header content throurg a class?
 
-	std::string ContentType = headers["Content-Type"];
+	std::string ContentType = this->headers["content-type"];
 
 	// debugging prints
 	std::cout << "Content-Type: " << ContentType << std::endl;
-	std::cout << "Request Body: " << RequestBody << std::endl;
+	std::cout << "Request Body: " << this->RawBody << std::endl;
 
 	// different content types need different parsing
 	// thats why we get the content type
@@ -31,7 +31,7 @@ void HttpRequest::PostRequest()
 		//StatusCode = "501 Not Implemented";
 		AnswerBody = "File upload not yet implemented";
 		ContentType = "text/plain";
-		ContentLenght = IntToString(AnswerBody.size());
+		ContentLength = AnswerBody.size();
 	}
 	else if (ContentType.find("application/json") != std::string::npos)
 	{
@@ -40,7 +40,7 @@ void HttpRequest::PostRequest()
 		//StatusCode = "501 Not Implemented";
 		AnswerBody = "JSON support coming soon!";
 		ContentType = "text/plain";
-		ContentLenght = IntToString(AnswerBody.size());
+		ContentLength = AnswerBody.size();
 	}
 	else
 	{
@@ -49,7 +49,7 @@ void HttpRequest::PostRequest()
 	//	StatusCode = "415 Unsupported Media Type";
 		AnswerBody = "Content-Type not supported: " + ContentType;
 		ContentType = "text/plain";
-		ContentLenght = IntToString(AnswerBody.size());
+		ContentLength = AnswerBody.size();
 	}
 }
 
@@ -58,7 +58,7 @@ void HttpRequest::HandleFormData()
     std::cout << "Handling form data..." << std::endl;
 
     // STEP 1: Get upload path (from Step 1.1 above)
-    std::string currentUri = HTTPHeader.getUri();
+    std::string currentUri = this->uri;
     std::string uploadPath;
 
     // Find the longest matching location (most specific)
@@ -94,7 +94,7 @@ void HttpRequest::HandleFormData()
     }
 
     // STEP 2: Parse form data
-    std::map<std::string, std::string> formData = parseFormData(RequestBody);
+    std::map<std::string, std::string> formData = parseFormData(this->RawBody);
 
     // Decode values
     for (std::map<std::string, std::string>::iterator it = formData.begin();
@@ -117,7 +117,7 @@ void HttpRequest::HandleFormData()
         //StatusCode = "500 Internal Server Error";
         AnswerBody = "Failed to save data";
         ContentType = "text/plain";
-        ContentLenght = IntToString(AnswerBody.size());
+        ContentLength = AnswerBody.size();
         return;
     }
 
@@ -134,7 +134,7 @@ void HttpRequest::HandleFormData()
     //StatusCode = "201 Created";
     AnswerBody = "Data saved successfully!\n";
     ContentType = "text/plain";
-    ContentLenght = IntToString(AnswerBody.size());
+    ContentLength = AnswerBody.size();
 }
 
 std::map<std::string, std::string> HttpRequest::parseFormData(const std::string& body)
@@ -170,41 +170,6 @@ std::map<std::string, std::string> HttpRequest::parseFormData(const std::string&
 		std::string value = pair.substr(equalPos + 1);
 		result[key] = value;
 	}
-	return result;
-}
-
-std::string HttpRequest::urlDecode(const std::string& str)
-{
-	std::string result;
-
-	for (size_t i = 0; i < str.length(); i++)
-	{
-		if (str[i] == '+')
-		{
-			result += ' ';  // + means space in forms
-		}
-		else if (str[i] == '%' && i + 2 < str.length())
-		{
-			// Convert %XX to character
-			std::string hexStr = str.substr(i + 1, 2);
-			char* endPtr;
-			long hexValue = strtol(hexStr.c_str(), &endPtr, 16);
-			if (*endPtr == '\0')  // Valid hex
-			{
-				result += static_cast<char>(hexValue);
-				i += 2;  // Skip XX
-			}
-			else
-			{
-				result += str[i];  // Keep original if invalid
-			}
-		}
-		else
-		{
-			result += str[i];
-		}
-	}
-
 	return result;
 }
 

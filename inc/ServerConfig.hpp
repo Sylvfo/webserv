@@ -3,12 +3,13 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syl <syl@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: beboccas <beboccas@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/07 15:17:09 by beboccas          #+#    #+#             */
-/*   Updated: 2025/12/09 14:40:51 by syl              ###   ########.fr       */
+/*   Created: Invalid date        by                   #+#    #+#             */
+/*   Updated: 2025/12/15 02:27:34 by beboccas         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #pragma once
 
@@ -16,6 +17,12 @@
 #include <vector>
 #include <map>
 #include <utility>
+#include <netinet/in.h>
+#include <sys/socket.h>
+
+// added so would compile but not used in header parsing
+#include <netinet/in.h>
+#include <sys/socket.h>
 
 //struct pour la classe serveur config
 struct LocationConfig
@@ -43,7 +50,7 @@ struct ServerConfig
     std::string root;
     long client_max_body_size;
     std::vector<LocationConfig> locations;
-    
+
 	//pour start server
 	int fd_socket_serv;//a voir si c est utile
 	struct sockaddr_in sockaddr;
