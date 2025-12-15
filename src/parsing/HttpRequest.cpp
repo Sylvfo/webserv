@@ -229,6 +229,12 @@ bool HttpRequest::ValidateHeader() // a helper function for ParseHeader if Parse
 		}
 
 		this->ContentLength = static_cast<size_t>(parsed);
+		if (this->ContentLength > this->Server->client_max_body_size)
+		{
+			this->StatusCode = 413;
+			this->AnswerType = ERROR;
+			return false;
+		}
 		this->ExpectingBody = true;
 		return true;
 	}
@@ -259,7 +265,16 @@ bool HttpRequest::ReceiveBody()
 	ssize_t bytes = recv(socket_fd, &buffer[0], buffer.size(), 0);
 
 	if (bytes > 0)
+	{
 		this->RawBody.append(&buffer[0], bytes);
+		if (this->RawBody.size() > this->Server->client_max_body_size)
+		{
+			this->StatusCode = 413;
+			this->AnswerType = ERROR;
+			return false;
+		}
+	}
+	
 	else if (bytes == 0)
 		return false; // Connection closed or error
 
