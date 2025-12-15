@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: beboccas <beboccas@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: bschmid <bschmid@student.42lausanne.ch>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/12/15 02:27:34 by beboccas         ###   ########.fr       */
+/*   Updated: 2025/12/15 14:13:46 by bschmid          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ struct ServerConfig
     std::string server_name;
     std::map<int, std::string> error_pages;
     std::string root;
-    long client_max_body_size;
+    size_t client_max_body_size;
     std::vector<LocationConfig> locations;
 
 	//pour start server
