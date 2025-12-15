@@ -30,6 +30,16 @@ void HttpRequest::Answerlocal()
 void HttpRequest::SetResponseHeader()
 {
 	std::cout << PASTEL_AQUA "[SET_HEADER] Building response headers" << RESET << std::endl;
+	
+	// Reserve space for headers + body to avoid reallocation
+	size_t estimatedSize = 200 + AnswerBody.size(); // ~200 bytes for headers
+	try {
+		HttpAnswer.reserve(estimatedSize);
+	} catch (const std::bad_alloc& e) {
+		std::cout << SOFT_RED "[SET_HEADER] Failed to reserve memory for response" << RESET << std::endl;
+		// Continue anyway, let it fail naturally if needed
+	}
+	
 	HttpAnswer += "Content-Length: ";
 	HttpAnswer += IntToString(ContentLength);
 	HttpAnswer += "\r\n";

@@ -136,11 +136,13 @@ function displayFilesList(files) {
     
     const html = files.map(file => `
         <div class="file-item">
-            <div>
-                <div class="file-name">${file.name}</div>
+            <div style="flex: 1;">
+                <a href="/uploads/${encodeURIComponent(file.name)}" target="_blank" class="file-link">
+                    <div class="file-name">${escapeHtml(file.name)}</div>
+                </a>
                 <div class="file-size">${formatFileSize(file.size)}</div>
             </div>
-            <button class="btn-delete" onclick="deleteFile('${file.name}')">
+            <button class="btn-delete" onclick="deleteFile('${escapeHtml(file.name).replace(/'/g, "\\'")}')">
                 Supprimer
             </button>
         </div>
@@ -184,6 +186,13 @@ function formatFileSize(bytes) {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// Utility function to escape HTML characters
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 // Event listeners

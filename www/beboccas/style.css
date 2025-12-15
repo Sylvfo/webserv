@@ -181,9 +181,26 @@ textarea {
   margin-bottom: 6px;
 }
 
+.file-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: all 0.2s;
+}
+
+.file-link:hover {
+  color: var(--accent);
+}
+
+.file-link:hover .file-name {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
 .file-name {
   font-family: monospace;
   color: #cfeef8;
+  transition: all 0.2s;
 }
 
 .file-size {
