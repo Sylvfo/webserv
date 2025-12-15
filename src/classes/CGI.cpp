@@ -121,18 +121,18 @@ void	CGIHandler::_setupEnvironment(const HttpRequest& request,
 	_addEnvVar("QUERY_STRING", _extractQueryString(request.uri));
 
 	std::map<std::string, std::string>::const_iterator	host_it;
-	host_it = headers.find("Host");
+	host_it = headers.find("host");
 	if (host_it != headers.end())
 		_addEnvVar("HTTP_HOST", host_it->second);
 
 	if (request.method == "POST")
 	{
 		std::map<std::string, std::string>::const_iterator	ct_it, cl_it;
-		ct_it = headers.find("Content-Type");
+		ct_it = headers.find("content-type");
 		if (ct_it != headers.end())
 			_addEnvVar("CONTENT_TYPE", ct_it->second);
 
-		cl_it = headers.find("Content-Length");
+		cl_it = headers.find("content-length");
 		if (cl_it != headers.end())
 			_addEnvVar("CONTENT_LENGTH", cl_it->second);
 	}
