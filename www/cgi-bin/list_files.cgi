@@ -13,25 +13,28 @@ if [ ! -d "$UPLOAD_DIR" ]; then
     exit 1
 fi
 
-# Start JSON array
-echo "["
+# Use Python to generate properly formatted JSON
+python3 << 'PYTHON_SCRIPT'
+import json
+import os
+import sys
 
-first=true
-for file in "$UPLOAD_DIR"/*; do
-    if [ -f "$file" ]; then
-        filename=$(basename "$file")
-        # Get file size (try macOS stat first, then Linux stat)
-        filesize=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null || echo "0")
-        
-        if [ "$first" = true ]; then
-            first=false
-        else
-            echo ","
-        fi
-        
-        echo "  {\"name\": \"$filename\", \"size\": $filesize}"
-    fi
-done
+upload_dir = '/home/zarcross/goinfre/webserv/www/beboccas/uploads'
 
-# End JSON array
-echo "]"
+try:
+    files = []
+    for filename in os.listdir(upload_dir):
+        filepath = os.path.join(upload_dir, filename)
+        if os.path.isfile(filepath):
+            filesize = os.path.getsize(filepath)
+            files.append({
+                'name': filename,
+                'size': filesize
+            })
+    
+    print(json.dumps(files, ensure_ascii=False, indent=2))
+except Exception as e:
+    print(json.dumps({'error': str(e)}))
+    sys.exit(1)
+
+PYTHON_SCRIPT

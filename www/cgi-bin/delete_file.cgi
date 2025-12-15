@@ -17,13 +17,25 @@ fi
 POST_DATA=$(cat)
 
 # Extract filename from POST data (format: filename=somefile.txt)
-FILENAME=$(echo "$POST_DATA" | grep -o 'filename=[^&]*' | cut -d= -f2 | sed 's/%20/ /g' | sed 's/+/ /g')
+FILENAME_ENCODED=$(echo "$POST_DATA" | grep -o 'filename=[^&]*' | cut -d= -f2)
 
-# URL decode filename (basic decoding)
-FILENAME=$(echo "$FILENAME" | sed 's/%2F/\//g' | sed 's/%2E/./g' | sed 's/%2D/-/g' | sed 's/%5F/_/g')
+if [ -z "$FILENAME_ENCODED" ]; then
+    echo '{"error": "No filename provided", "message": "filename parameter is required"}'
+    exit 1
+fi
+
+# URL decode filename using Python for proper UTF-8 handling
+FILENAME=$(python3 -c "
+import sys
+try:
+    from urllib.parse import unquote_plus
+    print(unquote_plus('$FILENAME_ENCODED'))
+except Exception as e:
+    sys.exit(1)
+")
 
 if [ -z "$FILENAME" ]; then
-    echo '{"error": "No filename provided", "message": "filename parameter is required"}'
+    echo '{"error": "Failed to decode filename", "message": "Could not decode the filename"}'
     exit 1
 fi
 
