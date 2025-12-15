@@ -1,5 +1,6 @@
 #include "CGI.hpp"
 #include "HttpRequest.hpp"
+#include "colors.hpp"
 #include <unistd.h>
 #include <sys/wait.h>
 #include <fcntl.h>
@@ -163,21 +164,31 @@ static void	cgi_child_die(int fd_in, int fd_out, char **env_for_exec)
 
 std::string	CGIHandler::executeCGI(const std::string& script_path, const HttpRequest& request, const LocationConfig& location, const std::string& body)
 {
+	std::cout << BRIGHT_MAGENTA "[CGI_EXEC] Executing CGI: " << script_path << RESET << std::endl;
 	int	pipe_in[2];
 	int	pipe_out[2];
 
+	std::cout << BRIGHT_MAGENTA "[CGI_EXEC] Creating pipes..." << RESET << std::endl;
 	if (pipe(pipe_in) == -1 || pipe(pipe_out) == -1)
+	{
+		std::cout << SOFT_RED "[CGI_EXEC] Pipe creation failed" << RESET << std::endl;
 		return ("HTTP/1.1 500 Internal Server Error\r\n\r\nCGI pipe failed");
+	}
+	
+	std::cout << BRIGHT_MAGENTA "[CGI_EXEC] Setting up environment..." << RESET << std::endl;
 	_setupEnvironment(request, location, script_path);
 
 	char	**env_for_exec = new char*[_env_count + 1];
 	for (int i = 0; i < _env_count; ++i)
 		env_for_exec[i] = _env_array[i];
 	env_for_exec[_env_count] = NULL;
+	std::cout << BRIGHT_MAGENTA "[CGI_EXEC] Environment has " << _env_count << " variable(s)" << RESET << std::endl;
 
+	std::cout << BRIGHT_MAGENTA "[CGI_EXEC] Forking process..." << RESET << std::endl;
 	pid_t	pid = fork();
 	if (pid == -1)
 	{
+		std::cout << SOFT_RED "[CGI_EXEC] Fork failed" << RESET << std::endl;
 		close(pipe_in[0]);
 		close(pipe_in[1]);
 		close(pipe_out[0]);
@@ -188,12 +199,17 @@ std::string	CGIHandler::executeCGI(const std::string& script_path, const HttpReq
 
 	if (pid == 0)
 	{
+		std::cout << BRIGHT_MAGENTA "[CGI_CHILD] Child process started" << RESET << std::endl;
 		close(pipe_in[1]);
 		close(pipe_out[0]);
 
+		std::cout << BRIGHT_MAGENTA "[CGI_CHILD] Redirecting stdin/stdout..." << RESET << std::endl;
 		if (dup2(pipe_in[0], STDIN_FILENO) == -1
 			|| dup2(pipe_out[1], STDOUT_FILENO) == -1)
+		{
+			std::cout << SOFT_RED "[CGI_CHILD] dup2 failed" << RESET << std::endl;
 			cgi_child_die(pipe_in[0], pipe_out[1], env_for_exec);
+		}
 
 		close(pipe_in[0]);
 		close(pipe_out[1]);
@@ -202,36 +218,49 @@ std::string	CGIHandler::executeCGI(const std::string& script_path, const HttpReq
 		argv[0] = const_cast<char*>(script_path.c_str());
 		argv[1] = NULL;
 
+		std::cout << BRIGHT_MAGENTA "[CGI_CHILD] Executing: " << script_path << RESET << std::endl;
 		execve(script_path.c_str(), argv, env_for_exec);
 
+		std::cout << SOFT_RED "[CGI_CHILD] execve failed" << RESET << std::endl;
 		cgi_child_die(-1, -1, env_for_exec);
 	}
 	else
 	{
+		std::cout << BRIGHT_MAGENTA "[CGI_PARENT] Parent process, child PID: " << pid << RESET << std::endl;
 		close(pipe_in[0]);
 		close(pipe_out[1]);
 		delete[] env_for_exec;
 
 		if (!body.empty())
+		{
+			std::cout << BRIGHT_MAGENTA "[CGI_PARENT] Writing body to child (" << body.length() << " bytes)" << RESET << std::endl;
 			write(pipe_in[1], body.c_str(), body.length());
+		}
 		close(pipe_in[1]);
 
+		std::cout << BRIGHT_MAGENTA "[CGI_PARENT] Reading output from child..." << RESET << std::endl;
 		std::string	output;
 		char		buffer[1024];
 		ssize_t		bytes_read;
+		int totalBytes = 0;
 
 		while ((bytes_read = read(pipe_out[0], buffer, sizeof(buffer) - 1)) > 0)
 		{
 			buffer[bytes_read] = '\0';
 			output += buffer;
+			totalBytes += bytes_read;
+			std::cout << BRIGHT_MAGENTA "[CGI_PARENT] Read " << bytes_read << " bytes (total: " << totalBytes << ")" << RESET << std::endl;
 		}
 		close(pipe_out[0]);
+		std::cout << BRIGHT_MAGENTA "[CGI_PARENT] Finished reading, total output: " << totalBytes << " bytes" << RESET << std::endl;
 
+		std::cout << BRIGHT_MAGENTA "[CGI_PARENT] Waiting for child to finish..." << RESET << std::endl;
 		int	status;
 		waitpid(pid, &status, 0);
 
 		if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
 		{
+			std::cout << BRIGHT_MAGENTA "[CGI_PARENT] Child exited successfully (status 0)" << RESET << std::endl;
 			std::string	response;
 			size_t		header_end = output.find("\n\n");
 
@@ -240,6 +269,7 @@ std::string	CGIHandler::executeCGI(const std::string& script_path, const HttpReq
 
 			if (header_end != std::string::npos)
 			{
+				std::cout << BRIGHT_MAGENTA "[CGI_PARENT] Parsing CGI headers..." << RESET << std::endl;
 				std::string	cgi_headers = output.substr(0, header_end);
 				std::string	cgi_body;
 
@@ -266,12 +296,15 @@ std::string	CGIHandler::executeCGI(const std::string& script_path, const HttpReq
 			}
 			else
 			{
+				std::cout << BRIGHT_MAGENTA "[CGI_PARENT] No headers found, generating default" << RESET << std::endl;
 				response = "HTTP/1.1 200 OK\r\n";
 				response += "Content-Type: text/html\r\n";
 				response += "\r\n" + output;
 			}
+			std::cout << BRIGHT_MAGENTA "[CGI_PARENT] Response built successfully" << RESET << std::endl;
 			return (response);
 		}
+		std::cout << SOFT_RED "[CGI_PARENT] Child exited with error (status " << WEXITSTATUS(status) << ")" << RESET << std::endl;
 		return ("HTTP/1.1 500 Internal Server Error\r\n\r\nCGI execution failed");
 	}
 	return ("HTTP/1.1 500 Internal Server Error\r\n\r\nCGI execution failed");

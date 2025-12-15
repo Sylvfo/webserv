@@ -46,6 +46,7 @@ public:
 	bool			HeaderComplete;
 	std::string		PartialRequest;
 	std::string		RawHeader;
+	bool			RequestComplete;  // Flag to indicate if request is fully processed
 	
 	// --- Body Handling ---
 	bool			ExpectingBody;

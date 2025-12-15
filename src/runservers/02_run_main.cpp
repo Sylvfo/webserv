@@ -67,7 +67,11 @@ bool WebServ::epollWaiting()
 
 	int const ndfs = epoll_wait(epollFd, current_events, MAX_EVENTS, -1);
 	if (ndfs < 0)
-		throw  8;//std::runtime_error("Error in epollWaiting");
+	{
+		std::cout << SOFT_RED "[ERROR] epoll_wait failed" << RESET << std::endl;
+		throw  8;
+	}
+	
 	for (int i = 0; i < ndfs; i++)
 	{
 		if ((current_events[i].events & EPOLLERR) || 
@@ -85,9 +89,12 @@ bool WebServ::epollWaiting()
 		}
 		else
 		{
+			ConnectionData* connInfo = static_cast<ConnectionData*>(current_events[i].data.ptr);
 			handleRequest(current_events[i]);
-			//std::cout << "Request answered" << std::endl;
-			closeConnection(current_events[i]);
+			
+			// Only close connection if request is complete
+			if (connInfo && connInfo->request.RequestComplete)
+				closeConnection(current_events[i]);
 		}
 	}
 	return true;
@@ -98,10 +105,7 @@ int	WebServ::newConnection(epoll_event new_event)
 	ConnectionData* connInfo = static_cast<ConnectionData*>(new_event.data.ptr);
 	std::map<int, ConnectionData*>::iterator it = ServersConnections.find(connInfo->server_fd);
 	if (it != ServersConnections.end() && (new_event.events & EPOLLIN))
-	{
-		//std::cout << LIGHT_RED "it is a new connection on fd" << it->first << RESET << std::endl;
 		return it->second->server_index;
-	}
 	return -1;
 }
 
@@ -116,10 +120,10 @@ bool WebServ::acceptConnection(int index)
 		new_socket = accept(servers[index].fd_socket_serv, 
 							(struct sockaddr *)&client_addr, &client_len);
 		if (new_socket < 0)
-		{
-			//std::cout << "new connection not accepted" << std::endl;
 			break;
-		}
+		
+		std::cout << LIGHT_GREEN "[ACCEPT] New client: fd " << new_socket << RESET << std::endl;
+		
 		setNonBlocking(new_socket);
 		ConnectionData* connectionInfo = CreateConnection(index, new_socket);
 
@@ -128,6 +132,7 @@ bool WebServ::acceptConnection(int index)
 		event.data.ptr = connectionInfo;
 		if (epoll_ctl(epollFd, EPOLL_CTL_ADD, new_socket, &event) < 0)
 		{
+			std::cout << SOFT_RED "[ERROR] epoll_ctl() failed for client" << RESET << std::endl;
 			delete connectionInfo;
 			throw std::runtime_error("epoll_ctl() for clients failed");
 		}
@@ -142,12 +147,12 @@ void WebServ::closeConnection(epoll_event current_event)
 	ConnectionData* connInfo = static_cast<ConnectionData*>(current_event.data.ptr);
 	if (!connInfo)
         return;
+	
 	if (connInfo->is_server == false)
 	{
-		//std::cout << "connection closed fd: " << connInfo->client_fd << std::endl;
+		std::cout << LIGHT_PURPLE "[CLOSE] Client fd: " << connInfo->client_fd << RESET << std::endl;
 		epoll_ctl(epollFd, EPOLL_CTL_DEL, connInfo->client_fd, NULL);
 		close(connInfo->client_fd);
-		//std::map<int, ConnectionData*>::iterator it = ClientsConnections.find(connInfo->client_fd);
 		ClientsConnections.erase(connInfo->client_fd);
 		delete (connInfo);
 	}

@@ -5,31 +5,35 @@ int main(int ac, char **av)
 {
 	WebServ *WeServ = NULL;
 	signal(SIGINT, handleSignInt);
-	std::cout << "Enter webserv" << std::endl;
+	std::cout << SOFT_GREEN "========== WEBSERV STARTING ==========" << RESET << std::endl;
 
 	WeServ = new WebServ;
-	// check args
 	try
 	{
 		if (ac == 2)
 			WeServ->parseConfig(av[1]);
-		if (ac == 1)
+		else if (ac == 1)
 			WeServ->parseConfig("config/default.conf");
-		//WeServ->printConfig();
+		else
+		{
+			std::cout << SOFT_RED "[ERROR] Usage: ./webserv [config_file]" << RESET << std::endl;
+			delete WeServ;
+			return 1;
+		}
+		
 		WeServ->startServers();
-		while(WeServ->epollWaiting() == true) //listening
+		while(WeServ->epollWaiting() == true)
 			;
 	}
 	catch (int errCode)
 	{
-		std::cout << "Error code: " << errCode << std::endl;
-		//send response with "500"; Internal Server Error???
+		std::cout << SOFT_RED "[ERROR] Exception - Error code: " << errCode << RESET << std::endl;
 	}
 	catch (const std::exception &e)
 	{
-		std::cerr << "Error: " << e.what() << std::endl;
+		std::cerr << SOFT_RED "[ERROR] Exception - " << e.what() << RESET << std::endl;
 	}
-	std::cout <<  DARK_PURPLE "Ending: " RESET << std::endl;
+	std::cout <<  DARK_PURPLE "========== WEBSERV ENDING ==========" RESET << std::endl;
 	delete WeServ;
 }
 
