@@ -15,10 +15,10 @@ void HttpRequest::GetRequest()
 bool HttpRequest::GetAccessRessource()
 {
 	std::string makingPath;
-	if (HTTPHeader.getUri() == "/")
+	if (this->uri == "/")
 		makingPath = Server->root + "/" + Server->locations[0].index;
 	else
-		makingPath = Server->root + HTTPHeader.getUri();
+		makingPath = Server->root + this->uri;
 	const char *path = makingPath.c_str();
 	fd_Ressource = open(path , O_RDONLY);
 	if (fd_Ressource < 0)
@@ -50,8 +50,8 @@ bool HttpRequest::loadRessource()
     }
 	//check eof
 	close(fd_Ressource);
-	ContentLenght = IntToString(AnswerBody.size()); //pas le droit
-//	std::cout << "CONTENT LENGTH " << ContentLenght << std::endl;
+	ContentLength = AnswerBody.size();
+//	std::cout << "CONTENT LENGTH " << ContentLength << std::endl;
 	return true;
 }
 

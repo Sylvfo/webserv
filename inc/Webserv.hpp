@@ -63,13 +63,15 @@ struct ConnectionData
 	bool is_server;
     int server_index;
     ServerConfig* server; // Pointeur direct
+
+	HttpRequest request;
 };
 
 class WebServ
 {
 	private:
 		std::vector<ServerConfig> servers;
-		int epollFd; 
+		int epollFd;
 		std::map<int, ConnectionData*> ServersConnections;
 		std::map<int, ConnectionData*> ClientsConnections;
 

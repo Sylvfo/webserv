@@ -3,32 +3,33 @@
 //check request avec port et nom de domaine ici ou aprse?
 
 /*TEMP FUNCTION TO REMOVE WHEN THE REQUEST PARSING IS DONE !!!!*/
-std::string getRequestHost(std::string req)
-{
-    std::string::size_type pos = 0;
-	std::string host;
-    while (true) {
-        std::string::size_type end = req.find('\n', pos);
-        if (end == std::string::npos) break;
+// std::string getRequestHost(std::string req)
+// {
+//     std::string::size_type pos = 0;
+// 	std::string host;
+//     while (true) {
+//         std::string::size_type end = req.find('\n', pos);
+//         if (end == std::string::npos) break;
 
-        std::string line = req.substr(pos, end - pos);
-        if (!line.empty() && line[line.size() - 1] == '\r')
-            line.erase(line.size() - 1);
+//         std::string line = req.substr(pos, end - pos);
+//         if (!line.empty() && line[line.size() - 1] == '\r')
+//             line.erase(line.size() - 1);
 
-        if (line.size() >= 5 && line.substr(0, 5) == "Host:") {
-			host = line.substr(6);
-            break;
-        }
+//         if (line.size() >= 5 && line.substr(0, 5) == "Host:") {
+// 			host = line.substr(6);
+//             break;
+//         }
 
-        pos = end + 1;
-	}
-	return host;
-}
+//         pos = end + 1;
+// 	}
+// 	return host;
+// }
 
 //main HTTP handling function
 void WebServ::handleRequest(epoll_event current_event)
 {
-	HttpRequest	Request;
+
+	//HttpRequest	Request;
 
 	//std::cout << "enter handlerequest" << std::endl;
 	//this can be put in a function called takeInfofrom server Pointer
@@ -38,41 +39,74 @@ void WebServ::handleRequest(epoll_event current_event)
         std::cerr << "Error: NULL connection info" << std::endl;
         return;
     }
-	Request.socket_fd = connInfo->client_fd;
-	Request.Server = connInfo->server;
-	//////////////////////////////////////////////////////////
-	//PARSING TO DO BETTER
-	if (Request.recieveRequest() == false)
-		return;//to do better
 
-	Request.parseRequest(); //to do 
+	HttpRequest& request = connInfo->request;
+
+	request.socket_fd = connInfo->client_fd;
+	request.Server = connInfo->server;
+	//////////////////////////////////////////////////////////
+
+
+	// new logic for header and body here:
+	if (!request.HeaderComplete)
+	{
+		if (!request.ReceiveHeader())
+		{
+			//closeConnection(current_event);
+			return;
+		}
+		if (request.HeaderComplete)
+		{
+			if (request.ParseHeader())
+				request.ValidateHeader();
+		}
+		else
+			return;// header is not complete yet
+	}
+
+	if (request.HeaderComplete && request.ExpectingBody && !request.BodyComplete && request.AnswerType != ERROR)
+	{
+		if (!request.ReceiveBody())
+		{
+			//closeConnection(current_event);
+			return;
+		}
+		if (!request.BodyComplete)
+		{
+			//Body not full yet
+			return;
+		}
+	}
+	if (request.AnswerType != ERROR)
+		request.CheckRequest();
+
+	//Redoing at the moment
+	/*Request.recieveRequest();//to do better
+	Request.parseRequest(); //to do
 	//Request.printHttpRequest();
-	
-	Request.method = Request.HTTPHeader.getMethod();// pas bien à refaire. 
+
+	Request.method = Request.HTTPHeader.getMethod();// pas bien à refaire.
 	Request.uri = Request.HTTPHeader.getUri();
 	Request.checkRequest(); //to do
-	//Request.AnswerType = STATIC; 
+	Request.AnswerType = STATIC;
 	//Request.AnswerType = ERROR;// LOCAL; //to remove when parsing is done
-	//Request.StatusCode = 403;
-	
+	//Request.StatusCodeI = 404;
+
 	if (Request.RawRequest.empty() || Request.HTTPHeader.getMethod().empty())
     {
 		// todoparsing why they are empty request????
     //    std::cout << "Empty request, closing connection" << std::endl;
         return;
-    }
+    }*/
 	////////////////////////////////////////////////////////////
 	//CREATING THE ANSWER
-	if (Request.AnswerType == ERROR)
-		Request.AnswerError();
-	else if (Request.AnswerType == STATIC)
-		Request.Answerlocal();
-	else if (Request.AnswerType == CGI)
-	{
-		std::cout << "[CGI] Processing CGI request for: " << Request.uri << std::endl;
-		Request.AnswerCGI();//to do
-	}
-	Request.sendAnswerToRequest();
+	if (request.AnswerType == ERROR)
+		request.AnswerError();
+	else if (request.AnswerType == STATIC)
+		request.Answerlocal();
+	else if (request.AnswerType == CGI)
+		request.AnswerCGI();//to do
+	request.sendAnswerToRequest();
 }
 
 void HttpRequest::sendAnswerToRequest()
@@ -88,7 +122,7 @@ void HttpRequest::sendAnswerToRequest()
 		if (bytesSent < 0)
 		{
 			std::cout << "Could not send response";
-			return; 
+			return;
 		}
 		totalBytesSent += bytesSent;
 	}
