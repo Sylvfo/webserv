@@ -47,7 +47,10 @@ if [ -z "$FILENAME" ]; then
 fi
 
 # Sanitize filename (remove path components and dangerous characters)
-FILENAME=$(basename "$FILENAME" | tr -d '/../' | sed 's/[^a-zA-Z0-9._-]/_/g')
+# Remove any path traversal attempts and sanitize
+FILENAME=$(basename "$FILENAME")
+FILENAME=$(echo "$FILENAME" | sed 's/\.\.\///g')
+FILENAME=$(echo "$FILENAME" | sed 's/[^a-zA-Z0-9._-]/_/g')
 
 if [ -z "$FILENAME" ]; then
     FILENAME="uploaded_file_$(date +%s)"
