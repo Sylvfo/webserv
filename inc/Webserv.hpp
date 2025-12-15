@@ -74,6 +74,8 @@ class WebServ
 		int epollFd;
 		std::map<int, ConnectionData*> ServersConnections;
 		std::map<int, ConnectionData*> ClientsConnections;
+		static volatile sig_atomic_t g_shutdown;
+		//#include <csignal>
 
 	public:
 		WebServ();
@@ -115,7 +117,11 @@ class WebServ
 	//	handel
 		void printfds();
 		void printepollwait(struct epoll_event *csurrent_events, int ndfs);
+		//end programm
+		static bool shouldShutdown();
+		static void setShutdown(bool value);
 };
+
 
 void setNonBlocking(int fd);
 void handleSignInt(int sign);
