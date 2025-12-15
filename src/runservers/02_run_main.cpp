@@ -63,15 +63,19 @@ struct epoll_event
 
 bool WebServ::epollWaiting()
 {
+	if (shouldShutdown())
+		return false;
+
 	struct epoll_event current_events[MAX_EVENTS];
 
-	int const ndfs = epoll_wait(epollFd, current_events, MAX_EVENTS, -1);
+	//int const ndfs = epoll_wait(epollFd, current_events, MAX_EVENTS, -1);
+	int const ndfs = epoll_wait(epollFd, current_events, MAX_EVENTS, 1000);
 	if (ndfs < 0)
 	{
-		std::cout << SOFT_RED "[ERROR] epoll_wait failed" << RESET << std::endl;
-		throw  8;
+		if (errno == EINTR)
+			return !shouldShutdown();//???
+		throw  std::runtime_error("Error in epollWaiting");
 	}
-	
 	for (int i = 0; i < ndfs; i++)
 	{
 		if ((current_events[i].events & EPOLLERR) || 
@@ -97,7 +101,8 @@ bool WebServ::epollWaiting()
 				closeConnection(current_events[i]);
 		}
 	}
-	return true;
+	return !shouldShutdown();
+	//return true;
 }
 
 int	WebServ::newConnection(epoll_event new_event)

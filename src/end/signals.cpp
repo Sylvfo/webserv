@@ -1,8 +1,17 @@
 #include "Webserv.hpp"
 
+volatile sig_atomic_t WebServ::g_shutdown = 0;
+
 void handleSignInt(int sign)
 {
 	(void) sign;
-	std::cout << std::endl << SOFT_ORANGE "[SIGNAL] SIGINT received (Ctrl+C), shutting down gracefully..." << RESET << std::endl;
-//	return;
+	WebServ::setShutdown(true);
+}
+
+void WebServ::setShutdown(bool value) {
+    g_shutdown = value ? 1 : 0;
+}
+
+bool WebServ::shouldShutdown() {
+    return g_shutdown != 0;
 }

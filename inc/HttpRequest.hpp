@@ -11,7 +11,6 @@ enum AnswerType {
 
 struct server;
 
-
 class HttpRequest
 {
 public:
