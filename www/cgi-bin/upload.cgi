@@ -22,9 +22,6 @@ if [[ "$CONTENT_TYPE" != *"multipart/form-data"* ]]; then
     exit 1
 fi
 
-# Read the POST data
-POST_DATA=$(cat)
-
 # Extract boundary from Content-Type
 BOUNDARY=$(echo "$CONTENT_TYPE" | grep -o 'boundary=[^;]*' | cut -d= -f2)
 
@@ -33,12 +30,17 @@ if [ -z "$BOUNDARY" ]; then
     exit 1
 fi
 
-# Create temporary file for processing
+# Create temporary file for processing - read directly to file to preserve binary data
 TEMP_FILE="/tmp/upload_$$.tmp"
-echo "$POST_DATA" > "$TEMP_FILE"
+cat > "$TEMP_FILE"
 
-# Extract filename from the multipart data
-FILENAME=$(grep -A 10 "filename=" "$TEMP_FILE" | head -1 | grep -o 'filename="[^"]*"' | cut -d'"' -f2)
+# Extract filename from the multipart data (text-only operation, safe)
+FILENAME=$(grep -aoP 'filename="\K[^"]+' "$TEMP_FILE" 2>/dev/null | head -1)
+
+# Fallback if grep -P doesn't work
+if [ -z "$FILENAME" ]; then
+    FILENAME=$(grep -a "filename=" "$TEMP_FILE" | head -1 | sed 's/.*filename="\([^"]*\)".*/\1/')
+fi
 
 if [ -z "$FILENAME" ]; then
     echo '{"error": "No filename found", "message": "Could not extract filename from upload"}'
@@ -56,22 +58,57 @@ if [ -z "$FILENAME" ]; then
     FILENAME="uploaded_file_$(date +%s)"
 fi
 
-# Extract file data (everything after the first empty line following Content-Type)
-awk "
-/Content-Type: / { 
-    getline; 
-    if (\$0 == \"\r\" || \$0 == \"\") {
-        while ((getline) > 0) {
-            if (\$0 ~ /^--$BOUNDARY/) break;
-            print \$0;
-        }
-        exit;
-    }
-}" "$TEMP_FILE" > "$UPLOAD_DIR/$FILENAME"
+# Use Python to extract the binary file data safely
+FILE_SIZE=$(python3 -c "
+import sys
+import re
+
+temp_file = '$TEMP_FILE'
+boundary = '$BOUNDARY'
+output_file = '$UPLOAD_DIR/$FILENAME'
+
+try:
+    with open(temp_file, 'rb') as f:
+        data = f.read()
+    
+    # Find the file content between Content-Type and boundary
+    pattern = b'Content-Type: [^\r\n]+\r?\n\r?\n'
+    match = re.search(pattern, data)
+    
+    if not match:
+        sys.exit(1)
+    
+    start = match.end()
+    
+    # Find the ending boundary
+    end_boundary = b'\r\n--' + boundary.encode()
+    end = data.find(end_boundary, start)
+    
+    if end == -1:
+        end_boundary = b'--' + boundary.encode()
+        end = data.find(end_boundary, start)
+    
+    if end == -1:
+        sys.exit(1)
+    
+    # Extract the file data
+    file_data = data[start:end]
+    
+    # Write to output file
+    with open(output_file, 'wb') as f:
+        f.write(file_data)
+    
+    print(len(file_data))
+    
+except Exception as e:
+    sys.exit(1)
+" 2>/dev/null)
 
 # Check if file was created and has content
 if [ -f "$UPLOAD_DIR/$FILENAME" ] && [ -s "$UPLOAD_DIR/$FILENAME" ]; then
-    FILE_SIZE=$(stat -f%z "$UPLOAD_DIR/$FILENAME" 2>/dev/null || stat -c%s "$UPLOAD_DIR/$FILENAME" 2>/dev/null)
+    if [ -z "$FILE_SIZE" ]; then
+        FILE_SIZE=$(stat -c%s "$UPLOAD_DIR/$FILENAME" 2>/dev/null || stat -f%z "$UPLOAD_DIR/$FILENAME" 2>/dev/null)
+    fi
     echo "{\"success\": true, \"message\": \"File uploaded successfully\", \"filename\": \"$FILENAME\", \"size\": $FILE_SIZE}"
 else
     echo '{"error": "Upload failed", "message": "Could not save file"}'
