@@ -6,7 +6,7 @@
 #include <vector>
 #include "ServerConfig.hpp"
 
-class RequestHeader;
+class HttpRequest;
 
 class CGIHandler
 {
@@ -20,9 +20,9 @@ public:
 	~CGIHandler();
 
 	bool	isCGI(const std::string& path, const LocationConfig& location);
-	std::string	executeCGI(const std::string& script_path, const RequestHeader& request, const LocationConfig& location, const std::string& body);
+	std::string	executeCGI(const std::string& script_path, const HttpRequest& request, const LocationConfig& location, const std::string& body);
 private:
-	void	_setupEnvironment(const RequestHeader& request, const LocationConfig& location, const std::string& script_path);
+	void	_setupEnvironment(const HttpRequest& request, const LocationConfig& location, const std::string& script_path);
 	void	_cleanupEnvironment();
 	std::string	_toString(int value);
 	std::string	_extractQueryString(const std::string& uri);

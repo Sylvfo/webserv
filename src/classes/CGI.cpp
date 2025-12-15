@@ -107,25 +107,25 @@ void CGIHandler::_addEnvVar(const std::string& name, const std::string& value)
 	_env_capacity = _env_count;
 }
 
-void	CGIHandler::_setupEnvironment(const RequestHeader& request,
+void	CGIHandler::_setupEnvironment(const HttpRequest& request,
 	const LocationConfig& location, const std::string& script_path)
 {
 	(void)location;
 	_cleanupEnvironment();
 
-	std::map<std::string, std::string>	headers = request.getHeaders();
+	const std::map<std::string, std::string>&	headers = request.headers;
 
-	_addEnvVar("REQUEST_METHOD", request.getMethod());
-	_addEnvVar("REQUEST_URI", request.getUri());
+	_addEnvVar("REQUEST_METHOD", request.method);
+	_addEnvVar("REQUEST_URI", request.uri);
 	_addEnvVar("SCRIPT_NAME", script_path);
-	_addEnvVar("QUERY_STRING", _extractQueryString(request.getUri()));
+	_addEnvVar("QUERY_STRING", _extractQueryString(request.uri));
 
 	std::map<std::string, std::string>::const_iterator	host_it;
 	host_it = headers.find("Host");
 	if (host_it != headers.end())
 		_addEnvVar("HTTP_HOST", host_it->second);
 
-	if (request.getMethod() == "POST")
+	if (request.method == "POST")
 	{
 		std::map<std::string, std::string>::const_iterator	ct_it, cl_it;
 		ct_it = headers.find("Content-Type");
@@ -161,7 +161,7 @@ static void	cgi_child_die(int fd_in, int fd_out, char **env_for_exec)
 	kill(getpid(), SIGKILL);
 }
 
-std::string	CGIHandler::executeCGI(const std::string& script_path, const RequestHeader& request, const LocationConfig& location, const std::string& body)
+std::string	CGIHandler::executeCGI(const std::string& script_path, const HttpRequest& request, const LocationConfig& location, const std::string& body)
 {
 	int	pipe_in[2];
 	int	pipe_out[2];

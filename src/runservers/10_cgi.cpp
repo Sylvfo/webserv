@@ -50,5 +50,5 @@ void HttpRequest::AnswerCGI()
 		scriptPath += cleanUri.substr(1);
 	}	
 
-	HttpAnswer = cgiHandler.executeCGI(scriptPath, HTTPHeader, *matchingLocation, RequestBody);
+	HttpAnswer = cgiHandler.executeCGI(scriptPath, *this, *matchingLocation, RawBody);
 }

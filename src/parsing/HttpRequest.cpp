@@ -1,5 +1,6 @@
 
 #include "HttpRequest.hpp"
+#include "CGI.hpp"
 
 // check what is allwoed and replace
 #include <sys/socket.h>
@@ -345,7 +346,18 @@ void HttpRequest::CheckRequest()
 
 	this->StatusCode = 200; //Success
 
-	// check for cgi here, todo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	// Check for CGI
+	if (MatchedIndex != -1)
+	{
+		CGIHandler cgiHandler;
+		if (cgiHandler.isCGI(uri, Server->locations[MatchedIndex]))
+		{
+			std::cout << "[CGI] Detected CGI request: " << uri << std::endl;
+			this->AnswerType = CGI;
+			return;
+		}
+	}
+	
 	this->AnswerType = STATIC;
 }
 
