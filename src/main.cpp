@@ -14,9 +14,15 @@ int main(int ac, char **av)
 	{
 		if (ac == 2)
 			WeServ->parseConfig(av[1]);
-		if (ac == 1)
+		else if (ac == 1)
 			WeServ->parseConfig("config/default.conf");
-		//WeServ->printConfig();
+		else
+		{
+			std::cout << SOFT_RED "[ERROR] Usage: ./webserv [config_file]" << RESET << std::endl;
+			delete WeServ;
+			return 1;
+		}
+		
 		WeServ->startServers();
 		while(WeServ->epollWaiting() == true)// && !WebServ::shouldShutdown()) //listening
 			;
@@ -28,9 +34,9 @@ int main(int ac, char **av)
 	}*/
 	catch (const std::exception &e)
 	{
-		std::cerr << "Error: " << e.what() << std::endl;
+		std::cerr << SOFT_RED "[ERROR] Exception - " << e.what() << RESET << std::endl;
 	}
-	std::cout <<  DARK_PURPLE "\nEnding: " RESET << std::endl;
+	std::cout <<  DARK_PURPLE "========== WEBSERV ENDING ==========" RESET << std::endl;
 	delete WeServ;
 }
 

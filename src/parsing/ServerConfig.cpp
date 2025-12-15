@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bschmid <bschmid@student.42lausanne.ch>    +#+  +:+       +#+        */
+/*   By: beboccas <beboccas@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 15:07:41 by beboccas          #+#    #+#             */
-/*   Updated: 2025/11/21 16:01:05 by bschmid          ###   ########.fr       */
+/*   Updated: 2025/12/15 19:54:19 by beboccas         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,9 +91,13 @@ void WebServ::printConfig()
 
 void WebServ::parseConfig(std::string path)
 {
+	std::cout << LIGHT_BLUE "[PARSE_CONFIG] Opening config file: " << path << RESET << std::endl;
 	std::ifstream file(path.c_str());
 	if (!file.is_open())
+	{
+		std::cout << SOFT_RED "[PARSE_CONFIG] ERROR: Cannot open config file: " << path << RESET << std::endl;
 		throw std::runtime_error("Cannot open config file: " + path);
+	}
 
 	std::string line;
 	ServerConfig currentServer;
@@ -103,6 +107,7 @@ void WebServ::parseConfig(std::string path)
 
 	int lineNumber = 0;
 
+	std::cout << LIGHT_BLUE "[PARSE_CONFIG] Parsing configuration..." << RESET << std::endl;
 	while (std::getline(file, line))
 	{
 		lineNumber++;
@@ -123,16 +128,19 @@ void WebServ::parseConfig(std::string path)
 			{
 				std::ostringstream oss;
 				oss << "Expected '{' after server (line " << lineNumber << ")";
+				std::cout << SOFT_RED "[PARSE_CONFIG] ERROR: " << oss.str() << RESET << std::endl;
 				throw std::runtime_error(oss.str());
 			}
 			if (inServer)
 			{
 				std::ostringstream oss;
 				oss << "Nested server block not allowed (line " << lineNumber << ")";
+				std::cout << SOFT_RED "[PARSE_CONFIG] ERROR: " << oss.str() << RESET << std::endl;
 				throw std::runtime_error(oss.str());
 			}
 			inServer = true;
 			currentServer = ServerConfig();
+			std::cout << LIGHT_BLUE "[PARSE_CONFIG] Starting new server block at line " << lineNumber << RESET << std::endl;
 			continue;
 		}
 
@@ -141,11 +149,13 @@ void WebServ::parseConfig(std::string path)
 		{
 			if (inLocation)
 			{
+				std::cout << LIGHT_BLUE "[PARSE_CONFIG] Closing location block at line " << lineNumber << RESET << std::endl;
 				currentServer.locations.push_back(currentLocation);
 				inLocation = false;
 			}
 			else if (inServer)
 			{
+				std::cout << LIGHT_BLUE "[PARSE_CONFIG] Closing server block at line " << lineNumber << RESET << std::endl;
 				this->addServer(currentServer);
 				inServer = false;
 			}

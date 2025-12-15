@@ -28,85 +28,60 @@
 //main HTTP handling function
 void WebServ::handleRequest(epoll_event current_event)
 {
-
-	//HttpRequest	Request;
-
-	//std::cout << "enter handlerequest" << std::endl;
-	//this can be put in a function called takeInfofrom server Pointer
 	ConnectionData* connInfo = static_cast<ConnectionData*>(current_event.data.ptr);
    	if (!connInfo)
     {
-        std::cerr << "Error: NULL connection info" << std::endl;
+        std::cerr << SOFT_RED "[ERROR] NULL connection info" << RESET << std::endl;
         return;
     }
 
 	HttpRequest& request = connInfo->request;
-
 	request.socket_fd = connInfo->client_fd;
 	request.Server = connInfo->server;
-	//////////////////////////////////////////////////////////
 
-
-	// new logic for header and body here:
+	// Receive and parse header
 	if (!request.HeaderComplete)
 	{
 		if (!request.ReceiveHeader())
 		{
-			//closeConnection(current_event);
+			std::cout << SOFT_RED "[ERROR] Failed to receive header" << RESET << std::endl;
 			return;
 		}
 		if (request.HeaderComplete)
 		{
-			if (request.ParseHeader())
-				request.ValidateHeader();
+			if (!request.ParseHeader() || !request.ValidateHeader())
+				return; // Error logged in those functions
 		}
 		else
-			return;// header is not complete yet
+			return; // Header not complete yet
 	}
 
+	// Receive body if expected
 	if (request.HeaderComplete && request.ExpectingBody && !request.BodyComplete && request.AnswerType != ERROR)
 	{
 		if (!request.ReceiveBody())
 		{
-			//closeConnection(current_event);
+			std::cout << SOFT_RED "[ERROR] Failed to receive body" << RESET << std::endl;
 			return;
 		}
 		if (!request.BodyComplete)
-		{
-			//Body not full yet
-			return;
-		}
+			return; // Body not complete yet
 	}
+	
+	// Check request validity
 	if (request.AnswerType != ERROR)
 		request.CheckRequest();
 
-	//Redoing at the moment
-	/*Request.recieveRequest();//to do better
-	Request.parseRequest(); //to do
-	//Request.printHttpRequest();
-
-	Request.method = Request.HTTPHeader.getMethod();// pas bien à refaire.
-	Request.uri = Request.HTTPHeader.getUri();
-	Request.checkRequest(); //to do
-	Request.AnswerType = STATIC;
-	//Request.AnswerType = ERROR;// LOCAL; //to remove when parsing is done
-	//Request.StatusCodeI = 404;
-
-	if (Request.RawRequest.empty() || Request.HTTPHeader.getMethod().empty())
-    {
-		// todoparsing why they are empty request????
-    //    std::cout << "Empty request, closing connection" << std::endl;
-        return;
-    }*/
-	////////////////////////////////////////////////////////////
-	//CREATING THE ANSWER
+	// Generate response
 	if (request.AnswerType == ERROR)
 		request.AnswerError();
 	else if (request.AnswerType == STATIC)
 		request.Answerlocal();
 	else if (request.AnswerType == CGI)
-		request.AnswerCGI();//to do
+		request.AnswerCGI();
+
 	request.sendAnswerToRequest();
+	request.RequestComplete = true;
 }
 
 void HttpRequest::sendAnswerToRequest()
@@ -114,20 +89,16 @@ void HttpRequest::sendAnswerToRequest()
 	int bytesSent = 0;
 	int totalBytesSent = 0;
 
-	//std::cout << "socket fd " << socket_fd << std::endl;
-	// is it non blocking?
 	while(totalBytesSent < (int)HttpAnswer.size())
 	{
 		bytesSent = send(socket_fd, HttpAnswer.c_str(), HttpAnswer.size(), 0);
 		if (bytesSent < 0)
 		{
-			std::cout << "Could not send response";
+			std::cout << SOFT_RED "[ERROR] Could not send response" << RESET << std::endl;
 			return;
 		}
 		totalBytesSent += bytesSent;
 	}
-	//epoll_ctl(epollFd, EPOLL_CTL_DEL, socket_fd, NULL);
-//	close(socket_fd);
 }
 
 std::string IntToString(int numb)
