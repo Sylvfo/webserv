@@ -3,12 +3,13 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bschmid <bschmid@student.42lausanne.ch>    +#+  +:+       +#+        */
+/*   By: beboccas <beboccas@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/12 01:30:25 by bschmid           #+#    #+#             */
-/*   Updated: 2025/12/12 01:31:33 by bschmid          ###   ########.fr       */
+/*   Created: Invalid date        by                   #+#    #+#             */
+/*   Updated: 2025/12/15 02:27:34 by beboccas         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #pragma once
 
@@ -16,6 +17,8 @@
 #include <vector>
 #include <map>
 #include <utility>
+#include <netinet/in.h>
+#include <sys/socket.h>
 
 // added so would compile but not used in header parsing
 #include <netinet/in.h>
