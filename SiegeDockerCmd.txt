@@ -9,7 +9,6 @@ siege options:
 -r how many times (requests but I think not per user)
 -c users
 
-
 ifconfig pour trouver ip
 
 ou mettre localhost??
@@ -19,6 +18,12 @@ ou mettre localhost??
 sur ordi syl:
 docker run --rm --network=host lopezs/siege -t5M -c100 -b http://localhost:2223
 ok fonctionne
+
+sur ordi ecole:
+dans config, mettre servers en localhost
+
+docker run --rm --network=host lopezs/siege -t1M -c2 http://10.12.3.1:2222
+
 
 Max clients:
 //limit par processus
