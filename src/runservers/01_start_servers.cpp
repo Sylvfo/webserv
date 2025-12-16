@@ -135,8 +135,14 @@ void WebServ::initPoll()
 
 void setNonBlocking(int fd)
 {
-	std::cout << LIGHT_BLUE "[SET_NONBLOCK] Setting fd " << fd << " to non-blocking" << RESET << std::endl;
-	int flags = fcntl(fd, F_GETFL, 0);
-	fcntl(fd, F_SETFL, flags |O_NONBLOCK);
-	std::cout << LIGHT_BLUE "[SET_NONBLOCK] Fd " << fd << " set to non-blocking" << RESET << std::endl;
+    int flags = fcntl(fd, F_GETFL, 0);
+    if (flags == -1)
+    {
+        std::cerr << SOFT_RED "[ERROR] fcntl F_GETFL failed" << RESET << std::endl;
+        return;
+    }
+    if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1)
+    {
+        std::cerr << SOFT_RED "[ERROR] fcntl F_SETFL failed" << RESET << std::endl;
+    }
 }
