@@ -77,6 +77,7 @@ public:
 	
 	// --- Body Handling ---
 	bool	ReceiveBody();
+	void	HandleMultipart();
 
 	// --- Response Generation ---
 	void	Answerlocal();
