@@ -2,17 +2,14 @@
 #include "HttpRequest.hpp"
 #include "CGI.hpp"
 #include "colors.hpp"
-
-// check what is allwoed and replace
 #include <sys/socket.h>
 #include <sstream>
 #include <cstdlib>
 #include <iostream>
 #include <cerrno>
 #include <cstring>
-#include <sys/stat.h> // for stat
+#include <sys/stat.h>
 
-// Constructor
 HttpRequest::HttpRequest()
 	// --- Server & Connection ---
 	: Server(NULL)
@@ -35,7 +32,64 @@ HttpRequest::HttpRequest()
 {
 }
 
-// Destructor
+HttpRequest::HttpRequest(const HttpRequest& other)
+	: Server(other.Server)
+	, socket_fd(other.socket_fd)
+	, method(other.method)
+	, uri(other.uri)
+	, version(other.version)
+	, Path(other.Path)
+	, headers(other.headers)
+	, HeaderComplete(other.HeaderComplete)
+	, PartialRequest(other.PartialRequest)
+	, RawHeader(other.RawHeader)
+	, RequestComplete(other.RequestComplete)
+	, ExpectingBody(other.ExpectingBody)
+	, IsChunked(other.IsChunked)
+	, BodyComplete(other.BodyComplete)
+	, ContentLength(other.ContentLength)
+	, RawBody(other.RawBody)
+	, PartialBody(other.PartialBody)
+	, AnswerType(other.AnswerType)
+	, StatusCode(other.StatusCode)
+	, HttpAnswer(other.HttpAnswer)
+	, ContentType(other.ContentType)
+	, AnswerBody(other.AnswerBody)
+	, fd_Ressource(other.fd_Ressource)
+{
+}
+
+HttpRequest& HttpRequest::operator=(const HttpRequest& other)
+{
+	if (this != &other)
+	{
+		Server = other.Server;
+		socket_fd = other.socket_fd;
+		method = other.method;
+		uri = other.uri;
+		version = other.version;
+		Path = other.Path;
+		headers = other.headers;
+		HeaderComplete = other.HeaderComplete;
+		PartialRequest = other.PartialRequest;
+		RawHeader = other.RawHeader;
+		RequestComplete = other.RequestComplete;
+		ExpectingBody = other.ExpectingBody;
+		IsChunked = other.IsChunked;
+		BodyComplete = other.BodyComplete;
+		ContentLength = other.ContentLength;
+		RawBody = other.RawBody;
+		PartialBody = other.PartialBody;
+		AnswerType = other.AnswerType;
+		StatusCode = other.StatusCode;
+		HttpAnswer = other.HttpAnswer;
+		ContentType = other.ContentType;
+		AnswerBody = other.AnswerBody;
+		fd_Ressource = other.fd_Ressource;
+	}
+	return *this;
+}
+
 HttpRequest::~HttpRequest()
 {
 }

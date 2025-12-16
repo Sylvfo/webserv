@@ -17,6 +17,8 @@ private:
 
 public:
 	CGIHandler();
+	CGIHandler(const CGIHandler& other);
+	CGIHandler& operator=(const CGIHandler& other);
 	~CGIHandler();
 
 	bool	isCGI(const std::string& path, const LocationConfig& location);

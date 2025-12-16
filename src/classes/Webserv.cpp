@@ -5,6 +5,25 @@ WebServ::WebServ()
 {
 }
 
+WebServ::WebServ(const WebServ& other)
+	: servers(other.servers)
+	, epollFd(other.epollFd)
+{
+	//la copie des maps avec pointeurs est un peu trop complexe pour moi
+	(void)other;
+}
+
+WebServ& WebServ::operator=(const WebServ& other)
+{
+	if (this != &other)
+	{
+		servers = other.servers;
+		epollFd = other.epollFd;
+		//meme soucis avec les maps
+	}
+	return *this;
+}
+
 WebServ::~WebServ()
 {
 	servers.clear();
