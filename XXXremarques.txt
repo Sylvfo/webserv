@@ -1,4 +1,0 @@
-
-
-Il segfault au debut parce que ya rien dans les vecteurs 
-pense a init la memoire =)
