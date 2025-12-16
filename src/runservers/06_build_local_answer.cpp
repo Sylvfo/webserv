@@ -26,7 +26,6 @@ void HttpRequest::Answerlocal()
 	std::cout << PASTEL_AQUA "[ANSWER_LOCAL] Local answer complete" << RESET << std::endl;
 }
 
-//façon plus classe de faire ça??
 void HttpRequest::SetResponseHeader()
 {
 	std::cout << PASTEL_AQUA "[SET_HEADER] Building response headers" << RESET << std::endl;
@@ -57,7 +56,6 @@ void HttpRequest::SetStatusLine()
 	std::cout << PASTEL_AQUA "[SET_STATUS] Setting status line for code " << StatusCode << RESET << std::endl;
 	HttpAnswer.clear();
 	HttpAnswer = "HTTP/1.0 "; //put in constructor
-	//HttpAnswer += StatusCode;
 	std::map<int, std::string>::iterator it = this->Server->error_code_message.find(StatusCode);
 	if (it == Server->error_pages.end())
 	{
@@ -69,7 +67,6 @@ void HttpRequest::SetStatusLine()
 		std::cout << PASTEL_AQUA "[SET_STATUS] Status message: " << it->second << RESET << std::endl;
 	}
 	HttpAnswer += it->second;
-	///
 	HttpAnswer += "\r\n";
 	std::cout << PASTEL_AQUA "[SET_STATUS] Status line set: " << HttpAnswer << RESET << std::endl;
 }

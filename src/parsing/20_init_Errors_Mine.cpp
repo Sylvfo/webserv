@@ -29,3 +29,9 @@ void WebServ::initErroCode(struct ServerConfig &server)
 	server.error_code_message.insert(std::make_pair(502, "502 Bad Gateway"));
 	server.error_code_message.insert(std::make_pair(503, "503 Service Unavailable"));
 }
+
+void WebServ::initDefautlPage(struct ServerConfig &server)
+{
+	// ERRS a completer
+	server.default_error_html.insert(std::make_pair(200, "200 OK"));
+}

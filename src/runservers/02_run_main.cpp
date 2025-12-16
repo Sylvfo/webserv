@@ -143,7 +143,6 @@ bool WebServ::acceptConnection(int index)
 		}
 		ClientsConnections.insert(std::make_pair(new_socket, connectionInfo));
 	}
-	
 	return true;
 }
 

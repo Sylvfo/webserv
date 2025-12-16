@@ -59,6 +59,7 @@ public:
 	struct sockaddr_in sockaddr;
 	socklen_t server_len;
 	std::map<int, std::string> error_code_message;
+	std::map<int, std::string> default_error_html;
 	std::map<std::string, std::string> mime_types;
 
 	ServerConfig();
