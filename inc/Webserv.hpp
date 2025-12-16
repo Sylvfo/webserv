@@ -102,6 +102,7 @@ class WebServ
 		void startServers();
 		void initErroCode(struct ServerConfig &server);
 		void initMimeTypes(struct ServerConfig &server);
+		void initDefautlPage(struct ServerConfig &server);
 		//epoll
 		bool	epollWaiting();
 		int		newConnection(epoll_event new_event);
@@ -112,7 +113,7 @@ class WebServ
 		//handle request
 		void handleRequest(epoll_event current_event);
 		//free
-		void free_webserv();
+		//void free_webserv();
 
 	//	handel
 		void printfds();

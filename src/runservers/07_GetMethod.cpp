@@ -56,11 +56,8 @@ bool HttpRequest::GetAccessRessource()
 bool HttpRequest::loadRessource()
 {
 	std::cout << SOFT_GREEN "[LOAD_RESOURCE] Loading resource from fd: " << fd_Ressource << RESET << std::endl;
-//	DefaultErrorPage();
 	AnswerBody.clear();
-	//Content-Length
-	//what problem??
-	char buff[4096];  // Buffer de 4KB
+	char buff[4096];
 	ssize_t bytesRead;
 
 	if (fd_Ressource == -1)
