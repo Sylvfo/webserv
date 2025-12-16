@@ -21,13 +21,14 @@ void HttpRequest::PostRequest()
 	}
 	else if (ContentType.find("multipart/form-data") != std::string::npos)
 	{
-		std::cout << SOFT_RED "[POST] File upload not yet implemented (501)" << RESET << std::endl;
-		// File upload - too complex for now
-		StatusCode = 501;
+		std::cout << SOFT_RED "[POST] Calling Multipart" << RESET << std::endl;
+		HandleMultipart();
+		std::cout << SOFT_RED "[POST] Multipart succesfull" << RESET << std::endl;
+		//StatusCode = 501;
 		//StatusCode = "501 Not Implemented";
-		AnswerBody = "File upload not yet implemented";
-		ContentType = "text/plain";
-		ContentLength = AnswerBody.size();
+		//AnswerBody = "File upload not yet implemented";
+		//ContentType = "text/plain";
+		//ContentLength = AnswerBody.size();
 	}
 	else if (ContentType.find("application/json") != std::string::npos)
 	{
@@ -50,6 +51,90 @@ void HttpRequest::PostRequest()
 		ContentLength = AnswerBody.size();
 	}
 	std::cout << SOFT_PINK "[POST] POST request processing complete" << RESET << std::endl;
+}
+
+void HttpRequest::HandleMultipart()
+{
+    std::cout << SOFT_PINK "[MULTIPART] Handling multipart data..." << RESET << std::endl;
+
+    std::string contentType = this->headers["content-type"];
+    size_t boundaryPos = contentType.find("boundary=");
+    if (boundaryPos == std::string::npos)
+    {
+        this->StatusCode = 400; 
+        return;
+    }
+
+    // 1. Define Boundaries
+    // Header: boundary=XYZ
+    // Body: --XYZ (start) and --XYZ-- (end)
+    std::string boundary = "--" + contentType.substr(boundaryPos + 9);
+    
+    // 2. Loop through RawBody
+    size_t pos = 0;
+    while (true)
+    {
+        // Find start of a part
+        size_t startPos = this->RawBody.find(boundary, pos);
+        if (startPos == std::string::npos) break; 
+
+        // Check if it's the end boundary (--boundary--)
+        if (startPos + boundary.length() + 2 <= this->RawBody.length())
+        {
+            if (this->RawBody.substr(startPos + boundary.length(), 2) == "--")
+                break; // End of upload
+        }
+
+        // The part data usually starts after boundary + \r\n
+        size_t partStart = startPos + boundary.length() + 2;
+        
+        // Find end of this part (the next boundary)
+        size_t nextBoundary = this->RawBody.find(boundary, partStart);
+        if (nextBoundary == std::string::npos) break;
+
+        // The content ends before the \r\n that precedes the next boundary
+        size_t partEnd = nextBoundary - 2;
+
+        // Isolate the Header vs Body of this part
+        size_t headerEnd = this->RawBody.find("\r\n\r\n", partStart);
+        if (headerEnd != std::string::npos && headerEnd < partEnd)
+        {
+            // Extract Part Headers
+            std::string partHeaders = this->RawBody.substr(partStart, headerEnd - partStart);
+            
+            // Extract Part Content (Starts after \r\n\r\n)
+            size_t bodyStart = headerEnd + 4;
+            std::string partBody = this->RawBody.substr(bodyStart, partEnd - bodyStart);
+
+            // Get Filename
+            std::string filename = "default.bin";
+            size_t namePos = partHeaders.find("filename=\"");
+            if (namePos != std::string::npos)
+            {
+                size_t endName = partHeaders.find("\"", namePos + 10);
+                if (endName != std::string::npos)
+                    filename = partHeaders.substr(namePos + 10, endName - (namePos + 10));
+            }
+
+            // Determine Upload Path
+            // (You can copy the logic from HandleFormData to match location blocks here)
+            std::string uploadPath = Server->root + "/uploads"; 
+            
+            // Write File
+            std::string fullPath = uploadPath + "/" + filename;
+            std::ofstream outFile(fullPath.c_str(), std::ios::binary);
+            if (outFile.is_open())
+            {
+                outFile.write(partBody.c_str(), partBody.size());
+                outFile.close();
+                std::cout << SOFT_PINK "[MULTIPART] Saved file: " << fullPath << RESET << std::endl;
+            }
+        }
+        pos = nextBoundary;
+    }
+
+    this->StatusCode = 201;
+    this->AnswerBody = "File(s) uploaded successfully.";
 }
 
 void HttpRequest::HandleFormData()
