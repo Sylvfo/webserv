@@ -43,62 +43,94 @@ HttpRequest::~HttpRequest()
 // HTTP Header Parsing Functions
 // These replace 04_recive_request_.cpp and RawHeader.cpp
 
+// bool HttpRequest::ReceiveHeader()
+// {
+// 	std::vector<char> temp_buffer(RECEIVE_CHUNK_SIZE);
+	
+// 	// Edge-triggered epoll: must read ALL available data
+// 	while (true)
+// 	{
+// 		ssize_t bytes_received = recv(socket_fd, &temp_buffer[0], temp_buffer.size(), 0);
+		
+// 		if (bytes_received > 0)
+// 		{
+// 			this->PartialRequest.append(&temp_buffer[0], bytes_received);
+
+// 			// RFC 7230: Reject headers exceeding reasonable size to prevent DoS
+// 			if (this->PartialRequest.size() > MAX_HEADER_SIZE)
+// 			{
+// 				std::cout << SOFT_RED "[ERROR] Header too large (> " << MAX_HEADER_SIZE << " bytes)" << RESET << std::endl;
+// 				this->AnswerType = ERROR;
+// 				this->StatusCode = 431;
+// 				return false;
+// 			}
+
+// 			// Check if header is complete
+// 			size_t seperator_pos = this->PartialRequest.find("\r\n\r\n");
+// 			if (seperator_pos != std::string::npos)
+// 			{
+// 				this->RawHeader = this->PartialRequest.substr(0, seperator_pos);
+// 				this->PartialBody = this->PartialRequest.substr(seperator_pos + 4);
+// 				this->HeaderComplete = true;
+// 				this->PartialRequest.clear();
+// 				return true;
+// 			}
+// 			// Continue reading if more data might be available
+// 		}
+// 		else if (bytes_received == 0)
+// 		{
+// 			std::cout << SOFT_RED "[ERROR] Client closed connection during header" << RESET << std::endl;
+// 			return false;
+// 		}
+// 		else // bytes_received < 0
+// 		{
+// 			if (errno == EAGAIN || errno == EWOULDBLOCK)
+// 			{
+// 				// No more data available right now
+// 				return true; // Header not complete yet, but no error
+// 			}
+// 			else
+// 			{
+// 				// Real error
+// 				std::cout << SOFT_RED "[ERROR] recv() error: " << strerror(errno) << RESET << std::endl;
+// 				return false;
+// 			}
+// 		}
+// 	}
+	
+// 	// Should not reach here
+// 	return true;
+// }
+
 bool HttpRequest::ReceiveHeader()
 {
 	std::vector<char> temp_buffer(RECEIVE_CHUNK_SIZE);
-	
-	// Edge-triggered epoll: must read ALL available data
-	while (true)
+	ssize_t bytes_received = recv(socket_fd, &temp_buffer[0], temp_buffer.size(), 0);
+
+	if (bytes_received > 0)
 	{
-		ssize_t bytes_received = recv(socket_fd, &temp_buffer[0], temp_buffer.size(), 0);
-		
-		if (bytes_received > 0)
-		{
-			this->PartialRequest.append(&temp_buffer[0], bytes_received);
+		this->PartialRequest.append(&temp_buffer[0], bytes_received);
 
-			// RFC 7230: Reject headers exceeding reasonable size to prevent DoS
-			if (this->PartialRequest.size() > MAX_HEADER_SIZE)
-			{
-				std::cout << SOFT_RED "[ERROR] Header too large (> " << MAX_HEADER_SIZE << " bytes)" << RESET << std::endl;
-				this->AnswerType = ERROR;
-				this->StatusCode = 431;
-				return false;
-			}
-
-			// Check if header is complete
-			size_t seperator_pos = this->PartialRequest.find("\r\n\r\n");
-			if (seperator_pos != std::string::npos)
-			{
-				this->RawHeader = this->PartialRequest.substr(0, seperator_pos);
-				this->PartialBody = this->PartialRequest.substr(seperator_pos + 4);
-				this->HeaderComplete = true;
-				this->PartialRequest.clear();
-				return true;
-			}
-			// Continue reading if more data might be available
-		}
-		else if (bytes_received == 0)
+		// RFC 7230: Reject headers exceeding reasonable size to prevent DoS
+		if (this->PartialRequest.size() > MAX_HEADER_SIZE)
 		{
-			std::cout << SOFT_RED "[ERROR] Client closed connection during header" << RESET << std::endl;
+			this->AnswerType = ERROR;
+			this->StatusCode = 431;  // Request Header Fields Too Large
 			return false;
 		}
-		else // bytes_received < 0
+
+		size_t seperator_pos = this->PartialRequest.find("\r\n\r\n");
+		if (seperator_pos != std::string::npos)
 		{
-			if (errno == EAGAIN || errno == EWOULDBLOCK)
-			{
-				// No more data available right now
-				return true; // Header not complete yet, but no error
-			}
-			else
-			{
-				// Real error
-				std::cout << SOFT_RED "[ERROR] recv() error: " << strerror(errno) << RESET << std::endl;
-				return false;
-			}
+			this->RawHeader = this->PartialRequest.substr(0, seperator_pos);
+			this->PartialBody = this->PartialRequest.substr(seperator_pos + 4);
+			this->HeaderComplete = true;
+			this->PartialRequest.clear();
 		}
+		return true;
 	}
-	
-	// Should not reach here
+	if (bytes_received == 0)
+		return false;
 	return true;
 }
 
