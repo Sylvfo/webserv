@@ -63,7 +63,7 @@ bool HttpRequest::loadRessource()
 	if (fd_Ressource == -1)
 	{
 		std::cout << SOFT_RED "[LOAD_RESOURCE] Invalid fd, generating inline error page" << RESET << std::endl;
-		NoErrorPage();
+		UseDefaultErrorHTML();
 		return true;
 	}
 	

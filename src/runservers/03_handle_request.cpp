@@ -50,7 +50,16 @@ void WebServ::handleRequest(epoll_event current_event)
 		if (request.HeaderComplete)
 		{
 			if (!request.ParseHeader() || !request.ValidateHeader())
-				return; // Error logged in those functions
+			{
+				// If parsing/validation failed, we still need to send an error response
+				if (request.AnswerType == ERROR)
+				{
+					request.AnswerError();
+					request.sendAnswerToRequest();
+					request.RequestComplete = true;
+				}
+				return;
+			}
 		}
 		else
 			return; // Header not complete yet
@@ -62,6 +71,13 @@ void WebServ::handleRequest(epoll_event current_event)
 		if (!request.ReceiveBody())
 		{
 			std::cout << SOFT_RED "[ERROR] Failed to receive body" << RESET << std::endl;
+			// If body reception failed due to size limit, send error response
+			if (request.AnswerType == ERROR)
+			{
+				request.AnswerError();
+				request.sendAnswerToRequest();
+				request.RequestComplete = true;
+			}
 			return;
 		}
 		if (!request.BodyComplete)
