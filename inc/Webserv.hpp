@@ -79,6 +79,8 @@ class WebServ
 
 	public:
 		WebServ();
+		WebServ(const WebServ& other);
+		WebServ& operator=(const WebServ& other);
 		~WebServ();
 
 		//parsing

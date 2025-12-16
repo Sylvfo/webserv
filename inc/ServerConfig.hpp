@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bschmid <bschmid@student.42lausanne.ch>    +#+  +:+       +#+        */
+/*   By: beboccas <beboccas@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/12/15 14:13:46 by bschmid          ###   ########.fr       */
+/*   Updated: 2025/12/16 16:58:46 by beboccas         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,9 @@
 #include <sys/socket.h>
 
 //struct pour la classe serveur config
-struct LocationConfig
+class LocationConfig
 {
+public:
     std::string path;
     std::vector<std::string> methods;
     bool autoindex;
@@ -36,14 +37,16 @@ struct LocationConfig
     std::string cgi_path;
     std::vector<std::pair<int, std::string> > returns;
 
-    LocationConfig()
-        : path(), methods(), autoindex(false), index(), root(), upload_path(), cgi_path(), returns()
-    {}
+    LocationConfig();
+    LocationConfig(const LocationConfig& other);
+    LocationConfig& operator=(const LocationConfig& other);
+    ~LocationConfig();
 };
 
 //faire une classe ServerConfig
-struct ServerConfig
+class ServerConfig
 {
+public:
     int listen_port;
     std::string server_name;
     std::map<int, std::string> error_pages;
@@ -59,8 +62,9 @@ struct ServerConfig
 	std::map<int, std::string> default_error_html;
 	std::map<std::string, std::string> mime_types;
 
-	ServerConfig()
-        : listen_port(0), server_name(), error_pages(), root(), client_max_body_size(0), locations(), fd_socket_serv(-1)
-    {}
+	ServerConfig();
+	ServerConfig(const ServerConfig& other);
+	ServerConfig& operator=(const ServerConfig& other);
+	~ServerConfig();
 };
 

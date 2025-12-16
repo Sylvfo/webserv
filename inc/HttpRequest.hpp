@@ -24,6 +24,8 @@ public:
 	// Constructor & Destructor
 	// ==============================================================================================
 	HttpRequest();
+	HttpRequest(const HttpRequest& other);
+	HttpRequest& operator=(const HttpRequest& other);
 	~HttpRequest();
 
 	// ==============================================================================================
@@ -77,6 +79,7 @@ public:
 	
 	// --- Body Handling ---
 	bool	ReceiveBody();
+	void	HandleMultipart();
 
 	// --- Response Generation ---
 	void	Answerlocal();
