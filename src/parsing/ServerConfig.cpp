@@ -6,7 +6,7 @@
 /*   By: beboccas <beboccas@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 15:07:41 by beboccas          #+#    #+#             */
-/*   Updated: 2025/12/15 19:54:19 by beboccas         ###   ########.fr       */
+/*   Updated: 2025/12/16 17:10:39 by beboccas         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,111 @@
 #include <stdexcept>
 #include <algorithm>
 #include <cstdlib>
+
+// ============================================================================
+// LocationConfig
+// ============================================================================
+
+LocationConfig::LocationConfig()
+	: path()
+	, methods()
+	, autoindex(false)
+	, index()
+	, root()
+	, upload_path()
+	, cgi_path()
+	, returns()
+{
+}
+
+LocationConfig::LocationConfig(const LocationConfig& other)
+	: path(other.path)
+	, methods(other.methods)
+	, autoindex(other.autoindex)
+	, index(other.index)
+	, root(other.root)
+	, upload_path(other.upload_path)
+	, cgi_path(other.cgi_path)
+	, returns(other.returns)
+{
+}
+
+LocationConfig& LocationConfig::operator=(const LocationConfig& other)
+{
+	if (this != &other)
+	{
+		path = other.path;
+		methods = other.methods;
+		autoindex = other.autoindex;
+		index = other.index;
+		root = other.root;
+		upload_path = other.upload_path;
+		cgi_path = other.cgi_path;
+		returns = other.returns;
+	}
+	return *this;
+}
+
+LocationConfig::~LocationConfig()
+{
+}
+
+// ============================================================================
+// ServerConfig
+// ============================================================================
+
+ServerConfig::ServerConfig()
+	: listen_port(0)
+	, server_name()
+	, error_pages()
+	, root()
+	, client_max_body_size(0)
+	, locations()
+	, fd_socket_serv(-1)
+	, sockaddr()
+	, server_len(0)
+	, error_code_message()
+	, mime_types()
+{
+}
+
+ServerConfig::ServerConfig(const ServerConfig& other)
+	: listen_port(other.listen_port)
+	, server_name(other.server_name)
+	, error_pages(other.error_pages)
+	, root(other.root)
+	, client_max_body_size(other.client_max_body_size)
+	, locations(other.locations)
+	, fd_socket_serv(other.fd_socket_serv)
+	, sockaddr(other.sockaddr)
+	, server_len(other.server_len)
+	, error_code_message(other.error_code_message)
+	, mime_types(other.mime_types)
+{
+}
+
+ServerConfig& ServerConfig::operator=(const ServerConfig& other)
+{
+	if (this != &other)
+	{
+		listen_port = other.listen_port;
+		server_name = other.server_name;
+		error_pages = other.error_pages;
+		root = other.root;
+		client_max_body_size = other.client_max_body_size;
+		locations = other.locations;
+		fd_socket_serv = other.fd_socket_serv;
+		sockaddr = other.sockaddr;
+		server_len = other.server_len;
+		error_code_message = other.error_code_message;
+		mime_types = other.mime_types;
+	}
+	return *this;
+}
+
+ServerConfig::~ServerConfig()
+{
+}
 
 ServerConfig WebServ::getServer(int index)
 {
@@ -173,7 +278,21 @@ void WebServ::parseConfig(std::string path)
 		{
 			if (key == "listen")
 			{
-				iss >> currentServer.listen_port;
+				if (!(iss >> currentServer.listen_port))
+				{
+					std::ostringstream oss;
+					oss << "Invalid port number (line " << lineNumber << ")";
+					std::cout << SOFT_RED "[PARSE_CONFIG] ERROR: " << oss.str() << RESET << std::endl;
+					throw std::runtime_error(oss.str());
+				}
+				// Validation de la plage de ports (1-65535)
+				if (currentServer.listen_port < 1 || currentServer.listen_port > 65535)
+				{
+					std::ostringstream oss;
+					oss << "Port number out of range (1-65535): " << currentServer.listen_port << " (line " << lineNumber << ")";
+					std::cout << SOFT_RED "[PARSE_CONFIG] ERROR: " << oss.str() << RESET << std::endl;
+					throw std::runtime_error(oss.str());
+				}
 			}
 			else if (key == "server_name")
 			{
@@ -247,7 +366,14 @@ void WebServ::parseConfig(std::string path)
 		// ----- Directives location -----
 		if (inLocation)
 		{
-			if (key == "methods" || key == "method")
+			if (key == "location")
+			{
+				std::ostringstream oss;
+				oss << "Nested location blocks not allowed (line " << lineNumber << ")";
+				std::cout << SOFT_RED "[PARSE_CONFIG] ERROR: " << oss.str() << RESET << std::endl;
+				throw std::runtime_error(oss.str());
+			}
+			else if (key == "methods" || key == "method")
 			{
 				std::string method;
 				while (iss >> method)
@@ -317,10 +443,47 @@ void WebServ::parseConfig(std::string path)
 	{
 		std::ostringstream oss;
 		oss << "Unclosed location block at EOF (line " << lineNumber << ")";
+		std::cout << SOFT_RED "[PARSE_CONFIG] ERROR: " << oss.str() << RESET << std::endl;
 		throw std::runtime_error(oss.str());
 	}
 	if (inServer)
 	{
-		this->addServer(currentServer);
+		std::ostringstream oss;
+		oss << "Unclosed server block at EOF (line " << lineNumber << ")";
+		std::cout << SOFT_RED "[PARSE_CONFIG] ERROR: " << oss.str() << RESET << std::endl;
+		throw std::runtime_error(oss.str());
 	}
+
+	// Vérifier qu'au moins un serveur a été configuré
+	if (servers.empty())
+	{
+		std::cout << SOFT_RED "[PARSE_CONFIG] ERROR: No server blocks found in config file" << RESET << std::endl;
+		throw std::runtime_error("No server blocks found in config file");
+	}
+
+	// Valider chaque serveur
+	for (size_t i = 0; i < servers.size(); ++i)
+	{
+		const ServerConfig &s = servers[i];
+		
+		// Vérifier que le port est défini
+		if (s.listen_port <= 0)
+		{
+			std::ostringstream oss;
+			oss << "Server[" << i << "] missing or invalid listen port";
+			std::cout << SOFT_RED "[PARSE_CONFIG] ERROR: " << oss.str() << RESET << std::endl;
+			throw std::runtime_error(oss.str());
+		}
+		
+		// Vérifier que root est défini
+		if (s.root.empty())
+		{
+			std::ostringstream oss;
+			oss << "Server[" << i << "] (port " << s.listen_port << ") missing root directive";
+			std::cout << SOFT_RED "[PARSE_CONFIG] ERROR: " << oss.str() << RESET << std::endl;
+			throw std::runtime_error(oss.str());
+		}
+	}
+
+	std::cout << LIGHT_GREEN "[PARSE_CONFIG] Configuration parsed successfully! Found " << servers.size() << " server(s)" << RESET << std::endl;
 }

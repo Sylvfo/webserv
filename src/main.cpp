@@ -35,9 +35,13 @@ int main(int ac, char **av)
 	catch (const std::exception &e)
 	{
 		std::cerr << SOFT_RED "[ERROR] Exception - " << e.what() << RESET << std::endl;
+		std::cout <<  DARK_PURPLE "========== WEBSERV ENDING ==========" RESET << std::endl;
+		delete WeServ;
+		return 1;
 	}
 	std::cout <<  DARK_PURPLE "========== WEBSERV ENDING ==========" RESET << std::endl;
 	delete WeServ;
+	return 0;
 }
 
 /*
