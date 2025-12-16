@@ -25,9 +25,11 @@ void WebServ::initServers()
 			std::cout << LIGHT_BLUE "[INIT_SERVERS] Port " << servers[i].listen_port << " already exists, skipping socket creation" << RESET << std::endl;
 		}
 		std::cout << LIGHT_BLUE "[INIT_SERVERS] Initializing error codes for server " << i << RESET << std::endl;
-		initErroCode(servers[i]);// a deplacer apres parsing
+		initErroCode(servers[i]);
 		std::cout << LIGHT_BLUE "[INIT_SERVERS] Initializing MIME types for server " << i << RESET << std::endl;
-		initMimeTypes(servers[i]);//a deplacer apres parsing
+		initMimeTypes(servers[i]);
+		std::cout << LIGHT_BLUE "[INIT_SERVERS] Initializing default error pages for server " << i << RESET << std::endl;
+		initDefautlPage(servers[i]);
 	}
 	std::cout << LIGHT_BLUE "[INIT_SERVERS] Server initialization complete" << RESET << std::endl;
 }

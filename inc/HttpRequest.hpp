@@ -107,10 +107,8 @@ public:
 	void								printHttpRequest();
 
 	// --- Error Handling ---
-	std::string	ErrorCodeInServer();
-	void		OpenErrorFile(const char *path);
-	void		DefaultErrorPage();
-	void		NoErrorPage();
+	std::string	GetCustomErrorPage();
+	void		UseDefaultErrorHTML();
 };
 
 #endif

@@ -57,16 +57,16 @@ void HttpRequest::SetStatusLine()
 	HttpAnswer.clear();
 	HttpAnswer = "HTTP/1.0 "; //put in constructor
 	std::map<int, std::string>::iterator it = this->Server->error_code_message.find(StatusCode);
-	if (it == Server->error_pages.end())
+	if (it == Server->error_code_message.end())
 	{
 		std::cout << SOFT_RED "[SET_STATUS] Status code message not found, using default" << RESET << std::endl;
-		HttpAnswer +="404 Not Found";
+		HttpAnswer += "500 Internal Server Error";
 	}
 	else
 	{
 		std::cout << PASTEL_AQUA "[SET_STATUS] Status message: " << it->second << RESET << std::endl;
+		HttpAnswer += it->second;
 	}
-	HttpAnswer += it->second;
 	HttpAnswer += "\r\n";
 	std::cout << PASTEL_AQUA "[SET_STATUS] Status line set: " << HttpAnswer << RESET << std::endl;
 }
