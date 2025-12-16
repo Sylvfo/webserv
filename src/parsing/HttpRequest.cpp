@@ -94,15 +94,9 @@ HttpRequest::~HttpRequest()
 {
 }
 
-// HTTP Header Parsing Functions
-// These replace 04_recive_request_.cpp and RawHeader.cpp
-
 bool HttpRequest::ReceiveHeader()
 {
 	std::vector<char> temp_buffer(RECEIVE_CHUNK_SIZE);
-	
-	// CRITICAL: Edge-triggered epoll requires reading ALL available data
-	// until recv() returns EAGAIN/EWOULDBLOCK
 	while (true)
 	{
 		ssize_t bytes_received = recv(socket_fd, &temp_buffer[0], temp_buffer.size(), 0);
@@ -111,7 +105,7 @@ bool HttpRequest::ReceiveHeader()
 		{
 			this->PartialRequest.append(&temp_buffer[0], bytes_received);
 
-			// Check if header is complete (CRLFCRLF)
+			// Check if header is complete
 			size_t seperator_pos = this->PartialRequest.find("\r\n\r\n");
 			if (seperator_pos != std::string::npos)
 			{
