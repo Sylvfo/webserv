@@ -17,6 +17,4 @@ STATIC (local)
 CGI
 UNKNOWN request??
 
-canonical class for HttpRequest.hpp
-
 data in private
