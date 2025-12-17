@@ -28,15 +28,86 @@ bool HttpRequest::GetAccessRessource()
 	// Decode the URI to handle spaces and special characters in filenames
 	std::string decodedUri = urlDecode(this->uri);
 	
+	// Find the best matching location
+	LocationConfig* matchingLocation = NULL;
+	size_t bestMatchLength = 0;
+	
+	for (size_t i = 0; i < Server->locations.size(); ++i)
+	{
+		const std::string& locationPath = Server->locations[i].path;
+		if (decodedUri.find(locationPath) == 0 && locationPath.length() > bestMatchLength)
+		{
+			matchingLocation = &Server->locations[i];
+			bestMatchLength = locationPath.length();
+			std::cout << SOFT_GREEN "[GET_ACCESS] Found matching location: " << locationPath << RESET << std::endl;
+		}
+	}
+	
+	// Determine the root to use
+	std::string root;
+	if (matchingLocation && !matchingLocation->root.empty())
+	{
+		root = matchingLocation->root;
+		std::cout << SOFT_GREEN "[GET_ACCESS] Using location root: " << root << RESET << std::endl;
+	}
+	else
+	{
+		root = Server->root;
+		std::cout << SOFT_GREEN "[GET_ACCESS] Using server root: " << root << RESET << std::endl;
+	}
+	
+	// Build the path
 	if (decodedUri == "/")
 	{
-		makingPath = Server->root + "/" + Server->locations[0].index;
+		std::string index = matchingLocation ? matchingLocation->index : Server->locations[0].index;
+		if (index.empty())
+			index = "index.html";
+		makingPath = root + "/" + index;
 		std::cout << SOFT_GREEN "[GET_ACCESS] Root URI, using index: " << makingPath << RESET << std::endl;
 	}
 	else
 	{
-		makingPath = Server->root + decodedUri;
+		if (matchingLocation)
+		{
+			// Remove location path from URI to get relative path
+			std::string relativePath = decodedUri.substr(matchingLocation->path.length());
+			if (!relativePath.empty() && relativePath[0] == '/')
+				relativePath = relativePath.substr(1);
+			
+			if (root[root.length() - 1] != '/')
+				root += "/";
+			makingPath = root + relativePath;
+		}
+		else
+		{
+			makingPath = root + decodedUri;
+		}
 		std::cout << SOFT_GREEN "[GET_ACCESS] Building path: " << makingPath << RESET << std::endl;
+	}
+	// Check if path is a directory
+	struct stat pathStat;
+	if (stat(makingPath.c_str(), &pathStat) == 0 && S_ISDIR(pathStat.st_mode))
+	{
+		std::cout << SOFT_GREEN "[GET_ACCESS] Path is a directory" << RESET << std::endl;
+		
+		// If URI doesn't end with '/', redirect to add it
+		if (!decodedUri.empty() && decodedUri[decodedUri.length() - 1] != '/')
+		{
+			std::cout << SOFT_GREEN "[GET_ACCESS] URI missing trailing slash, redirecting" << RESET << std::endl;
+			StatusCode = 301; // Moved Permanently
+			// The redirect will be handled by the response builder
+			return false;
+		}
+		
+		std::string index = matchingLocation ? matchingLocation->index : "index.html";
+		if (index.empty())
+			index = "index.html";
+		
+		// Append index file to directory path
+		if (makingPath[makingPath.length() - 1] != '/')
+			makingPath += "/";
+		makingPath += index;
+		std::cout << SOFT_GREEN "[GET_ACCESS] Directory index path: " << makingPath << RESET << std::endl;
 	}
 	const char *path = makingPath.c_str();
 	std::cout << SOFT_GREEN "[GET_ACCESS] Opening file: " << path << RESET << std::endl;

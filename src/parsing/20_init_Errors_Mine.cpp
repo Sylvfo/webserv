@@ -20,6 +20,7 @@ void WebServ::initMimeTypes(ServerConfig &server) {
 void WebServ::initErroCode(ServerConfig &server)
 {
 	server.error_code_message.insert(std::make_pair(200, "200 OK"));
+	server.error_code_message.insert(std::make_pair(301, "301 Moved Permanently"));
 	server.error_code_message.insert(std::make_pair(400, "400 Bad Request"));
 	server.error_code_message.insert(std::make_pair(403, "403 Forbidden"));
 	server.error_code_message.insert(std::make_pair(404, "404 Not Found"));

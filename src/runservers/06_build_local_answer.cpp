@@ -30,6 +30,23 @@ void HttpRequest::SetResponseHeader()
 {
 	std::cout << PASTEL_AQUA "[SET_HEADER] Building response headers" << RESET << std::endl;
 	
+	// Handle 301 redirect for directories
+	if (StatusCode == 301)
+	{
+		std::string redirectUri = uri;
+		if (!redirectUri.empty() && redirectUri[redirectUri.length() - 1] != '/')
+			redirectUri += "/";
+		
+		HttpAnswer += "Location: ";
+		HttpAnswer += redirectUri;
+		HttpAnswer += "\r\n";
+		HttpAnswer += "Content-Length: 0\r\n";
+		HttpAnswer += "Connection: close\r\n";
+		HttpAnswer += "\r\n";
+		std::cout << PASTEL_AQUA "[SET_HEADER] 301 redirect to: " << redirectUri << RESET << std::endl;
+		return;
+	}
+	
 	// Reserve space for headers + body to avoid reallocation
 	size_t estimatedSize = 200 + AnswerBody.size(); // ~200 bytes for headers
 	try {
