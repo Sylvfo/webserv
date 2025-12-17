@@ -19,32 +19,90 @@ void HttpRequest::GetRequest()
 	else
 	{
 		std::cout << SOFT_RED "[GET] Resource not accessible" << RESET << std::endl;
+		AnswerType = ERROR;
 	}
 }
 
 bool HttpRequest::GetAccessRessource()
 {
-	std::string makingPath;
-	// Decode the URI to handle spaces and special characters in filenames
+	std::string makingPath = this->Path;
 	std::string decodedUri = urlDecode(this->uri);
 	
-	if (decodedUri == "/")
+	std::cout << SOFT_GREEN "[GET_ACCESS] Using path from CheckRequest: " << makingPath << RESET << std::endl;
+	LocationConfig* matchingLocation = NULL;
+	size_t bestMatchLength = 0;
+	
+	for (size_t i = 0; i < Server->locations.size(); ++i)
 	{
-		makingPath = Server->root + "/" + Server->locations[0].index;
-		std::cout << SOFT_GREEN "[GET_ACCESS] Root URI, using index: " << makingPath << RESET << std::endl;
+		const std::string& locationPath = Server->locations[i].path;
+		if (decodedUri.find(locationPath) == 0 && locationPath.length() > bestMatchLength)
+		{
+			matchingLocation = &Server->locations[i];
+			bestMatchLength = locationPath.length();
+		}
 	}
-	else
+	
+	// Check if path is a directory
+	struct stat pathStat;
+	if (stat(makingPath.c_str(), &pathStat) == 0 && S_ISDIR(pathStat.st_mode))
 	{
-		makingPath = Server->root + decodedUri;
-		std::cout << SOFT_GREEN "[GET_ACCESS] Building path: " << makingPath << RESET << std::endl;
+		std::cout << SOFT_GREEN "[GET_ACCESS] Path is a directory" << RESET << std::endl;
+		
+		// If URI doesn't end with '/', redirect to add it
+		if (!decodedUri.empty() && decodedUri[decodedUri.length() - 1] != '/')
+		{
+			std::cout << SOFT_GREEN "[GET_ACCESS] URI missing trailing slash, redirecting" << RESET << std::endl;
+			StatusCode = 301; // Moved Permanently
+			// The redirect will be handled by the response builder
+			return false;
+		}
+		
+		std::string index = matchingLocation ? matchingLocation->index : "index.html";
+		if (index.empty())
+			index = "index.html";
+		
+		// Append index file to directory path
+		if (makingPath[makingPath.length() - 1] != '/')
+			makingPath += "/";
+		makingPath += index;
+		std::cout << SOFT_GREEN "[GET_ACCESS] Directory index path: " << makingPath << RESET << std::endl;
+		
+		// Check if index file exists in directory
+		if (access(makingPath.c_str(), F_OK) != 0)
+		{
+			std::cout << SOFT_RED "[GET_ACCESS] Index file not found in directory, 403 Forbidden" << RESET << std::endl;
+			StatusCode = 403;
+			AnswerType = ERROR;
+			return false;
+		}
 	}
 	const char *path = makingPath.c_str();
 	std::cout << SOFT_GREEN "[GET_ACCESS] Opening file: " << path << RESET << std::endl;
+	
+	// Check if file exists first
+	if (access(path, F_OK) != 0)
+	{
+		std::cout << SOFT_RED "[GET_ACCESS] File not found (404)" << RESET << std::endl;
+		StatusCode = 404;
+		AnswerType = ERROR;
+		return (false);
+	}
+	
+	// Check if we have read permission
+	if (access(path, R_OK) != 0)
+	{
+		std::cout << SOFT_RED "[GET_ACCESS] Permission denied (403)" << RESET << std::endl;
+		StatusCode = 403;
+		AnswerType = ERROR;
+		return (false);
+	}
+	
 	fd_Ressource = open(path , O_RDONLY);
 	if (fd_Ressource < 0)
 	{
-		std::cout << SOFT_RED "[GET_ACCESS] Failed to open file, setting 404" << RESET << std::endl;
-		StatusCode = 404;//other error??? 404??
+		std::cout << SOFT_RED "[GET_ACCESS] Failed to open file (500)" << RESET << std::endl;
+		StatusCode = 500;
+		AnswerType = ERROR;
 		return (false);
 	}
 	std::cout << SOFT_GREEN "[GET_ACCESS] File opened with fd: " << fd_Ressource << RESET << std::endl;
