@@ -19,6 +19,15 @@ void HttpRequest::Answerlocal()
 		std::cout << PASTEL_AQUA "[ANSWER_LOCAL] Handling DELETE request" << RESET << std::endl;
 		DeleteRequest();
 	}
+	
+	// Check if an error occurred during request processing
+	if (AnswerType == ERROR)
+	{
+		std::cout << PASTEL_AQUA "[ANSWER_LOCAL] Error detected, calling AnswerError()" << RESET << std::endl;
+		AnswerError();
+		return;
+	}
+	
 	std::cout << PASTEL_AQUA "[ANSWER_LOCAL] Setting status line..." << RESET << std::endl;
 	SetStatusLine();
 	std::cout << PASTEL_AQUA "[ANSWER_LOCAL] Setting response headers..." << RESET << std::endl;

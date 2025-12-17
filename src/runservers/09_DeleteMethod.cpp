@@ -87,11 +87,27 @@ void HttpRequest::DeleteRequest()
 
 	std::cout << SOFT_ORANGE "[DELETE] Checking if file exists..." << RESET << std::endl;
 
-	struct stat fileInfo;
-	if (stat(filePath.c_str(), &fileInfo) != 0)
+	// Check if file exists first
+	if (access(filePath.c_str(), F_OK) != 0)
 	{
 		this->StatusCode = 404;
 		std::cout << SOFT_RED "[DELETE] File not found: " << filePath << " (404)" << RESET << std::endl;
+		return;
+	}
+	
+	// Check if we have read permission to stat the file
+	if (access(filePath.c_str(), R_OK) != 0)
+	{
+		this->StatusCode = 403;
+		std::cout << SOFT_RED "[DELETE] Permission denied: " << filePath << " (403)" << RESET << std::endl;
+		return;
+	}
+
+	struct stat fileInfo;
+	if (stat(filePath.c_str(), &fileInfo) != 0)
+	{
+		this->StatusCode = 500;
+		std::cout << SOFT_RED "[DELETE] Failed to stat file: " << filePath << " (500)" << RESET << std::endl;
 		return;
 	}
 	if (S_ISDIR(fileInfo.st_mode) || !(S_ISREG(fileInfo.st_mode)))

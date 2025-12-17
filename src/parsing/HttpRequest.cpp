@@ -9,6 +9,8 @@
 #include <cerrno>
 #include <cstring>
 #include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 HttpRequest::HttpRequest()
 	// --- Server & Connection ---
@@ -506,17 +508,37 @@ void HttpRequest::CheckRequest()
 
 	std::cout << LIGHT_CYAN "[CHECK_REQUEST] Constructed path: " << this->Path << RESET << std::endl;
 
-	// Check existence
+	// Check existence and permissions
 	std::cout << LIGHT_CYAN "[CHECK_REQUEST] Checking if path exists..." << RESET << std::endl;
-	struct stat FileInfo;
-	if (stat(this->Path.c_str(), &FileInfo) != 0)
+	
+	// First check if we have permission to access the path
+	if (access(this->Path.c_str(), F_OK) != 0)
 	{
 		std::cout << SOFT_RED "[CHECK_REQUEST] Path not found (404)" << RESET << std::endl;
 		this->StatusCode = 404;
 		this->AnswerType = ERROR;
 		return;
 	}
-	std::cout << LIGHT_CYAN "[CHECK_REQUEST] Path exists" << RESET << std::endl;
+	
+	// Now check if we can read it
+	if (access(this->Path.c_str(), R_OK) != 0)
+	{
+		std::cout << SOFT_RED "[CHECK_REQUEST] Permission denied (403)" << RESET << std::endl;
+		this->StatusCode = 403;
+		this->AnswerType = ERROR;
+		return;
+	}
+	
+	std::cout << LIGHT_CYAN "[CHECK_REQUEST] Path exists and is readable" << RESET << std::endl;
+	
+	struct stat FileInfo;
+	if (stat(this->Path.c_str(), &FileInfo) != 0)
+	{
+		std::cout << SOFT_RED "[CHECK_REQUEST] Failed to stat path" << RESET << std::endl;
+		this->StatusCode = 500;
+		this->AnswerType = ERROR;
+		return;
+	}
 
 	this->StatusCode = 200; //Success
 

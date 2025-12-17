@@ -19,6 +19,7 @@ void HttpRequest::GetRequest()
 	else
 	{
 		std::cout << SOFT_RED "[GET] Resource not accessible" << RESET << std::endl;
+		AnswerType = ERROR;
 	}
 }
 
@@ -71,16 +72,37 @@ bool HttpRequest::GetAccessRessource()
 		{
 			std::cout << SOFT_RED "[GET_ACCESS] Index file not found in directory, 403 Forbidden" << RESET << std::endl;
 			StatusCode = 403;
+			AnswerType = ERROR;
 			return false;
 		}
 	}
 	const char *path = makingPath.c_str();
 	std::cout << SOFT_GREEN "[GET_ACCESS] Opening file: " << path << RESET << std::endl;
+	
+	// Check if file exists first
+	if (access(path, F_OK) != 0)
+	{
+		std::cout << SOFT_RED "[GET_ACCESS] File not found (404)" << RESET << std::endl;
+		StatusCode = 404;
+		AnswerType = ERROR;
+		return (false);
+	}
+	
+	// Check if we have read permission
+	if (access(path, R_OK) != 0)
+	{
+		std::cout << SOFT_RED "[GET_ACCESS] Permission denied (403)" << RESET << std::endl;
+		StatusCode = 403;
+		AnswerType = ERROR;
+		return (false);
+	}
+	
 	fd_Ressource = open(path , O_RDONLY);
 	if (fd_Ressource < 0)
 	{
-		std::cout << SOFT_RED "[GET_ACCESS] Failed to open file, setting 404" << RESET << std::endl;
-		StatusCode = 404;//other error??? 404??
+		std::cout << SOFT_RED "[GET_ACCESS] Failed to open file (500)" << RESET << std::endl;
+		StatusCode = 500;
+		AnswerType = ERROR;
 		return (false);
 	}
 	std::cout << SOFT_GREEN "[GET_ACCESS] File opened with fd: " << fd_Ressource << RESET << std::endl;
