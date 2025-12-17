@@ -40,78 +40,46 @@ bool HttpRequest::ReceiveHeader()
 	return true;
 }
 
-// needs to be replaced
 bool HttpRequest::ReceiveBody()
 {
-	this->BodyComplete = false;
+	// First, transfer any partial body from header reception
 	if (!this->PartialBody.empty())
 	{
 		this->RawBody.append(this->PartialBody);
 		this->PartialBody.clear();
 	}
 
-	// For edge-triggered epoll, we must read ALL available data in a loop
-	// until we get EAGAIN/EWOULDBLOCK
+	// Try to read more data (non-blocking, level-triggered epoll will call us again if needed)
 	std::vector<char> buffer(RECEIVE_CHUNK_SIZE);
+	ssize_t bytes_received = recv(socket_fd, &buffer[0], buffer.size(), 0);
 
-	while (true)
+	if (bytes_received > 0)
 	{
-		ssize_t bytes = recv(socket_fd, &buffer[0], buffer.size(), 0);
+		this->RawBody.append(&buffer[0], bytes_received);
+	}
+	else if (bytes_received == 0)
+	{
+		std::cout << SOFT_RED "[ERROR] Connection closed during body" << RESET << std::endl;
+		return false;
+	}
+	// bytes_received < 0: no data available right now, epoll will notify us later
 
-		if (bytes > 0)
-		{
-			this->RawBody.append(&buffer[0], bytes);
+	// Check if body exceeds max size
+	if (this->RawBody.size() > this->Server->client_max_body_size)
+	{
+		std::cout << SOFT_RED "[ERROR] Body exceeds max size (413)" << RESET << std::endl;
+		this->StatusCode = 413;
+		this->AnswerType = ERROR;
+		return false;
+	}
 
-			if (this->RawBody.size() > this->Server->client_max_body_size)
-			{
-				std::cout << SOFT_RED "[ERROR] Body exceeds max size (413)" << RESET << std::endl;
-				this->StatusCode = 413;
-				this->AnswerType = ERROR;
-				return false;
-			}
-
-			// Check if body is complete
-			if (!this->IsChunked && this->RawBody.size() >= this->ContentLength)
-			{
-				if (this->RawBody.size() > this->ContentLength)
-					this->RawBody = this->RawBody.substr(0, this->ContentLength);
-				this->BodyComplete = true;
-				std::cout << LIGHT_CYAN "[BODY] Complete (" << this->RawBody.size() << " bytes)" << RESET << std::endl;
-				return true;
-			}
-
-			// Continue reading more data (edge-triggered mode)
-			continue;
-		}
-		else if (bytes == 0)
-		{
-			std::cout << SOFT_RED "[ERROR] Connection closed during body" << RESET << std::endl;
-			return false;
-		}
-		else // bytes < 0
-		{
-			// Check if it's just no more data available (EAGAIN/EWOULDBLOCK)
-			if (errno == EAGAIN || errno == EWOULDBLOCK)
-			{
-				// Check if we already have the complete body
-				if (!this->IsChunked && this->RawBody.size() >= this->ContentLength)
-				{
-					if (this->RawBody.size() > this->ContentLength)
-						this->RawBody = this->RawBody.substr(0, this->ContentLength);
-					this->BodyComplete = true;
-					std::cout << LIGHT_CYAN "[BODY] Complete (" << this->RawBody.size() << " bytes)" << RESET << std::endl;
-					return true;
-				}
-
-				// Body not complete yet, will continue on next epoll event
-				return true;
-			}
-			else
-			{
-				std::cout << SOFT_RED "[ERROR] recv() error: " << strerror(errno) << RESET << std::endl;
-				return false;
-			}
-		}
+	// Check if body is complete (for non-chunked transfers)
+	if (!this->IsChunked && this->RawBody.size() >= this->ContentLength)
+	{
+		if (this->RawBody.size() > this->ContentLength)
+			this->RawBody = this->RawBody.substr(0, this->ContentLength);
+		this->BodyComplete = true;
+		std::cout << LIGHT_CYAN "[BODY] Complete (" << this->RawBody.size() << " bytes)" << RESET << std::endl;
 	}
 
 	return true;

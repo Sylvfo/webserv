@@ -69,7 +69,7 @@ bool WebServ::acceptConnection(int index)
 		ConnectionData* connectionInfo = CreateConnection(index, new_socket);
 
 		struct epoll_event event;
-		event.events = EPOLLIN | EPOLLET;
+		event.events = EPOLLIN;  // Level-triggered (removed EPOLLET)
 		event.data.ptr = connectionInfo;
 		if (epoll_ctl(epollFd, EPOLL_CTL_ADD, new_socket, &event) < 0)
 		{
