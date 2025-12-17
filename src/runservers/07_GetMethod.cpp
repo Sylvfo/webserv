@@ -6,7 +6,7 @@ void HttpRequest::GetRequest()
 	{
 		if (loadRessource() == true)
 		{
-			StatusCode = 200;//a deplacer
+			StatusCode = 200;
 		}
 	}
 	else
@@ -147,7 +147,6 @@ void HttpRequest::SetContentType(std::string &makingPath)
 	{
 		Extension = makingPath.substr(dot);
 	}
-	
 	std::map<std::string, std::string>::iterator it = Server->mime_types.find(Extension);
 	if (it == Server->mime_types.end())
 	{

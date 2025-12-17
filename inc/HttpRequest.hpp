@@ -106,7 +106,6 @@ public:
 	std::map<std::string, std::string>	parseFormData(const std::string &body);
 	std::string							urlDecode(const std::string &str);
 	std::string							getCurrentTimestamp();
-	void								printHttpRequest();
 
 	// --- Error Handling ---
 	std::string	GetCustomErrorPage();
