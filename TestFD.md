@@ -1,6 +1,9 @@
-#include "Webserv.hpp"
+# Test all fd are closed
 
-//http://127.0.0.1:80
+## sleep
+
+```cpp
+//add sleep 2x to the main
 int main(int ac, char **av)
 {
 	signal(SIGINT, handleSignInt);
@@ -8,7 +11,8 @@ int main(int ac, char **av)
 
 	WebServ *WeServ = NULL;
 	WeServ = new WebServ;
-//	sleep(25);
+	//At the beginning
+	sleep(25);
 	std::cout << "Enter webserv" << std::endl;
 	try
 	{
@@ -35,32 +39,61 @@ int main(int ac, char **av)
 	}
 	std::cout <<  DARK_PURPLE "========== WEBSERV ENDING ==========" RESET << std::endl;
 	delete WeServ;
-//	sleep(25);
+	//At the end
+	sleep(25);
 	return 0;
 }
+```
 
-/*
-//	Main to test parsing only
-int main(int ac, char **av)
-{
-	WebServ webserv;
-	if (ac == 2)
-	{
-		try
-		{
-			webserv.parseConfig(av[1]);
-			webserv.printConfig();
-		}
-		catch (const std::exception &e)
-		{
-			std::cerr << "Error: " << e.what() << std::endl;
-			return 1;
-		}
-		return 0;
-	}
-	else
-	{
-		std::cerr << "Usage: " << av[0] << " <config_file>" << std::endl;
-		return 1;
-	}
-}*/
+## make it run
+
+## look at the fd while running
+
+open a new terminal
+
+```bash
+pidof webserv
+//au demarage
+ls -l /proc/PID/fd
+//a la fin
+ls -l /proc/PID/fd
+```
+//verifier zombies.
+ps aux | grep defunct
+
+//memory used
+top -p $(pidof mon_programme)
+
+## with siege
+
+open a third terminal
+
+
+
+```bash
+pidof webserv
+//au demarage
+ls -l /proc/PID/fd
+//a la fin
+ls -l /proc/PID/fd
+```
+
+launch ./webserv
+
+find pidof
+
+launch siege in the third terminal
+
+## test more thant 1024 fd
+```bash
+vim /home/sforster/SiegeBase/etc/siegerc
+//I
+//change limits
+//:wq
+cd -
+
+siege -t2M -c1500 http://localhost:2224
+```
+
+
+ls /proc/3193021/fd

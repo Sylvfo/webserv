@@ -124,6 +124,7 @@ ServerConfig::~ServerConfig()
 {
 }
 
+/*
 ServerConfig WebServ::getServer(int index)
 {
 	if (index < 0 || static_cast<size_t>(index) >= servers.size())
@@ -161,7 +162,7 @@ ServerConfig WebServ::getServer(std::string hostReq)
 	std::cout << "No server matches the requested host:" << hostReq << ". Returning the first one." << std::endl;
 	return emptyServer;//return first server as default
 
-}
+}*/
 
 void WebServ::addServer(ServerConfig config)
 {
