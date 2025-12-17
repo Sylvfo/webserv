@@ -24,11 +24,10 @@ void HttpRequest::GetRequest()
 
 bool HttpRequest::GetAccessRessource()
 {
-	std::string makingPath;
-	// Decode the URI to handle spaces and special characters in filenames
+	std::string makingPath = this->Path;
 	std::string decodedUri = urlDecode(this->uri);
 	
-	// Find the best matching location
+	std::cout << SOFT_GREEN "[GET_ACCESS] Using path from CheckRequest: " << makingPath << RESET << std::endl;
 	LocationConfig* matchingLocation = NULL;
 	size_t bestMatchLength = 0;
 	
@@ -39,51 +38,9 @@ bool HttpRequest::GetAccessRessource()
 		{
 			matchingLocation = &Server->locations[i];
 			bestMatchLength = locationPath.length();
-			std::cout << SOFT_GREEN "[GET_ACCESS] Found matching location: " << locationPath << RESET << std::endl;
 		}
 	}
 	
-	// Determine the root to use
-	std::string root;
-	if (matchingLocation && !matchingLocation->root.empty())
-	{
-		root = matchingLocation->root;
-		std::cout << SOFT_GREEN "[GET_ACCESS] Using location root: " << root << RESET << std::endl;
-	}
-	else
-	{
-		root = Server->root;
-		std::cout << SOFT_GREEN "[GET_ACCESS] Using server root: " << root << RESET << std::endl;
-	}
-	
-	// Build the path
-	if (decodedUri == "/")
-	{
-		std::string index = matchingLocation ? matchingLocation->index : Server->locations[0].index;
-		if (index.empty())
-			index = "index.html";
-		makingPath = root + "/" + index;
-		std::cout << SOFT_GREEN "[GET_ACCESS] Root URI, using index: " << makingPath << RESET << std::endl;
-	}
-	else
-	{
-		if (matchingLocation)
-		{
-			// Remove location path from URI to get relative path
-			std::string relativePath = decodedUri.substr(matchingLocation->path.length());
-			if (!relativePath.empty() && relativePath[0] == '/')
-				relativePath = relativePath.substr(1);
-			
-			if (root[root.length() - 1] != '/')
-				root += "/";
-			makingPath = root + relativePath;
-		}
-		else
-		{
-			makingPath = root + decodedUri;
-		}
-		std::cout << SOFT_GREEN "[GET_ACCESS] Building path: " << makingPath << RESET << std::endl;
-	}
 	// Check if path is a directory
 	struct stat pathStat;
 	if (stat(makingPath.c_str(), &pathStat) == 0 && S_ISDIR(pathStat.st_mode))
@@ -108,6 +65,14 @@ bool HttpRequest::GetAccessRessource()
 			makingPath += "/";
 		makingPath += index;
 		std::cout << SOFT_GREEN "[GET_ACCESS] Directory index path: " << makingPath << RESET << std::endl;
+		
+		// Check if index file exists in directory
+		if (access(makingPath.c_str(), F_OK) != 0)
+		{
+			std::cout << SOFT_RED "[GET_ACCESS] Index file not found in directory, 403 Forbidden" << RESET << std::endl;
+			StatusCode = 403;
+			return false;
+		}
 	}
 	const char *path = makingPath.c_str();
 	std::cout << SOFT_GREEN "[GET_ACCESS] Opening file: " << path << RESET << std::endl;

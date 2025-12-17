@@ -435,11 +435,17 @@ void HttpRequest::CheckRequest()
 		const std::string& LocationPath = Server->locations[i].path;
 		if (uri.find(LocationPath) == 0)
 		{
-			if (LocationPath.length() > LongestMatch)
+			size_t matchLen = LocationPath.length();
+			if (uri.length() == matchLen || 
+			    uri[matchLen] == '/' ||
+			    LocationPath[LocationPath.length() - 1] == '/')
 			{
-				LongestMatch = LocationPath.length();
-				MatchedIndex = i;
-				std::cout << LIGHT_CYAN "[CHECK_REQUEST] Found match: " << LocationPath << " (length: " << LocationPath.length() << ")" << RESET << std::endl;
+				if (LocationPath.length() > LongestMatch)
+				{
+					LongestMatch = LocationPath.length();
+					MatchedIndex = i;
+					std::cout << LIGHT_CYAN "[CHECK_REQUEST] Found match: " << LocationPath << " (length: " << LocationPath.length() << ")" << RESET << std::endl;
+				}
 			}
 		}
 	}
