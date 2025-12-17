@@ -4,8 +4,14 @@
 echo "Content-Type: application/json; charset=UTF-8"
 echo ""
 
-# Set upload directory
-UPLOAD_DIR="/home/zarcross/goinfre/webserv/www/beboccas/uploads"
+# Set upload directory using DOCUMENT_ROOT or relative path
+if [ -n "$DOCUMENT_ROOT" ]; then
+    UPLOAD_DIR="$DOCUMENT_ROOT/beboccas/uploads"
+else
+    # Fallback: assume CGI is in www/cgi-bin, so uploads is at ../beboccas/uploads
+    SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+    UPLOAD_DIR="$SCRIPT_DIR/../beboccas/uploads"
+fi
 
 # Check if this is a POST request
 if [ "$REQUEST_METHOD" != "POST" ]; then

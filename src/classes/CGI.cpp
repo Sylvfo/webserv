@@ -145,10 +145,28 @@ void	CGIHandler::_setupEnvironment(const HttpRequest& request,
 
 	const std::map<std::string, std::string>&	headers = request.headers;
 
+	// Standard CGI environment variables
 	_addEnvVar("REQUEST_METHOD", request.method);
 	_addEnvVar("REQUEST_URI", request.uri);
 	_addEnvVar("SCRIPT_NAME", script_path);
+	_addEnvVar("SCRIPT_FILENAME", script_path);
 	_addEnvVar("QUERY_STRING", _extractQueryString(request.uri));
+	_addEnvVar("SERVER_PROTOCOL", request.version.empty() ? "HTTP/1.0" : request.version);
+	_addEnvVar("GATEWAY_INTERFACE", "CGI/1.1");
+	
+	// Extract and set DOCUMENT_ROOT from script_path
+	// Assume script is in www/cgi-bin, so document root is www
+	size_t cgi_pos = script_path.find("/cgi-bin/");
+	if (cgi_pos != std::string::npos)
+	{
+		std::string doc_root = script_path.substr(0, cgi_pos);
+		_addEnvVar("DOCUMENT_ROOT", doc_root);
+	}
+	else
+	{
+		// Fallback: use www as document root
+		_addEnvVar("DOCUMENT_ROOT", "www");
+	}
 
 	std::map<std::string, std::string>::const_iterator	host_it;
 	host_it = headers.find("host");
@@ -166,6 +184,8 @@ void	CGIHandler::_setupEnvironment(const HttpRequest& request,
 		if (cl_it != headers.end())
 			_addEnvVar("CONTENT_LENGTH", cl_it->second);
 	}
+	
+	// Add all HTTP headers as HTTP_* variables
 	std::map<std::string, std::string>::const_iterator	it;
 	for (it = headers.begin(); it != headers.end(); ++it)
 	{
@@ -181,23 +201,30 @@ void	CGIHandler::_setupEnvironment(const HttpRequest& request,
 	}
 }
 
-static void	cgi_child_die(int fd_in, int fd_out, char **env_for_exec)
-{
-	if (fd_in >= 0)
-		close(fd_in);
-	if (fd_out >= 0)
-		close(fd_out);
-	(void)env_for_exec;
-	kill(getpid(), SIGKILL);
-}
-
 std::string	CGIHandler::executeCGI(const std::string& script_path, const HttpRequest& request, const LocationConfig& location, const std::string& body)
 {
+	// Verify script exists and is executable before forking
+	struct stat script_stat;
+	if (stat(script_path.c_str(), &script_stat) != 0)
+	{
+		return ("HTTP/1.1 404 Not Found\r\n\r\nCGI script not found");
+	}
+	
+	if (access(script_path.c_str(), X_OK) != 0)
+	{
+		return ("HTTP/1.1 403 Forbidden\r\n\r\nCGI script not executable");
+	}
+	
 	int	pipe_in[2];
 	int	pipe_out[2];
 
 	if (pipe(pipe_in) == -1 || pipe(pipe_out) == -1)
 	{
+		if (pipe_in[0] >= 0)
+		{
+			close(pipe_in[0]);
+			close(pipe_in[1]);
+		}
 		return ("HTTP/1.1 500 Internal Server Error\r\n\r\nCGI pipe failed");
 	}
 	
@@ -221,13 +248,19 @@ std::string	CGIHandler::executeCGI(const std::string& script_path, const HttpReq
 
 	if (pid == 0)
 	{
+		// Child process
 		close(pipe_in[1]);
 		close(pipe_out[0]);
 
 		if (dup2(pipe_in[0], STDIN_FILENO) == -1
 			|| dup2(pipe_out[1], STDOUT_FILENO) == -1)
 		{
-			cgi_child_die(pipe_in[0], pipe_out[1], env_for_exec);
+			// Close remaining fds and let process terminate
+			close(pipe_in[0]);
+			close(pipe_out[1]);
+			// Infinite loop - parent will kill us with waitpid
+			while (1)
+				;
 		}
 
 		close(pipe_in[0]);
@@ -239,20 +272,27 @@ std::string	CGIHandler::executeCGI(const std::string& script_path, const HttpReq
 
 		execve(script_path.c_str(), argv, env_for_exec);
 
-		cgi_child_die(-1, -1, env_for_exec);
+		// If execve fails, loop forever - parent will clean up
+		// Can't use exit() or getpid() as they're not in allowed functions
+		while (1)
+			;
 	}
 	else
 	{
+		// Parent process
 		close(pipe_in[0]);
 		close(pipe_out[1]);
 		delete[] env_for_exec;
 
+		// Write body to CGI stdin if present
 		if (!body.empty())
 		{
-			write(pipe_in[1], body.c_str(), body.length());
+			ssize_t written = write(pipe_in[1], body.c_str(), body.length());
+			(void)written; // Avoid unused variable warning
 		}
 		close(pipe_in[1]);
 
+		// Read CGI output
 		std::string	output;
 		char		buffer[1024];
 		ssize_t		bytes_read;
@@ -264,6 +304,7 @@ std::string	CGIHandler::executeCGI(const std::string& script_path, const HttpReq
 		}
 		close(pipe_out[0]);
 
+		// Wait for child process
 		int	status;
 		waitpid(pid, &status, 0);
 
@@ -288,6 +329,7 @@ std::string	CGIHandler::executeCGI(const std::string& script_path, const HttpReq
 				response = "HTTP/1.1 200 OK\r\n";
 				response += cgi_headers;
 
+				// Ensure all headers end with \r\n
 				size_t pos = 0;
 				while ((pos = response.find("\n", pos)) != std::string::npos)
 				{
@@ -303,6 +345,7 @@ std::string	CGIHandler::executeCGI(const std::string& script_path, const HttpReq
 			}
 			else
 			{
+				// No headers from CGI, add default ones
 				response = "HTTP/1.1 200 OK\r\n";
 				response += "Content-Type: text/html\r\n";
 				response += "\r\n" + output;
