@@ -108,19 +108,21 @@ void WebServ::handleRequest(epoll_event current_event)
 
 void HttpRequest::sendAnswerToRequest()
 {
-	int bytesSent = 0;
-	int totalBytesSent = 0;
+	ssize_t totalBytesSent = 0;
+
+	std::cout << "[DEBUG] Sending HttpAnswer.size() = " << HttpAnswer.size() << " bytes" << std::endl;
 
 	while(totalBytesSent < (int)HttpAnswer.size())
 	{
-		bytesSent = send(socket_fd, HttpAnswer.c_str(), HttpAnswer.size(), 0);
-		if (bytesSent < 0)
-		{
-			std::cout << SOFT_RED "[ERROR] Could not send response" << RESET << std::endl;
+		ssize_t bytesSent = send(socket_fd, HttpAnswer.data() + totalBytesSent, HttpAnswer.size() - totalBytesSent, MSG_NOSIGNAL);
+		if (bytesSent > 0)
+			totalBytesSent += bytesSent;
+		else if (bytesSent == 0)
 			return;
-		}
-		totalBytesSent += bytesSent;
+		else if (bytesSent < 0)
+			continue;
 	}
+	std::cout << "[INFO] Successfully sent " << totalBytesSent << " bytes" << std::endl;
 }
 
 std::string IntToString(int numb)

@@ -79,12 +79,13 @@ bool WebServ::epollWaiting()
 	for (int i = 0; i < ndfs; i++)
 	{
 		if ((current_events[i].events & EPOLLERR) || 
-			(current_events[i].events & EPOLLHUP) || 
-			!(current_events[i].events & EPOLLIN))
+			(current_events[i].events & EPOLLHUP))
 		{
 			closeConnection(current_events[i]);
 			continue;
 		}
+		if (!(current_events[i].events & EPOLLIN))
+			continue;
 		int index = newConnection(current_events[i]);
 		if (index != -1)
 		{
