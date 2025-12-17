@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: beboccas <beboccas@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: bschmid <bschmid@student.42lausanne.ch>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/12/16 16:58:46 by beboccas         ###   ########.fr       */
+/*   Updated: 2025/12/17 23:28:11 by bschmid          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,15 @@
 #include <utility>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <iostream>
+#include "colors.hpp"
+#include <sstream>
+#include <cstdlib>
+#include <cerrno>
+#include <cstring>
+#include <sys/stat.h>
+#include <unistd.h>
+
 
 // added so would compile but not used in header parsing
 #include <netinet/in.h>

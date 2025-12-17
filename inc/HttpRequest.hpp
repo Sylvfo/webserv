@@ -2,6 +2,8 @@
 #define HTTPREQUEST_HPP
 
 #include "ServerConfig.hpp"
+#include "CGI.hpp"
+
 
 enum AnswerType {
 	ERROR,
@@ -21,7 +23,7 @@ public:
 	static const size_t RECEIVE_CHUNK_SIZE = 1024;   // 1KB receive buffer
 
 	// ==============================================================================================
-	// Constructor & Destructor
+	// Cononical Form
 	// ==============================================================================================
 	HttpRequest();
 	HttpRequest(const HttpRequest& other);
@@ -29,14 +31,14 @@ public:
 	~HttpRequest();
 
 	// ==============================================================================================
-	// Data Members
+	// Public Data Members
 	// ==============================================================================================
 
 	// --- Server & Connection ---
-	ServerConfig*	Server;
-	int				socket_fd;
+	ServerConfig*						Server;
+	int									socket_fd;
 
-	// --- Request Line & Headers ---
+	// --- Request Data ---
 	std::string							method;
 	std::string							uri;
 	std::string							version;
@@ -45,10 +47,10 @@ public:
 
 	// --- Request State & Buffers ---
 	bool			HeaderComplete;
+	bool			RequestComplete;
+	bool 			IsDirectory;
 	std::string		PartialRequest;
 	std::string		RawHeader;
-	bool			RequestComplete;  // Flag to indicate if request is fully processed
-	bool 			IsDirectory;
 	std::string		RedirectionUrl;
 
 	// --- Body Handling ---
@@ -62,26 +64,27 @@ public:
 	// --- Response ---
 	int				AnswerType;
 	int				StatusCode;
+	int				fd_Ressource;
 	std::string		HttpAnswer;
 	std::string		ContentType;
 	std::string		AnswerBody;
-	int				fd_Ressource;
 
 	// ==============================================================================================
-	// Methods
+	// Public Interface
 	// ==============================================================================================
+
 
 	// --- Parsing & Validation ---
 	bool	ReceiveHeader();
 	bool	ParseHeader();
-	bool	ParseRequestLine(const std::string&);
-	bool	ParseOneHeader(const std::string&);
 	bool	ValidateHeader();
 	void	CheckRequest();
-
-	// --- Body Handling ---
 	bool	ReceiveBody();
-	void	HandleMultipart();
+
+	// --- Method Processing ---
+	void	GetRequest();
+	void	PostRequest();
+	void	DeleteRequest();
 
 	// --- Response Generation ---
 	void	Answerlocal();
@@ -89,10 +92,19 @@ public:
 	void	AnswerError();
 	void	sendAnswerToRequest();
 
-	// --- Method Handlers ---
-	void	GetRequest();
-	void	PostRequest();
-	void	DeleteRequest();
+	// --- Error Handling ---
+	std::string	GetCustomErrorPage();
+	void		UseDefaultErrorHTML();
+
+private:
+	// ==============================================================================================
+	// Private Implementation Helpers
+	// ==============================================================================================
+
+	// --- Parsing Helpers ---
+	bool	ParseRequestLine(const std::string&);
+	bool	ParseOneHeader(const std::string&);
+	void	HandleMultipart();
 
 	// --- Response Helpers ---
 	bool	GetAccessRessource();
@@ -107,16 +119,10 @@ public:
 	std::map<std::string, std::string>	parseFormData(const std::string &body);
 	std::string							urlDecode(const std::string &str);
 	std::string							getCurrentTimestamp();
-
-	// --- Error Handling ---
-	std::string	GetCustomErrorPage();
-	void		UseDefaultErrorHTML();
+	void								printHttpRequest();
 };
 
-#endif
-
+// --- Global Helper ---
 std::string IntToString(int numb);
 
-
-
-
+#endif
