@@ -1,3 +1,0 @@
-sudo apt-get install siege -y
-sudo nano /etc/siege/siegerc
-siege http://SERVER -c 100 -t 5m

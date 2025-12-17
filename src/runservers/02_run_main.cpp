@@ -1,63 +1,4 @@
 #include "Webserv.hpp"
-/*
-
-enum EPOLL_EVENTS
-  {
-    EPOLLIN = 0x001, //The associated file is available for read(2) operations
-#define EPOLLIN EPOLLIN
-    EPOLLPRI = 0x002,
-#define EPOLLPRI EPOLLPRI
-    EPOLLOUT = 0x004,
-#define EPOLLOUT EPOLLOUT // The associated file is available for write(2) operations.
-    EPOLLRDNORM = 0x040,
-#define EPOLLRDNORM EPOLLRDNORM
-    EPOLLRDBAND = 0x080,
-#define EPOLLRDBAND EPOLLRDBAND
-    EPOLLWRNORM = 0x100,
-#define EPOLLWRNORM EPOLLWRNORM
-    EPOLLWRBAND = 0x200,
-#define EPOLLWRBAND EPOLLWRBAND
-    EPOLLMSG = 0x400,
-#define EPOLLMSG EPOLLMSG
-    EPOLLERR = 0x008,
-#define EPOLLERR EPOLLERR
-    EPOLLHUP = 0x010,
-#define EPOLLHUP EPOLLHUP
-    EPOLLRDHUP = 0x2000,
-#define EPOLLRDHUP EPOLLRDHUP
-    EPOLLEXCLUSIVE = 1u << 28,
-#define EPOLLEXCLUSIVE EPOLLEXCLUSIVE
-    EPOLLWAKEUP = 1u << 29,
-#define EPOLLWAKEUP EPOLLWAKEUP
-    EPOLLONESHOT = 1u << 30,
-#define EPOLLONESHOT EPOLLONESHOT
-    EPOLLET = 1u << 31
-#define EPOLLET EPOLLET
-  };
-
-  EPOLLERR
-Error condition happened on the associated file descriptor.
-This event is also reported for the write end of a pipe
-when the read end has been closed.
-
-epoll_wait(2) will always report for this event; it is not
-necessary to set it in events when calling epoll_ctl().
-
-
-typedef union epoll_data
-{
-  void *ptr;
-  int fd;
-  uint32_t u32;
-  uint64_t u64;
-} epoll_data_t;
-
-struct epoll_event
-{
-  uint32_t events;	 Epoll events 
-  epoll_data_t data;	 User data variable 
-} __EPOLL_PACKED;*/
-
 
 #include "Webserv.hpp"
 
@@ -65,26 +6,24 @@ bool WebServ::epollWaiting()
 {
 	if (shouldShutdown())
 		return false;
-
 	struct epoll_event current_events[MAX_EVENTS];
-
-	//int const ndfs = epoll_wait(epollFd, current_events, MAX_EVENTS, -1);
 	int const ndfs = epoll_wait(epollFd, current_events, MAX_EVENTS, 1000);
 	if (ndfs < 0)
 	{
 		if (errno == EINTR)
-			return !shouldShutdown();//???
+			return !shouldShutdown();
 		throw  std::runtime_error("Error in epollWaiting");
 	}
 	for (int i = 0; i < ndfs; i++)
 	{
 		if ((current_events[i].events & EPOLLERR) || 
-			(current_events[i].events & EPOLLHUP) || 
-			!(current_events[i].events & EPOLLIN))
+			(current_events[i].events & EPOLLHUP))
 		{
 			closeConnection(current_events[i]);
 			continue;
 		}
+		if (!(current_events[i].events & EPOLLIN))
+			continue;
 		int index = newConnection(current_events[i]);
 		if (index != -1)
 		{
@@ -95,14 +34,11 @@ bool WebServ::epollWaiting()
 		{
 			ConnectionData* connInfo = static_cast<ConnectionData*>(current_events[i].data.ptr);
 			handleRequest(current_events[i]);
-			
-			// Only close connection if request is complete
 			if (connInfo && connInfo->request.RequestComplete)
 				closeConnection(current_events[i]);
 		}
 	}
 	return !shouldShutdown();
-	//return true;
 }
 
 int	WebServ::newConnection(epoll_event new_event)

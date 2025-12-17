@@ -10,6 +10,7 @@
 #include <netdb.h>
 #include <sys/stat.h>
 #include <cerrno>
+#include <cstring>
 #include <fcntl.h>
 #include <unistd.h>
 #include <string>
@@ -25,12 +26,12 @@
 #include "CGI.hpp"
 #include "colors.hpp"
 
-#define MAX_EVENTS 300 //A voir
+#define MAX_EVENTS 300
 
 struct ConnectionData
 {
     int client_fd;
-	int server_fd;//pourrait servir pour virtual host
+	int server_fd;
 	bool is_server;
     int server_index;
     ServerConfig* server;
@@ -52,20 +53,15 @@ class WebServ
 		WebServ& operator=(const WebServ& other);
 		~WebServ();
 
-		//parsing
+		/* Parsing functions */
 		void defaultConfig();
 		void FileConfig();
-		/* Server Config related functions */	 			/* **************************************************** */
-		//ServerConfig getServer(int index);	 				/* Can be searched by port or by server name. 			*/
-		//ServerConfig getServer(std::string hostReq);		/* Can be searched by port or by server name. 			*/
-		void addServer(ServerConfig config); 				/* Add a server to the ServerConfig list 				*/
-															/*														*/
-		std::vector<ServerConfig> getServerList();			/* Get the entire server list as vector<ServerConfig>	*/
-		void parseConfig(std::string path);					/* Parse the config file .conf and add each server		*/
-		void printConfig();									/* Print the entire config (DEBUG ONLY)					*/
-		/* End of the server config functions */			/* **************************************************** */
+		void addServer(ServerConfig config);
+		std::vector<ServerConfig> getServerList();
+		void parseConfig(std::string path);		
+		void printConfig();						
 
-		//start servers
+		/* Init server */
 		void initServers();
 		int initServerSocket(ServerConfig &server, int index);
 		bool checkExistingPort(int index);
@@ -74,28 +70,23 @@ class WebServ
 		void initErroCode(ServerConfig &server);
 		void initMimeTypes(ServerConfig &server);
 		void initDefautlPage(ServerConfig &server);
-		//epoll
+
+		/* Epoll functions */
 		bool	epollWaiting();
 		int		newConnection(epoll_event new_event);
 		ConnectionData* CreateConnection(int index, int new_socket);
 		bool	acceptConnection(int index);
 		void	closeConnection(epoll_event current_event);
 
-		//handle request
+		/* Handle request */
 		void handleRequest(epoll_event current_event);
 
-	//	handel
-		void printfds();
-		void printepollwait(struct epoll_event *csurrent_events, int ndfs);
-		//end programm
+		/* Exit functions*/
 		static bool shouldShutdown();
 		static void setShutdown(bool value);
 };
 
-
 void setNonBlocking(int fd);
 void handleSignInt(int sign);
-
-void printcurrentevent(struct epoll_event *current_events, int ndfs);
 
 #endif

@@ -2,43 +2,24 @@
 
 void HttpRequest::Answerlocal()
 {
-	std::cout << PASTEL_AQUA "[ANSWER_LOCAL] Building local answer for method: " << method << RESET << std::endl;
-
 	if (method == "GET")
 	{
-		std::cout << PASTEL_AQUA "[ANSWER_LOCAL] Handling GET request" << RESET << std::endl;
 		GetRequest();
 	}
 	else if (method == "POST")
 	{
-		std::cout << PASTEL_AQUA "[ANSWER_LOCAL] Handling POST request" << RESET << std::endl;
 		PostRequest();
 	}
 	else if (method == "DELETE")
 	{
-		std::cout << PASTEL_AQUA "[ANSWER_LOCAL] Handling DELETE request" << RESET << std::endl;
 		DeleteRequest();
 	}
-	
-	// Check if an error occurred during request processing
-	if (AnswerType == ERROR)
-	{
-		std::cout << PASTEL_AQUA "[ANSWER_LOCAL] Error detected, calling AnswerError()" << RESET << std::endl;
-		AnswerError();
-		return;
-	}
-	
-	std::cout << PASTEL_AQUA "[ANSWER_LOCAL] Setting status line..." << RESET << std::endl;
 	SetStatusLine();
-	std::cout << PASTEL_AQUA "[ANSWER_LOCAL] Setting response headers..." << RESET << std::endl;
 	SetResponseHeader();
-	std::cout << PASTEL_AQUA "[ANSWER_LOCAL] Local answer complete" << RESET << std::endl;
 }
 
 void HttpRequest::SetResponseHeader()
 {
-	std::cout << PASTEL_AQUA "[SET_HEADER] Building response headers" << RESET << std::endl;
-	
 	// Handle 301 redirect for directories
 	if (StatusCode == 301)
 	{
@@ -52,16 +33,12 @@ void HttpRequest::SetResponseHeader()
 		HttpAnswer += "Content-Length: 0\r\n";
 		HttpAnswer += "Connection: close\r\n";
 		HttpAnswer += "\r\n";
-		std::cout << PASTEL_AQUA "[SET_HEADER] 301 redirect to: " << redirectUri << RESET << std::endl;
 		return;
 	}
-	
-	// Reserve space for headers + body to avoid reallocation
 	size_t estimatedSize = 200 + AnswerBody.size(); // ~200 bytes for headers
 	try {
 		HttpAnswer.reserve(estimatedSize);
 	} catch (const std::bad_alloc& e) {
-		std::cout << SOFT_RED "[SET_HEADER] Failed to reserve memory for response" << RESET << std::endl;
 		// Continue anyway, let it fail naturally if needed
 	}
 	
@@ -74,25 +51,20 @@ void HttpRequest::SetResponseHeader()
 	HttpAnswer += "Connection: close\r\n";
 	HttpAnswer += "\r\n";  // Séparation headers/body
 	HttpAnswer += AnswerBody;
-	std::cout << PASTEL_AQUA "[SET_HEADER] Headers set, total response size: " << HttpAnswer.size() << " bytes" << RESET << std::endl;
 }
 
 void HttpRequest::SetStatusLine()
 {
-	std::cout << PASTEL_AQUA "[SET_STATUS] Setting status line for code " << StatusCode << RESET << std::endl;
 	HttpAnswer.clear();
 	HttpAnswer = "HTTP/1.0 "; //put in constructor
 	std::map<int, std::string>::iterator it = this->Server->error_code_message.find(StatusCode);
 	if (it == Server->error_code_message.end())
 	{
-		std::cout << SOFT_RED "[SET_STATUS] Status code message not found, using default" << RESET << std::endl;
 		HttpAnswer += "500 Internal Server Error";
 	}
 	else
 	{
-		std::cout << PASTEL_AQUA "[SET_STATUS] Status message: " << it->second << RESET << std::endl;
 		HttpAnswer += it->second;
 	}
 	HttpAnswer += "\r\n";
-	std::cout << PASTEL_AQUA "[SET_STATUS] Status line set: " << HttpAnswer << RESET << std::endl;
 }

@@ -2,61 +2,40 @@
 
 void HttpRequest::PostRequest()
 {
-	std::cout << SOFT_PINK "[POST] Processing POST request" << RESET << std::endl;
-
 	std::string ContentType = this->headers["content-type"];
-
-	// debugging prints
-	std::cout << SOFT_PINK "[POST] Content-Type: " << ContentType << RESET << std::endl;
-	std::cout << SOFT_PINK "[POST] Request Body size: " << this->RawBody.size() << " bytes" << RESET << std::endl;
 
 	// different content types need different parsing
 	// thats why we get the content type
 
 	if (ContentType.find("application/x-www-form-urlencoded") != std::string::npos)
 	{
-		std::cout << SOFT_PINK "[POST] Handling form-urlencoded data" << RESET << std::endl;
 		// simple form data
 		HandleFormData();
 	}
 	else if (ContentType.find("multipart/form-data") != std::string::npos)
 	{
-		std::cout << SOFT_RED "[POST] Calling Multipart" << RESET << std::endl;
 		HandleMultipart();
-		std::cout << SOFT_RED "[POST] Multipart succesfull" << RESET << std::endl;
-		//StatusCode = 501;
-		//StatusCode = "501 Not Implemented";
-		//AnswerBody = "File upload not yet implemented";
-		//ContentType = "text/plain";
-		//ContentLength = AnswerBody.size();
 	}
 	else if (ContentType.find("application/json") != std::string::npos)
 	{
-		std::cout << SOFT_RED "[POST] JSON not yet supported (501)" << RESET << std::endl;
 		// JSON - not implemented yet
 		StatusCode = 501;
-		//StatusCode = "501 Not Implemented";
 		AnswerBody = "JSON support coming soon!";
 		ContentType = "text/plain";
 		ContentLength = AnswerBody.size();
 	}
 	else
 	{
-		std::cout << SOFT_RED "[POST] Unsupported Content-Type (415)" << RESET << std::endl;
 		// Unknown type
 		StatusCode = 415;
-	//	StatusCode = "415 Unsupported Media Type";
 		AnswerBody = "Content-Type not supported: " + ContentType;
 		ContentType = "text/plain";
 		ContentLength = AnswerBody.size();
 	}
-	std::cout << SOFT_PINK "[POST] POST request processing complete" << RESET << std::endl;
 }
 
 void HttpRequest::HandleMultipart()
 {
-    std::cout << SOFT_PINK "[MULTIPART] Handling multipart data..." << RESET << std::endl;
-
     std::string contentType = this->headers["content-type"];
     size_t boundaryPos = contentType.find("boundary=");
     if (boundaryPos == std::string::npos)
@@ -127,7 +106,6 @@ void HttpRequest::HandleMultipart()
             {
                 outFile.write(partBody.c_str(), partBody.size());
                 outFile.close();
-                std::cout << SOFT_PINK "[MULTIPART] Saved file: " << fullPath << RESET << std::endl;
             }
         }
         pos = nextBoundary;
@@ -139,8 +117,6 @@ void HttpRequest::HandleMultipart()
 
 void HttpRequest::HandleFormData()
 {
-    std::cout << SOFT_PINK "[HANDLE_FORM] Handling form data..." << RESET << std::endl;
-
     // STEP 1: Get upload path (from Step 1.1 above)
     std::string currentUri = this->uri;
     std::string uploadPath;
@@ -149,7 +125,6 @@ void HttpRequest::HandleFormData()
     size_t longestMatch = 0;
     int matchedIndex = -1;
 
-    std::cout << SOFT_PINK "[HANDLE_FORM] Searching for matching location for URI: " << currentUri << RESET << std::endl;
     for (size_t i = 0; i < Server->locations.size(); i++)
     {
         std::string locationPath = Server->locations[i].path;
@@ -161,7 +136,6 @@ void HttpRequest::HandleFormData()
             {
                 longestMatch = locationPath.length();
                 matchedIndex = i;
-                std::cout << SOFT_PINK "[HANDLE_FORM] Found better match: " << locationPath << " (length: " << locationPath.length() << ")" << RESET << std::endl;
             }
         }
     }
@@ -169,49 +143,38 @@ void HttpRequest::HandleFormData()
     if (matchedIndex >= 0)
     {
         uploadPath = Server->locations[matchedIndex].upload_path;
-        std::cout << SOFT_PINK "[HANDLE_FORM] Matched location: " << Server->locations[matchedIndex].path << RESET << std::endl;
-        std::cout << SOFT_PINK "[HANDLE_FORM] Upload path from config: '" << uploadPath << "'" << RESET << std::endl;
     }
 
     if (uploadPath.empty())
     {
         uploadPath = Server->root + "/uploads";
-        std::cout << SOFT_PINK "[HANDLE_FORM] No upload_path configured, using default: " << uploadPath << RESET << std::endl;
     }
 
     // STEP 2: Parse form data
-    std::cout << SOFT_PINK "[HANDLE_FORM] Parsing form data..." << RESET << std::endl;
     std::map<std::string, std::string> formData = parseFormData(this->RawBody);
-    std::cout << SOFT_PINK "[HANDLE_FORM] Parsed " << formData.size() << " form field(s)" << RESET << std::endl;
 
     // Decode values
     for (std::map<std::string, std::string>::iterator it = formData.begin();
          it != formData.end(); ++it)
     {
         it->second = urlDecode(it->second);  // Decode in place
-        std::cout << SOFT_PINK "[HANDLE_FORM] Field: " << it->first << " = " << it->second << RESET << std::endl;
     }
 
     // STEP 3: Generate filename
     std::string timestamp = getCurrentTimestamp();
     std::string filename = uploadPath + "/post_" + timestamp + ".txt";
 
-    std::cout << SOFT_PINK "[HANDLE_FORM] Attempting to save to: " << filename << RESET << std::endl;
-
     // STEP 4: Save to file
     std::ofstream outFile(filename.c_str());
     if (!outFile.is_open())
     {
-		std::cout << SOFT_RED "[HANDLE_FORM] Failed to save data (500)" << RESET << std::endl;
 		StatusCode = 500;
-        //StatusCode = "500 Internal Server Error";
         AnswerBody = "Failed to save data";
         ContentType = "text/plain";
         ContentLength = AnswerBody.size();
         return;
     }
 
-    std::cout << SOFT_PINK "[HANDLE_FORM] Writing data to file..." << RESET << std::endl;
     outFile << "=== POST Data ===" << std::endl;
     for (std::map<std::string, std::string>::iterator it = formData.begin();
          it != formData.end(); ++it)
@@ -219,15 +182,12 @@ void HttpRequest::HandleFormData()
         outFile << it->first << ": " << it->second << std::endl;
     }
     outFile.close();
-    std::cout << SOFT_PINK "[HANDLE_FORM] File saved successfully" << RESET << std::endl;
 
     // STEP 5: Build success response
 	StatusCode = 201;
-    //StatusCode = "201 Created";
     AnswerBody = "Data saved successfully!\n";
     ContentType = "text/plain";
     ContentLength = AnswerBody.size();
-    std::cout << SOFT_PINK "[HANDLE_FORM] Form data handling complete (201 Created)" << RESET << std::endl;
 }
 
 std::map<std::string, std::string> HttpRequest::parseFormData(const std::string& body)

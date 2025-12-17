@@ -4,8 +4,15 @@
 echo "Content-Type: application/json; charset=UTF-8"
 echo ""
 
-# Set upload directory
-UPLOAD_DIR="/home/zarcross/goinfre/webserv/www/beboccas/uploads"
+# Set upload directory using DOCUMENT_ROOT or PWD as base
+# DOCUMENT_ROOT is typically set by the web server
+if [ -n "$DOCUMENT_ROOT" ]; then
+    UPLOAD_DIR="$DOCUMENT_ROOT/beboccas/uploads"
+else
+    # Fallback: assume CGI is in www/cgi-bin, so uploads is at ../beboccas/uploads
+    SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+    UPLOAD_DIR="$SCRIPT_DIR/../beboccas/uploads"
+fi
 
 # Check if directory exists
 if [ ! -d "$UPLOAD_DIR" ]; then
@@ -14,12 +21,12 @@ if [ ! -d "$UPLOAD_DIR" ]; then
 fi
 
 # Use Python to generate properly formatted JSON
-python3 << 'PYTHON_SCRIPT'
+python3 << PYTHON_SCRIPT
 import json
 import os
 import sys
 
-upload_dir = '/home/zarcross/goinfre/webserv/www/beboccas/uploads'
+upload_dir = '$UPLOAD_DIR'
 
 try:
     files = []

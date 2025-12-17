@@ -6,7 +6,7 @@
 /*   By: beboccas <beboccas@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 15:07:41 by beboccas          #+#    #+#             */
-/*   Updated: 2025/12/16 17:10:39 by beboccas         ###   ########.fr       */
+/*   Updated: 2025/12/17 23:03:10 by beboccas         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,13 +197,9 @@ void WebServ::printConfig()
 
 void WebServ::parseConfig(std::string path)
 {
-	std::cout << LIGHT_BLUE "[PARSE_CONFIG] Opening config file: " << path << RESET << std::endl;
 	std::ifstream file(path.c_str());
 	if (!file.is_open())
-	{
-		std::cout << SOFT_RED "[PARSE_CONFIG] ERROR: Cannot open config file: " << path << RESET << std::endl;
 		throw std::runtime_error("Cannot open config file: " + path);
-	}
 
 	std::string line;
 	ServerConfig currentServer;
@@ -213,7 +209,6 @@ void WebServ::parseConfig(std::string path)
 
 	int lineNumber = 0;
 
-	std::cout << LIGHT_BLUE "[PARSE_CONFIG] Parsing configuration..." << RESET << std::endl;
 	while (std::getline(file, line))
 	{
 		lineNumber++;
@@ -234,19 +229,16 @@ void WebServ::parseConfig(std::string path)
 			{
 				std::ostringstream oss;
 				oss << "Expected '{' after server (line " << lineNumber << ")";
-				std::cout << SOFT_RED "[PARSE_CONFIG] ERROR: " << oss.str() << RESET << std::endl;
 				throw std::runtime_error(oss.str());
 			}
 			if (inServer)
 			{
 				std::ostringstream oss;
 				oss << "Nested server block not allowed (line " << lineNumber << ")";
-				std::cout << SOFT_RED "[PARSE_CONFIG] ERROR: " << oss.str() << RESET << std::endl;
 				throw std::runtime_error(oss.str());
 			}
 			inServer = true;
 			currentServer = ServerConfig();
-			std::cout << LIGHT_BLUE "[PARSE_CONFIG] Starting new server block at line " << lineNumber << RESET << std::endl;
 			continue;
 		}
 
@@ -255,13 +247,11 @@ void WebServ::parseConfig(std::string path)
 		{
 			if (inLocation)
 			{
-				std::cout << LIGHT_BLUE "[PARSE_CONFIG] Closing location block at line " << lineNumber << RESET << std::endl;
 				currentServer.locations.push_back(currentLocation);
 				inLocation = false;
 			}
 			else if (inServer)
 			{
-				std::cout << LIGHT_BLUE "[PARSE_CONFIG] Closing server block at line " << lineNumber << RESET << std::endl;
 				this->addServer(currentServer);
 				inServer = false;
 			}
@@ -283,15 +273,12 @@ void WebServ::parseConfig(std::string path)
 				{
 					std::ostringstream oss;
 					oss << "Invalid port number (line " << lineNumber << ")";
-					std::cout << SOFT_RED "[PARSE_CONFIG] ERROR: " << oss.str() << RESET << std::endl;
 					throw std::runtime_error(oss.str());
 				}
-				// Validation de la plage de ports (1-65535)
 				if (currentServer.listen_port < 1 || currentServer.listen_port > 65535)
 				{
 					std::ostringstream oss;
 					oss << "Port number out of range (1-65535): " << currentServer.listen_port << " (line " << lineNumber << ")";
-					std::cout << SOFT_RED "[PARSE_CONFIG] ERROR: " << oss.str() << RESET << std::endl;
 					throw std::runtime_error(oss.str());
 				}
 			}
@@ -317,7 +304,6 @@ void WebServ::parseConfig(std::string path)
 			}
 			else if (key == "error_page")
 			{
-				// read remaining tokens: many status codes followed by a path
 				std::vector<std::string> tokens;
 				std::string tok;
 				while (iss >> tok)
@@ -371,7 +357,6 @@ void WebServ::parseConfig(std::string path)
 			{
 				std::ostringstream oss;
 				oss << "Nested location blocks not allowed (line " << lineNumber << ")";
-				std::cout << SOFT_RED "[PARSE_CONFIG] ERROR: " << oss.str() << RESET << std::endl;
 				throw std::runtime_error(oss.str());
 			}
 			else if (key == "methods" || key == "method")
@@ -388,6 +373,8 @@ void WebServ::parseConfig(std::string path)
 			{
 				std::string val;
 				iss >> val;
+				if (!val.empty() && val[val.size() - 1] == ';')
+					val = val.substr(0, val.size() - 1);
 				currentLocation.autoindex = (val == "on");
 			}
 			else if (key == "index")
@@ -444,21 +431,18 @@ void WebServ::parseConfig(std::string path)
 	{
 		std::ostringstream oss;
 		oss << "Unclosed location block at EOF (line " << lineNumber << ")";
-		std::cout << SOFT_RED "[PARSE_CONFIG] ERROR: " << oss.str() << RESET << std::endl;
 		throw std::runtime_error(oss.str());
 	}
 	if (inServer)
 	{
 		std::ostringstream oss;
 		oss << "Unclosed server block at EOF (line " << lineNumber << ")";
-		std::cout << SOFT_RED "[PARSE_CONFIG] ERROR: " << oss.str() << RESET << std::endl;
 		throw std::runtime_error(oss.str());
 	}
 
 	// Vérifier qu'au moins un serveur a été configuré
 	if (servers.empty())
 	{
-		std::cout << SOFT_RED "[PARSE_CONFIG] ERROR: No server blocks found in config file" << RESET << std::endl;
 		throw std::runtime_error("No server blocks found in config file");
 	}
 
@@ -472,7 +456,6 @@ void WebServ::parseConfig(std::string path)
 		{
 			std::ostringstream oss;
 			oss << "Server[" << i << "] missing or invalid listen port";
-			std::cout << SOFT_RED "[PARSE_CONFIG] ERROR: " << oss.str() << RESET << std::endl;
 			throw std::runtime_error(oss.str());
 		}
 		
@@ -481,10 +464,7 @@ void WebServ::parseConfig(std::string path)
 		{
 			std::ostringstream oss;
 			oss << "Server[" << i << "] (port " << s.listen_port << ") missing root directive";
-			std::cout << SOFT_RED "[PARSE_CONFIG] ERROR: " << oss.str() << RESET << std::endl;
 			throw std::runtime_error(oss.str());
 		}
 	}
-
-	std::cout << LIGHT_GREEN "[PARSE_CONFIG] Configuration parsed successfully! Found " << servers.size() << " server(s)" << RESET << std::endl;
 }

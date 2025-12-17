@@ -1,24 +1,95 @@
 #include "Webserv.hpp"
+#include <dirent.h>
+#include <algorithm>
+
+std::string HttpRequest::generate_directory_listing(const std::string &dir_path, const std::string &uri_path)
+{
+	DIR *dir = opendir(dir_path.c_str());
+	if (!dir)
+	{
+		return "";
+	}
+
+	std::vector<std::string> entries;
+	struct dirent *entry;
+	
+	while ((entry = readdir(dir)) != NULL)
+	{
+		std::string name = entry->d_name;
+		
+		if (name == "." || name == "..")
+			continue;
+			
+		entries.push_back(name);
+	}
+	closedir(dir);
+	std::sort(entries.begin(), entries.end());
+
+	std::string html;
+	html = "<!DOCTYPE html>\n";
+	html += "<html>\n<head>\n";
+	html += "<meta charset=\"UTF-8\">\n";
+	html += "<title>Index of " + uri_path + "</title>\n";
+	html += "<style>\n";
+	html += "body { font-family: monospace; margin: 40px; }\n";
+	html += "h1 { border-bottom: 1px solid #ccc; padding-bottom: 10px; }\n";
+	html += "ul { list-style: none; padding: 0; }\n";
+	html += "li { padding: 5px 0; }\n";
+	html += "a { text-decoration: none; color: #0066cc; }\n";
+	html += "a:hover { text-decoration: underline; }\n";
+	html += ".dir::before { content: '📁 '; }\n";
+	html += ".file::before { content: '📄 '; }\n";
+	html += "</style>\n";
+	html += "</head>\n<body>\n";
+	html += "<h1>Index of " + uri_path + "</h1>\n";
+	html += "<ul>\n";
+	
+	if (uri_path != "/")
+	{
+		html += "<li><a href=\"../\" class=\"dir\">../</a></li>\n";
+	}
+	for (size_t i = 0; i < entries.size(); ++i)
+	{
+		std::string name = entries[i];
+		std::string full_path = dir_path;
+		if (full_path[full_path.length() - 1] != '/')
+			full_path += "/";
+		full_path += name;
+		
+		struct stat entry_stat;
+		std::string css_class = "file";
+		std::string link_suffix = "";
+		
+		if (stat(full_path.c_str(), &entry_stat) == 0)
+		{
+			if (S_ISDIR(entry_stat.st_mode))
+			{
+				css_class = "dir";
+				link_suffix = "/";
+			}
+		}
+		
+		html += "<li><a href=\"" + name + link_suffix + "\" class=\"" + css_class + "\">" + name + link_suffix + "</a></li>\n";
+	}
+	html += "</ul>\n";
+	html += "</body>\n</html>\n";
+	return html;
+}
 
 void HttpRequest::GetRequest()
 {
-	std::cout << SOFT_GREEN "[GET] Processing GET request for URI: " << uri << RESET << std::endl;
 	if (GetAccessRessource() == true)
 	{
-		std::cout << SOFT_GREEN "[GET] Resource accessible, loading..." << RESET << std::endl;
-		if (loadRessource() == true)
+		if (AnswerBody.empty())
 		{
-			StatusCode = 200;//a deplacer
-			std::cout << SOFT_GREEN "[GET] Resource loaded successfully, status 200" << RESET << std::endl;
-		}
-		else
-		{
-			std::cout << SOFT_RED "[GET] Failed to load resource" << RESET << std::endl;
+			if (loadRessource() == true)
+			{
+				StatusCode = 200;
+			}
 		}
 	}
 	else
 	{
-		std::cout << SOFT_RED "[GET] Resource not accessible" << RESET << std::endl;
 		AnswerType = ERROR;
 	}
 }
@@ -28,7 +99,6 @@ bool HttpRequest::GetAccessRessource()
 	std::string makingPath = this->Path;
 	std::string decodedUri = urlDecode(this->uri);
 	
-	std::cout << SOFT_GREEN "[GET_ACCESS] Using path from CheckRequest: " << makingPath << RESET << std::endl;
 	LocationConfig* matchingLocation = NULL;
 	size_t bestMatchLength = 0;
 	
@@ -46,12 +116,9 @@ bool HttpRequest::GetAccessRessource()
 	struct stat pathStat;
 	if (stat(makingPath.c_str(), &pathStat) == 0 && S_ISDIR(pathStat.st_mode))
 	{
-		std::cout << SOFT_GREEN "[GET_ACCESS] Path is a directory" << RESET << std::endl;
-		
 		// If URI doesn't end with '/', redirect to add it
 		if (!decodedUri.empty() && decodedUri[decodedUri.length() - 1] != '/')
 		{
-			std::cout << SOFT_GREEN "[GET_ACCESS] URI missing trailing slash, redirecting" << RESET << std::endl;
 			StatusCode = 301; // Moved Permanently
 			// The redirect will be handled by the response builder
 			return false;
@@ -62,27 +129,43 @@ bool HttpRequest::GetAccessRessource()
 			index = "index.html";
 		
 		// Append index file to directory path
-		if (makingPath[makingPath.length() - 1] != '/')
-			makingPath += "/";
-		makingPath += index;
-		std::cout << SOFT_GREEN "[GET_ACCESS] Directory index path: " << makingPath << RESET << std::endl;
+		std::string indexPath = makingPath;
+		if (indexPath[indexPath.length() - 1] != '/')
+			indexPath += "/";
+		indexPath += index;
 		
 		// Check if index file exists in directory
-		if (access(makingPath.c_str(), F_OK) != 0)
+		if (access(indexPath.c_str(), F_OK) != 0)
 		{
-			std::cout << SOFT_RED "[GET_ACCESS] Index file not found in directory, 403 Forbidden" << RESET << std::endl;
+			// Index file doesn't exist, check if autoindex is enabled
+			if (matchingLocation && matchingLocation->autoindex)
+			{
+				// Generate directory listing
+				std::string listing = generate_directory_listing(makingPath, decodedUri);
+				if (!listing.empty())
+				{
+					AnswerBody = listing;
+					ContentLength = AnswerBody.size();
+					ContentType = "text/html";
+					StatusCode = 200;
+					fd_Ressource = -1; // No file descriptor needed
+					return true;
+				}
+			}
+			
 			StatusCode = 403;
 			AnswerType = ERROR;
 			return false;
 		}
+		
+		// Index file exists, use it
+		makingPath = indexPath;
 	}
 	const char *path = makingPath.c_str();
-	std::cout << SOFT_GREEN "[GET_ACCESS] Opening file: " << path << RESET << std::endl;
 	
 	// Check if file exists first
 	if (access(path, F_OK) != 0)
 	{
-		std::cout << SOFT_RED "[GET_ACCESS] File not found (404)" << RESET << std::endl;
 		StatusCode = 404;
 		AnswerType = ERROR;
 		return (false);
@@ -91,7 +174,6 @@ bool HttpRequest::GetAccessRessource()
 	// Check if we have read permission
 	if (access(path, R_OK) != 0)
 	{
-		std::cout << SOFT_RED "[GET_ACCESS] Permission denied (403)" << RESET << std::endl;
 		StatusCode = 403;
 		AnswerType = ERROR;
 		return (false);
@@ -100,27 +182,22 @@ bool HttpRequest::GetAccessRessource()
 	fd_Ressource = open(path , O_RDONLY);
 	if (fd_Ressource < 0)
 	{
-		std::cout << SOFT_RED "[GET_ACCESS] Failed to open file (500)" << RESET << std::endl;
 		StatusCode = 500;
 		AnswerType = ERROR;
 		return (false);
 	}
-	std::cout << SOFT_GREEN "[GET_ACCESS] File opened with fd: " << fd_Ressource << RESET << std::endl;
 	SetContentType(makingPath);
-	std::cout << SOFT_GREEN "[GET_ACCESS] Returning from GetAccessRessource" << RESET << std::endl;
 	return true;
 }
 
 bool HttpRequest::loadRessource()
 {
-	std::cout << SOFT_GREEN "[LOAD_RESOURCE] Loading resource from fd: " << fd_Ressource << RESET << std::endl;
 	AnswerBody.clear();
 	char buff[4096];
 	ssize_t bytesRead;
 
 	if (fd_Ressource == -1)
 	{
-		std::cout << SOFT_RED "[LOAD_RESOURCE] Invalid fd, generating inline error page" << RESET << std::endl;
 		UseDefaultErrorHTML();
 		return true;
 	}
@@ -132,33 +209,25 @@ bool HttpRequest::loadRessource()
 		
 		if (fileSize > 0)
 		{
-			std::cout << SOFT_GREEN "[LOAD_RESOURCE] File size: " << fileSize << " bytes, reserving memory" << RESET << std::endl;
 			AnswerBody.reserve(fileSize);
-			std::cout << SOFT_GREEN "[LOAD_RESOURCE] Memory reserved successfully" << RESET << std::endl;
 		}
 		
-		int totalBytes = 0;
 		while ((bytesRead = read(fd_Ressource, buff, sizeof(buff))) > 0)
 		{
 			AnswerBody.append(buff, bytesRead);
-			totalBytes += bytesRead;
-			std::cout << SOFT_GREEN "[LOAD_RESOURCE] Read " << bytesRead << " bytes (total: " << totalBytes << ")" << RESET << std::endl;
 		}
 		//check eof
 		close(fd_Ressource);
 		ContentLength = AnswerBody.size();
-		std::cout << SOFT_GREEN "[LOAD_RESOURCE] Resource loaded, Content-Length: " << ContentLength << RESET << std::endl;
 		return true;
 		
 	} catch (const std::bad_alloc& e) {
-		std::cout << SOFT_RED "[LOAD_RESOURCE] Memory allocation failed: " << e.what() << RESET << std::endl;
 		close(fd_Ressource);
 		StatusCode = 500;
 		AnswerBody = "Internal Server Error: File too large";
 		ContentLength = AnswerBody.size();
 		return false;
 	} catch (const std::exception& e) {
-		std::cout << SOFT_RED "[LOAD_RESOURCE] Exception: " << e.what() << RESET << std::endl;
 		close(fd_Ressource);
 		StatusCode = 500;
 		return false;
@@ -172,28 +241,21 @@ void HttpRequest::SetContentType(std::string &makingPath)
 	if (dot == std::string::npos)
 	{
 		Extension = "defaut";
-		std::cout << SOFT_GREEN "[SET_CONTENT_TYPE] No extension found, using default" << RESET << std::endl;
 	}
 	else
 	{
 		Extension = makingPath.substr(dot);
-		std::cout << SOFT_GREEN "[SET_CONTENT_TYPE] Extension: " << Extension << RESET << std::endl;
 	}
-	
 	std::map<std::string, std::string>::iterator it = Server->mime_types.find(Extension);
 	if (it == Server->mime_types.end())
 	{
-		std::cout << SOFT_RED "[SET_CONTENT_TYPE] Extension not found in mime_types, using default" << RESET << std::endl;
 		ContentType = "application/octet-stream";
 	}
 	else
 	{
-		std::cout << SOFT_GREEN "[SET_CONTENT_TYPE] Found mime type for " << Extension << RESET << std::endl;
 		try {
 			ContentType = it->second;
-			std::cout << SOFT_GREEN "[SET_CONTENT_TYPE] Content-Type: " << ContentType << RESET << std::endl;
 		} catch (const std::bad_alloc& e) {
-			std::cout << SOFT_RED "[SET_CONTENT_TYPE] Failed to copy mime type string" << RESET << std::endl;
 			ContentType = "application/octet-stream";
 		}
 	}
