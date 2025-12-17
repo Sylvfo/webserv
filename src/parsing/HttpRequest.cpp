@@ -98,45 +98,43 @@ HttpRequest::~HttpRequest()
 
 bool HttpRequest::ReceiveHeader()
 {
-	std::vector<char> temp_buffer(RECEIVE_CHUNK_SIZE);
-	while (true)
-	{
-		ssize_t bytes_received = recv(socket_fd, &temp_buffer[0], temp_buffer.size(), 0);
-		
-		if (bytes_received > 0)
-		{
-			this->PartialRequest.append(&temp_buffer[0], bytes_received);
+	std::vector<char> temp_buffer(MAX_HEADER_SIZE);
+	ssize_t bytes_received = recv(socket_fd, &temp_buffer[0], temp_buffer.size(), 0);
 
-			// Check if header is complete
-			size_t seperator_pos = this->PartialRequest.find("\r\n\r\n");
-			if (seperator_pos != std::string::npos)
-			{
-				this->RawHeader = this->PartialRequest.substr(0, seperator_pos);
-				this->PartialBody = this->PartialRequest.substr(seperator_pos + 4);
-				this->HeaderComplete = true;
-				this->PartialRequest.clear();
-				std::cout << LIGHT_CYAN "[HEADER] Complete (" << this->RawHeader.size() << " bytes)" << RESET << std::endl;
-				return true;
-			}
-		}
-		else if (bytes_received == 0)
+	if (bytes_received > 0)
+	{
+		this->PartialRequest.append(&temp_buffer[0], bytes_received);
+
+		// RFC 7230: Reject headers exceeding reasonable size to prevent DoS
+		if (this->PartialRequest.size() > MAX_HEADER_SIZE)
 		{
-			// Client closed connection
-			std::cout << SOFT_RED "[ERROR] Client closed connection during header" << RESET << std::endl;
+			std::cout << SOFT_RED "[RECEIVE_HEADER] 431" << RESET << std::endl;
+			this->AnswerType = ERROR;
+			this->StatusCode = 431;  // Request Header Fields Too Large
 			return false;
 		}
-		else if(bytes_received < 0)
+
+		size_t seperator_pos = this->PartialRequest.find("\r\n\r\n");
+		if (seperator_pos != std::string::npos)
 		{
-			if (errno == EAGAIN || errno == EWOULDBLOCK)
-				return true;
-			else
-			{
-				// Si une vraie erreur comme ECONNRESET, EPIPE ou autre
-				std::cout << SOFT_RED "[ERROR] recv() failed: " << strerror(errno) << RESET << std::endl;
-				return false;
-			}
+			std::cout << SOFT_RED "[RECEIVE_HEADER] seperator found" << RESET << std::endl;
+			this->RawHeader = this->PartialRequest.substr(0, seperator_pos);
+			this->PartialBody = this->PartialRequest.substr(seperator_pos + 4);
+			this->HeaderComplete = true;
+			this->PartialRequest.clear();
 		}
+		else if (seperator_pos == std::string::npos)// this means the header is too long
+		{
+			std::cout << SOFT_RED "[RECEIVE_HEADER] uri too long" << RESET << std::endl;
+			this->AnswerType = ERROR;
+			this->StatusCode = 414; //uri too long
+			return false;
+		}
+		return true;
 	}
+	if (bytes_received == 0)
+		return false;
+	return true;
 }
 
 bool HttpRequest::ParseHeader()
@@ -308,7 +306,7 @@ bool HttpRequest::ValidateHeader() // a helper function for ParseHeader if Parse
 		}
 
 		this->ContentLength = static_cast<size_t>(parsed);
-		
+
 		if (this->ContentLength > this->Server->client_max_body_size)
 		{
 			std::cout << SOFT_RED "[ERROR] Content-Length exceeds max (" << this->Server->client_max_body_size << " bytes) (413)" << RESET << std::endl;
@@ -345,15 +343,15 @@ bool HttpRequest::ReceiveBody()
 	// For edge-triggered epoll, we must read ALL available data in a loop
 	// until we get EAGAIN/EWOULDBLOCK
 	std::vector<char> buffer(RECEIVE_CHUNK_SIZE);
-	
+
 	while (true)
 	{
 		ssize_t bytes = recv(socket_fd, &buffer[0], buffer.size(), 0);
-		
+
 		if (bytes > 0)
 		{
 			this->RawBody.append(&buffer[0], bytes);
-			
+
 			if (this->RawBody.size() > this->Server->client_max_body_size)
 			{
 				std::cout << SOFT_RED "[ERROR] Body exceeds max size (413)" << RESET << std::endl;
@@ -361,7 +359,7 @@ bool HttpRequest::ReceiveBody()
 				this->AnswerType = ERROR;
 				return false;
 			}
-			
+
 			// Check if body is complete
 			if (!this->IsChunked && this->RawBody.size() >= this->ContentLength)
 			{
@@ -371,7 +369,7 @@ bool HttpRequest::ReceiveBody()
 				std::cout << LIGHT_CYAN "[BODY] Complete (" << this->RawBody.size() << " bytes)" << RESET << std::endl;
 				return true;
 			}
-			
+
 			// Continue reading more data (edge-triggered mode)
 			continue;
 		}
@@ -394,7 +392,7 @@ bool HttpRequest::ReceiveBody()
 					std::cout << LIGHT_CYAN "[BODY] Complete (" << this->RawBody.size() << " bytes)" << RESET << std::endl;
 					return true;
 				}
-				
+
 				// Body not complete yet, will continue on next epoll event
 				return true;
 			}
@@ -405,14 +403,14 @@ bool HttpRequest::ReceiveBody()
 			}
 		}
 	}
-	
+
 	return true;
 }
 
 void HttpRequest::CheckRequest()
 {
 	std::cout << LIGHT_CYAN "[CHECK_REQUEST] Checking request for URI: " << this->uri << RESET << std::endl;
-	
+
 	// Strip query string from URI for path construction
 	std::string uriWithoutQuery = this->uri;
 	size_t queryPos = uriWithoutQuery.find('?');
@@ -421,7 +419,7 @@ void HttpRequest::CheckRequest()
 		uriWithoutQuery = uriWithoutQuery.substr(0, queryPos);
 		std::cout << LIGHT_CYAN "[CHECK_REQUEST] Stripped query string, URI: " << uriWithoutQuery << RESET << std::endl;
 	}
-	
+
 	// find longest match
 	size_t LongestMatch = 0;
 	int MatchedIndex = -1;
@@ -540,6 +538,27 @@ void HttpRequest::CheckRequest()
 		return;
 	}
 
+	if (S_ISDIR(FileInfo.st_mode))
+	{
+		this->IsDirectory = true;
+		if (this->uri[uri.length() - 1] != '/')
+		{
+			this->StatusCode = 301;
+			this->RedirectionUrl = this->uri + "/";
+			this->AnswerType = ERROR;
+			return; // Important: Stop further processing!
+		}
+	}
+	else
+	{
+		this->IsDirectory = false;
+		if (this->uri.length() > 0 && this->uri[this->uri.length() -1] == '/')
+		{
+			this->uri.erase(this->uri.length() - 1);
+		}
+	}
+	//maybe add access checker
+
 	this->StatusCode = 200; //Success
 
 	// Check for CGI
@@ -553,7 +572,7 @@ void HttpRequest::CheckRequest()
 			return;
 		}
 	}
-	
+
 	std::cout << LIGHT_CYAN "[CHECK_REQUEST] Setting answer type to STATIC" << RESET << std::endl;
 	this->AnswerType = STATIC;
 }

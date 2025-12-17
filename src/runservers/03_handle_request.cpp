@@ -44,6 +44,12 @@ void WebServ::handleRequest(epoll_event current_event)
 	{
 		if (!request.ReceiveHeader())
 		{
+			if (request.AnswerType == ERROR)
+			{
+				request.AnswerError();
+				request.sendAnswerToRequest();
+				request.RequestComplete = true;
+			}
 			std::cout << SOFT_RED "[ERROR] Failed to receive header" << RESET << std::endl;
 			return;
 		}
@@ -83,7 +89,7 @@ void WebServ::handleRequest(epoll_event current_event)
 		if (!request.BodyComplete)
 			return; // Body not complete yet
 	}
-	
+
 	// Check request validity
 	if (request.AnswerType != ERROR)
 		request.CheckRequest();
