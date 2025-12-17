@@ -10,6 +10,7 @@
 #include <netdb.h>
 #include <sys/stat.h>
 #include <cerrno>
+#include <cstring>
 #include <fcntl.h>
 #include <unistd.h>
 #include <string>
