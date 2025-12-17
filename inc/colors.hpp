@@ -13,7 +13,6 @@
 #ifndef COLORS_HPP
 # define COLORS_HPP
 
-// Extended Pastel Colors
 # define PASTEL_PEACH "\033[38;5;180m"     // Soft peach
 # define PASTEL_LAVENDER "\033[38;5;183m"  // Light lavender
 # define PASTEL_MINT "\033[38;5;121m"      // Mint green

@@ -9,7 +9,6 @@ void HttpRequest::AnswerError()
 		// Page custom trouvée, tente de l'ouvrir
 		SetContentType(errorPath);
 		fd_Ressource = open(errorPath.c_str(), O_RDONLY);
-		
 		if (fd_Ressource >= 0)
 		{
 			loadRessource();
@@ -21,10 +20,8 @@ void HttpRequest::AnswerError()
 	}
 	else
 	{
-		// Pas de page custom, utiliser la page par défaut de la map
 		UseDefaultErrorHTML();
 	}
-	
 	SetStatusLine();
 	SetResponseHeader();
 }

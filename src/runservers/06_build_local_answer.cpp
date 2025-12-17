@@ -14,7 +14,6 @@ void HttpRequest::Answerlocal()
 	{
 		DeleteRequest();
 	}
-	
 	SetStatusLine();
 	SetResponseHeader();
 }
@@ -36,8 +35,6 @@ void HttpRequest::SetResponseHeader()
 		HttpAnswer += "\r\n";
 		return;
 	}
-	
-	// Reserve space for headers + body to avoid reallocation
 	size_t estimatedSize = 200 + AnswerBody.size(); // ~200 bytes for headers
 	try {
 		HttpAnswer.reserve(estimatedSize);
