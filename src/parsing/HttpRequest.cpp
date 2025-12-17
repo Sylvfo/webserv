@@ -108,7 +108,6 @@ bool HttpRequest::ReceiveHeader()
 		// RFC 7230: Reject headers exceeding reasonable size to prevent DoS
 		if (this->PartialRequest.size() > MAX_HEADER_SIZE)
 		{
-			std::cout << SOFT_RED "[RECEIVE_HEADER] 431" << RESET << std::endl;
 			this->AnswerType = ERROR;
 			this->StatusCode = 431;  // Request Header Fields Too Large
 			return false;
@@ -117,7 +116,6 @@ bool HttpRequest::ReceiveHeader()
 		size_t seperator_pos = this->PartialRequest.find("\r\n\r\n");
 		if (seperator_pos != std::string::npos)
 		{
-			std::cout << SOFT_RED "[RECEIVE_HEADER] seperator found" << RESET << std::endl;
 			this->RawHeader = this->PartialRequest.substr(0, seperator_pos);
 			this->PartialBody = this->PartialRequest.substr(seperator_pos + 4);
 			this->HeaderComplete = true;
@@ -125,7 +123,6 @@ bool HttpRequest::ReceiveHeader()
 		}
 		else if (seperator_pos == std::string::npos)// this means the header is too long
 		{
-			std::cout << SOFT_RED "[RECEIVE_HEADER] uri too long" << RESET << std::endl;
 			this->AnswerType = ERROR;
 			this->StatusCode = 414; //uri too long
 			return false;
@@ -146,7 +143,6 @@ bool HttpRequest::ParseHeader()
 
 	if (!std::getline(stream, line))
 	{
-		std::cout << SOFT_RED "[PARSE_HEADER] Empty request (400)" << RESET << std::endl;
 		this->AnswerType = ERROR;
 		this->StatusCode = 400; // empty request
 		return false;
@@ -175,7 +171,6 @@ bool HttpRequest::ParseHeader()
 		// parse into map
 		if (!ParseOneHeader(line))
 		{
-			std::cout << SOFT_RED "[ERROR] Failed to parse header line: " << line << RESET << std::endl;
 			this->AnswerType = ERROR;
 			return false;
 		}
@@ -183,7 +178,6 @@ bool HttpRequest::ParseHeader()
 
 	if (this->version == "HTTP/1.1" && (this->headers.find("host") == this->headers.end()))
 	{
-		std::cout << SOFT_RED "[ERROR] HTTP/1.1 requires Host header (400)" << RESET << std::endl;
 		this->AnswerType = ERROR;
 		this->StatusCode = 400;
 		return false;
@@ -199,35 +193,30 @@ bool HttpRequest::ParseRequestLine(const std::string& line)
 	stream >> method >> path >> version;
 	if (method.empty() || path.empty() || version.empty() || (stream >> junk))
 	{
-		std::cout << SOFT_RED "[ERROR] Invalid request line format (400)" << RESET << std::endl;
 		this->StatusCode = 400;
 		return false;
 	}
 
 	if (method != "GET" && method != "POST" && method != "DELETE")
 	{
-		std::cout << SOFT_RED "[ERROR] Method not implemented: " << method << " (501)" << RESET << std::endl;
 		this->StatusCode = 501;
 		return false;
 	}
 
 	if (version != "HTTP/1.1" && version != "HTTP/1.0")
 	{
-		std::cout << SOFT_RED "[ERROR] HTTP version not supported: " << version << " (505)" << RESET << std::endl;
 		this->StatusCode = 505;
 		return false;
 	}
 
 	if (path.empty() || path[0] != '/')
 	{
-		std::cout << SOFT_RED "[ERROR] Invalid path: " << path << " (400)" << RESET << std::endl;
 		this->StatusCode = 400;
 		return false;
 	}
 
 	if (path.length() > 8192)
 	{
-		std::cout << SOFT_RED "[ERROR] URI too long (> 8192 bytes) (414)" << RESET << std::endl;
 		this->StatusCode = 414;
 		return false;
 	}
@@ -270,7 +259,6 @@ bool HttpRequest::ParseOneHeader(const std::string& line)
 
 bool HttpRequest::ValidateHeader() // a helper function for ParseHeader if ParseHeader would grow to big
 {
-	std::cout << LIGHT_CYAN "[VALIDATE_HEADER] Validating header..." << RESET << std::endl;
 	this->IsChunked = false;
 	this->ExpectingBody = false;
 	this->ContentLength = 0;
@@ -281,7 +269,6 @@ bool HttpRequest::ValidateHeader() // a helper function for ParseHeader if Parse
 	{
 		if (this->headers["transfer-encoding"].find("chunked") != std::string::npos)
 		{
-			std::cout << SOFT_RED "[ERROR] Chunked transfer encoding not supported (501)" << RESET << std::endl;
 			this->IsChunked = true;
 			this->StatusCode = 501;
 			this->AnswerType = ERROR;
@@ -299,7 +286,6 @@ bool HttpRequest::ValidateHeader() // a helper function for ParseHeader if Parse
 
 		if (*endptr != '\0' || endptr == value_str)
 		{
-			std::cout << SOFT_RED "[ERROR] Invalid Content-Length format (400)" << RESET << std::endl;
 			this->StatusCode = 400;
 			this->AnswerType = ERROR;
 			return false;
@@ -309,7 +295,6 @@ bool HttpRequest::ValidateHeader() // a helper function for ParseHeader if Parse
 
 		if (this->ContentLength > this->Server->client_max_body_size)
 		{
-			std::cout << SOFT_RED "[ERROR] Content-Length exceeds max (" << this->Server->client_max_body_size << " bytes) (413)" << RESET << std::endl;
 			this->StatusCode = 413;
 			this->AnswerType = ERROR;
 			return false;
@@ -321,7 +306,6 @@ bool HttpRequest::ValidateHeader() // a helper function for ParseHeader if Parse
 	// RFC 7231: POST requests require Content-Length or Transfer-Encoding
 	if (this->method == "POST")
 	{
-		std::cout << SOFT_RED "[ERROR] POST requires Content-Length or Transfer-Encoding (411)" << RESET << std::endl;
 		this->StatusCode = 411;
 		this->AnswerType = ERROR;
 		return false;
@@ -354,7 +338,6 @@ bool HttpRequest::ReceiveBody()
 
 			if (this->RawBody.size() > this->Server->client_max_body_size)
 			{
-				std::cout << SOFT_RED "[ERROR] Body exceeds max size (413)" << RESET << std::endl;
 				this->StatusCode = 413;
 				this->AnswerType = ERROR;
 				return false;
@@ -366,7 +349,6 @@ bool HttpRequest::ReceiveBody()
 				if (this->RawBody.size() > this->ContentLength)
 					this->RawBody = this->RawBody.substr(0, this->ContentLength);
 				this->BodyComplete = true;
-				std::cout << LIGHT_CYAN "[BODY] Complete (" << this->RawBody.size() << " bytes)" << RESET << std::endl;
 				return true;
 			}
 
@@ -375,7 +357,6 @@ bool HttpRequest::ReceiveBody()
 		}
 		else if (bytes == 0)
 		{
-			std::cout << SOFT_RED "[ERROR] Connection closed during body" << RESET << std::endl;
 			return false;
 		}
 		else // bytes < 0
@@ -389,7 +370,6 @@ bool HttpRequest::ReceiveBody()
 					if (this->RawBody.size() > this->ContentLength)
 						this->RawBody = this->RawBody.substr(0, this->ContentLength);
 					this->BodyComplete = true;
-					std::cout << LIGHT_CYAN "[BODY] Complete (" << this->RawBody.size() << " bytes)" << RESET << std::endl;
 					return true;
 				}
 
@@ -398,7 +378,6 @@ bool HttpRequest::ReceiveBody()
 			}
 			else
 			{
-				std::cout << SOFT_RED "[ERROR] recv() error: " << strerror(errno) << RESET << std::endl;
 				return false;
 			}
 		}
@@ -409,7 +388,6 @@ bool HttpRequest::ReceiveBody()
 
 void HttpRequest::CheckRequest()
 {
-	std::cout << LIGHT_CYAN "[CHECK_REQUEST] Checking request for URI: " << this->uri << RESET << std::endl;
 
 	// Strip query string from URI for path construction
 	std::string uriWithoutQuery = this->uri;
@@ -417,19 +395,16 @@ void HttpRequest::CheckRequest()
 	if (queryPos != std::string::npos)
 	{
 		uriWithoutQuery = uriWithoutQuery.substr(0, queryPos);
-		std::cout << LIGHT_CYAN "[CHECK_REQUEST] Stripped query string, URI: " << uriWithoutQuery << RESET << std::endl;
 	}
 
 	// find longest match
 	size_t LongestMatch = 0;
 	int MatchedIndex = -1;
 	std::string uri = urlDecode(uriWithoutQuery);
-	std::cout << LIGHT_CYAN "[CHECK_REQUEST] URL decoded URI: " << uri << RESET << std::endl;
 
 	//defaults to server root if nothing else matches
 	std::string root = Server->root;
 
-	std::cout << LIGHT_CYAN "[CHECK_REQUEST] Searching for matching location..." << RESET << std::endl;
 	for (size_t i = 0; i < Server->locations.size(); i++)
 	{
 		const std::string& LocationPath = Server->locations[i].path;
@@ -444,7 +419,6 @@ void HttpRequest::CheckRequest()
 				{
 					LongestMatch = LocationPath.length();
 					MatchedIndex = i;
-					std::cout << LIGHT_CYAN "[CHECK_REQUEST] Found match: " << LocationPath << " (length: " << LocationPath.length() << ")" << RESET << std::endl;
 				}
 			}
 		}
@@ -452,8 +426,6 @@ void HttpRequest::CheckRequest()
 
 	if (MatchedIndex != -1)
 	{
-		std::cout << LIGHT_CYAN "[CHECK_REQUEST] Best match: " << Server->locations[MatchedIndex].path << RESET << std::endl;
-		std::cout << LIGHT_CYAN "[CHECK_REQUEST] Checking if method " << this->method << " is allowed..." << RESET << std::endl;
 		bool MethodAllowed = false;
 		std::vector<std::string>& allowed = Server->locations[MatchedIndex].methods;
 		for (size_t j = 0; j < allowed.size(); j++)
@@ -461,13 +433,11 @@ void HttpRequest::CheckRequest()
 			if (allowed[j] == this->method)
 			{
 				MethodAllowed = true;
-				std::cout << LIGHT_CYAN "[CHECK_REQUEST] Method allowed" << RESET << std::endl;
 				break;
 			}
 		}
 		if (!MethodAllowed)
 		{
-			std::cout << SOFT_RED "[CHECK_REQUEST] Method not allowed (405)" << RESET << std::endl;
 			this->StatusCode = 405; // method nod allowed
 			this->AnswerType = ERROR;
 			return;
@@ -475,12 +445,10 @@ void HttpRequest::CheckRequest()
 		if (!Server->locations[MatchedIndex].root.empty())
 		{
 			root = Server->locations[MatchedIndex].root;
-			std::cout << LIGHT_CYAN "[CHECK_REQUEST] Using location root: " << root << RESET << std::endl;
 		}
 	}
 	else
 	{
-		std::cout << LIGHT_CYAN "[CHECK_REQUEST] No location match, using server root" << RESET << std::endl;
 	}
 
 	// construct Path
@@ -494,7 +462,6 @@ void HttpRequest::CheckRequest()
 	if (!root.empty() && root[root.length() - 1] == '/' && !RelativePath.empty() && RelativePath[0] == '/')
 	{
 		RelativePath = RelativePath.substr(1);
-		std::cout << LIGHT_CYAN "[CHECK_REQUEST] Removed leading slash from relative path" << RESET << std::endl;
 	}
 
 	// alias logic to implement!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -504,15 +471,12 @@ void HttpRequest::CheckRequest()
 	else
 		this->Path = root + "/" + RelativePath;
 
-	std::cout << LIGHT_CYAN "[CHECK_REQUEST] Constructed path: " << this->Path << RESET << std::endl;
 
 	// Check existence and permissions
-	std::cout << LIGHT_CYAN "[CHECK_REQUEST] Checking if path exists..." << RESET << std::endl;
 	
 	// First check if we have permission to access the path
 	if (access(this->Path.c_str(), F_OK) != 0)
 	{
-		std::cout << SOFT_RED "[CHECK_REQUEST] Path not found (404)" << RESET << std::endl;
 		this->StatusCode = 404;
 		this->AnswerType = ERROR;
 		return;
@@ -521,18 +485,15 @@ void HttpRequest::CheckRequest()
 	// Now check if we can read it
 	if (access(this->Path.c_str(), R_OK) != 0)
 	{
-		std::cout << SOFT_RED "[CHECK_REQUEST] Permission denied (403)" << RESET << std::endl;
 		this->StatusCode = 403;
 		this->AnswerType = ERROR;
 		return;
 	}
 	
-	std::cout << LIGHT_CYAN "[CHECK_REQUEST] Path exists and is readable" << RESET << std::endl;
 	
 	struct stat FileInfo;
 	if (stat(this->Path.c_str(), &FileInfo) != 0)
 	{
-		std::cout << SOFT_RED "[CHECK_REQUEST] Failed to stat path" << RESET << std::endl;
 		this->StatusCode = 500;
 		this->AnswerType = ERROR;
 		return;
@@ -567,13 +528,11 @@ void HttpRequest::CheckRequest()
 		CGIHandler cgiHandler;
 		if (cgiHandler.isCGI(uri, Server->locations[MatchedIndex]))
 		{
-			std::cout << BRIGHT_MAGENTA "[CHECK_REQUEST] Detected CGI request: " << uri << RESET << std::endl;
 			this->AnswerType = CGI;
 			return;
 		}
 	}
 
-	std::cout << LIGHT_CYAN "[CHECK_REQUEST] Setting answer type to STATIC" << RESET << std::endl;
 	this->AnswerType = STATIC;
 }
 
