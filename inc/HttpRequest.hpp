@@ -31,7 +31,7 @@ public:
 	// ==============================================================================================
 	// Data Members
 	// ==============================================================================================
-	
+
 	// --- Server & Connection ---
 	ServerConfig*	Server;
 	int				socket_fd;
@@ -42,13 +42,15 @@ public:
 	std::string							version;
 	std::string							Path;
 	std::map<std::string, std::string>	headers;
-	
+
 	// --- Request State & Buffers ---
 	bool			HeaderComplete;
 	std::string		PartialRequest;
 	std::string		RawHeader;
 	bool			RequestComplete;  // Flag to indicate if request is fully processed
-	
+	bool 			IsDirectory;
+	std::string		RedirectionUrl;
+
 	// --- Body Handling ---
 	bool			ExpectingBody;
 	bool			IsChunked;
@@ -76,7 +78,7 @@ public:
 	bool	ParseOneHeader(const std::string&);
 	bool	ValidateHeader();
 	void	CheckRequest();
-	
+
 	// --- Body Handling ---
 	bool	ReceiveBody();
 	void	HandleMultipart();
