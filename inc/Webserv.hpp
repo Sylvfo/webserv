@@ -1,42 +1,14 @@
 #ifndef WEBSERV_HPP
 #define WEBSERV_HPP
 
-//librairies
 #include <iostream>
 #include <arpa/inet.h>
-//htons htonl...
-
 #include <sys/types.h>
 #include <sys/socket.h>
-//sockets()
-//socketpair()
-//accept()
-//listen()
-//send()
-//recv()
-//bind()
-//connect
-//setsockopt()
-
 #include <sys/select.h>
-//select()
-/*
-#include <poll.h>
-//poll()*/
 #include <sys/epoll.h>
-//epoll()
-
-//#include <sys/event.h>
-// kqueue()
-// kevent()
-
-//(#include <sys/types.h>)
-//(#include <sys/socket.h>)
 #include <netdb.h>
 #include <sys/stat.h>
-//getaddrinfo()
-//freeaddrinfo()
-//gai_strerro()
 #include <cerrno>
 #include <fcntl.h>
 #include <unistd.h>
@@ -48,7 +20,6 @@
 #include <fstream>
 #include <ctime>
 #include <cstdlib>
-
 #include "ServerConfig.hpp"
 #include "HttpRequest.hpp"
 #include "CGI.hpp"
@@ -62,8 +33,7 @@ struct ConnectionData
 	int server_fd;//pourrait servir pour virtual host
 	bool is_server;
     int server_index;
-    ServerConfig* server; // Pointeur direct
-
+    ServerConfig* server;
 	HttpRequest request;
 };
 
@@ -75,7 +45,6 @@ class WebServ
 		std::map<int, ConnectionData*> ServersConnections;
 		std::map<int, ConnectionData*> ClientsConnections;
 		static volatile sig_atomic_t g_shutdown;
-		//#include <csignal>
 
 	public:
 		WebServ();
@@ -87,8 +56,8 @@ class WebServ
 		void defaultConfig();
 		void FileConfig();
 		/* Server Config related functions */	 			/* **************************************************** */
-		ServerConfig getServer(int index);	 				/* Can be searched by port or by server name. 			*/
-		ServerConfig getServer(std::string hostReq);		/* Can be searched by port or by server name. 			*/
+		//ServerConfig getServer(int index);	 				/* Can be searched by port or by server name. 			*/
+		//ServerConfig getServer(std::string hostReq);		/* Can be searched by port or by server name. 			*/
 		void addServer(ServerConfig config); 				/* Add a server to the ServerConfig list 				*/
 															/*														*/
 		std::vector<ServerConfig> getServerList();			/* Get the entire server list as vector<ServerConfig>	*/
@@ -98,13 +67,13 @@ class WebServ
 
 		//start servers
 		void initServers();
-		int initServerSocket(struct ServerConfig &server, int index);
+		int initServerSocket(ServerConfig &server, int index);
 		bool checkExistingPort(int index);
 		void initPoll();
 		void startServers();
-		void initErroCode(struct ServerConfig &server);
-		void initMimeTypes(struct ServerConfig &server);
-		void initDefautlPage(struct ServerConfig &server);
+		void initErroCode(ServerConfig &server);
+		void initMimeTypes(ServerConfig &server);
+		void initDefautlPage(ServerConfig &server);
 		//epoll
 		bool	epollWaiting();
 		int		newConnection(epoll_event new_event);
@@ -114,8 +83,6 @@ class WebServ
 
 		//handle request
 		void handleRequest(epoll_event current_event);
-		//free
-		//void free_webserv();
 
 	//	handel
 		void printfds();

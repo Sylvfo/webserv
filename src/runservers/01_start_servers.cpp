@@ -49,8 +49,7 @@ bool WebServ::checkExistingPort(int index)
 	return false;
 }
 
-//revoir la théorie
-int WebServ::initServerSocket(struct ServerConfig &server, int index)
+int WebServ::initServerSocket(ServerConfig &server, int index)
 {
 	std::cout << LIGHT_BLUE "[INIT_SOCKET] Creating socket for server " << index << RESET << std::endl;
 	int fd_socket_servers;
@@ -67,11 +66,10 @@ int WebServ::initServerSocket(struct ServerConfig &server, int index)
 	std::cout << LIGHT_BLUE "[INIT_SOCKET] Setting SO_REUSEADDR option" << RESET << std::endl;
 	setsockopt(fd_socket_servers, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));//mieux comprendre SO_REUSEPORT??
 
-	//bind on local address
 	std::cout << LIGHT_BLUE "[INIT_SOCKET] Binding socket to port " << server.listen_port << RESET << std::endl;
-	server.sockaddr.sin_family = AF_INET;//tout le temps pareil
-	server.sockaddr.sin_addr.s_addr = INADDR_ANY;//inet_addr("127.0.0.1");
-	server.sockaddr.sin_port = htons(server.listen_port);//
+	server.sockaddr.sin_family = AF_INET;
+	server.sockaddr.sin_addr.s_addr = INADDR_ANY;
+	server.sockaddr.sin_port = htons(server.listen_port);
 	server.server_len = sizeof(sockaddr);
 	if (bind(fd_socket_servers, (struct sockaddr *)&server.sockaddr, server.server_len)!= 0)
 	{
@@ -81,7 +79,7 @@ int WebServ::initServerSocket(struct ServerConfig &server, int index)
 	std::cout << LIGHT_BLUE "[INIT_SOCKET] Socket bound successfully" << RESET << std::endl;
 	
 	std::cout << LIGHT_BLUE "[INIT_SOCKET] Setting listen queue to 1024" << RESET << std::endl;
-	if (listen(fd_socket_servers, 1024) != 0) //avant ct 20
+	if (listen(fd_socket_servers, 1024) != 0)
 	{
 		std::cout << SOFT_RED "[INIT_SOCKET] ERROR: listen() failed" << RESET << std::endl;
 		throw std::runtime_error("listen() failed");
@@ -89,7 +87,7 @@ int WebServ::initServerSocket(struct ServerConfig &server, int index)
 	std::cout << LIGHT_BLUE "[INIT_SOCKET] Setting socket to non-blocking mode" << RESET << std::endl;
 	setNonBlocking(fd_socket_servers);
 	std::cout << SOFT_GREEN "✓ [INIT_SOCKET] Listening on http://" << server.server_name << ":" << server.listen_port << RESET << std::endl;
-	server.fd_socket_serv = fd_socket_servers;//utile oui :)
+	server.fd_socket_serv = fd_socket_servers;
 	std::cout << LIGHT_BLUE "[INIT_SOCKET] Server fd stored: " << server.fd_socket_serv << RESET << std::endl;
 	
 	std::cout << LIGHT_BLUE "[INIT_SOCKET] Creating ConnectionData for server" << RESET << std::endl;
@@ -100,11 +98,10 @@ int WebServ::initServerSocket(struct ServerConfig &server, int index)
 	return fd_socket_servers;
 }
 
-
 void WebServ::initPoll()
 {
 	std::cout << LIGHT_BLUE "[INIT_POLL] Creating epoll instance" << RESET << std::endl;
-	this->epollFd = epoll_create(1);//pk zero?? const?? mettre dans
+	this->epollFd = epoll_create(1);
 	if (epollFd < 0)
 	{
 		std::cout << SOFT_RED "[INIT_POLL] ERROR: epoll_create() failed" << RESET << std::endl;
@@ -118,8 +115,7 @@ void WebServ::initPoll()
 	{
 		std::cout << LIGHT_BLUE "[INIT_POLL] Adding server fd " << it->first << " to epoll" << RESET << std::endl;
 		struct epoll_event event;
-		//event.events = EPOLLIN | EPOLLET;
-		event.events = EPOLLIN; // EPOLLET would force me to use errno after recv which is not allowed
+		event.events = EPOLLIN;
 		it->second->client_fd = 0;
 		it->second->server_fd = it->first;
 		event.data.ptr = it->second;
@@ -135,14 +131,14 @@ void WebServ::initPoll()
 
 void setNonBlocking(int fd)
 {
-    int flags = fcntl(fd, F_GETFL, 0);
-    if (flags == -1)
-    {
-        std::cerr << SOFT_RED "[ERROR] fcntl F_GETFL failed" << RESET << std::endl;
-        return;
-    }
-    if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1)
-    {
-        std::cerr << SOFT_RED "[ERROR] fcntl F_SETFL failed" << RESET << std::endl;
-    }
+	int flags = fcntl(fd, F_GETFL, 0);
+	if (flags == -1)
+	{
+		std::cerr << SOFT_RED "[ERROR] fcntl F_GETFL failed" << RESET << std::endl;
+		return;
+	}
+	if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1)
+	{
+		std::cerr << SOFT_RED "[ERROR] fcntl F_SETFL failed" << RESET << std::endl;
+	}
 }

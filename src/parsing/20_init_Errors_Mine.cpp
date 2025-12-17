@@ -1,6 +1,6 @@
 #include "Webserv.hpp"
 
-void WebServ::initMimeTypes(struct ServerConfig &server) {
+void WebServ::initMimeTypes(ServerConfig &server) {
 	server.mime_types[".html"] = "text/html";
 	server.mime_types[".htm"]  = "text/html";
 	server.mime_types[".css"]  = "text/css";
@@ -17,7 +17,7 @@ void WebServ::initMimeTypes(struct ServerConfig &server) {
 	server.mime_types["defaut"]  = "application/octet-stream";
 }
 
-void WebServ::initErroCode(struct ServerConfig &server)
+void WebServ::initErroCode(ServerConfig &server)
 {
 	server.error_code_message.insert(std::make_pair(200, "200 OK"));
 	server.error_code_message.insert(std::make_pair(400, "400 Bad Request"));
@@ -32,7 +32,7 @@ void WebServ::initErroCode(struct ServerConfig &server)
 	server.error_code_message.insert(std::make_pair(503, "503 Service Unavailable"));
 }
 
-void WebServ::initDefautlPage(struct ServerConfig &server)
+void WebServ::initDefautlPage(ServerConfig &server)
 {
 	// ERRS - Html pages
 	server.default_error_html.insert(std::make_pair(400, "<html><head><title>400 Bad Request</title></head><body><center><h1>400 Bad Request</h1></center><hr><center>Webserv</center></body></html>"));
