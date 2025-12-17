@@ -97,6 +97,7 @@ public:
 	// --- Response Helpers ---
 	bool	GetAccessRessource();
 	bool	loadRessource();
+	std::string	generate_directory_listing(const std::string &dir_path, const std::string &uri_path);
 	void	SetStatusLine();
 	void	SetResponseHeader();
 	void	SetContentType(std::string &makingPath);

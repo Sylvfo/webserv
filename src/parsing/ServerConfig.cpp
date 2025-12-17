@@ -6,7 +6,7 @@
 /*   By: beboccas <beboccas@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 15:07:41 by beboccas          #+#    #+#             */
-/*   Updated: 2025/12/17 19:09:49 by beboccas         ###   ########.fr       */
+/*   Updated: 2025/12/17 23:03:10 by beboccas         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -275,7 +275,6 @@ void WebServ::parseConfig(std::string path)
 					oss << "Invalid port number (line " << lineNumber << ")";
 					throw std::runtime_error(oss.str());
 				}
-				// Validation de la plage de ports (1-65535)
 				if (currentServer.listen_port < 1 || currentServer.listen_port > 65535)
 				{
 					std::ostringstream oss;
@@ -305,7 +304,6 @@ void WebServ::parseConfig(std::string path)
 			}
 			else if (key == "error_page")
 			{
-				// read remaining tokens: many status codes followed by a path
 				std::vector<std::string> tokens;
 				std::string tok;
 				while (iss >> tok)
@@ -375,6 +373,8 @@ void WebServ::parseConfig(std::string path)
 			{
 				std::string val;
 				iss >> val;
+				if (!val.empty() && val[val.size() - 1] == ';')
+					val = val.substr(0, val.size() - 1);
 				currentLocation.autoindex = (val == "on");
 			}
 			else if (key == "index")
