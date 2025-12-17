@@ -94,52 +94,9 @@ HttpRequest::~HttpRequest()
 {
 }
 
-// bool HttpRequest::ReceiveHeader()
-// {
-// 	std::vector<char> temp_buffer(RECEIVE_CHUNK_SIZE);
-// 	while (true)
-// 	{
-// 		ssize_t bytes_received = recv(socket_fd, &temp_buffer[0], temp_buffer.size(), 0);
-
-// 		if (bytes_received > 0)
-// 		{
-// 			this->PartialRequest.append(&temp_buffer[0], bytes_received);
-
-// 			// Check if header is complete
-// 			size_t seperator_pos = this->PartialRequest.find("\r\n\r\n");
-// 			if (seperator_pos != std::string::npos)
-// 			{
-// 				this->RawHeader = this->PartialRequest.substr(0, seperator_pos);
-// 				this->PartialBody = this->PartialRequest.substr(seperator_pos + 4);
-// 				this->HeaderComplete = true;
-// 				this->PartialRequest.clear();
-// 				std::cout << LIGHT_CYAN "[HEADER] Complete (" << this->RawHeader.size() << " bytes)" << RESET << std::endl;
-// 				return true;
-// 			}
-// 		}
-// 		else if (bytes_received == 0)
-// 		{
-// 			// Client closed connection
-// 			std::cout << SOFT_RED "[ERROR] Client closed connection during header" << RESET << std::endl;
-// 			return false;
-// 		}
-// 		else if(bytes_received < 0)
-// 		{
-// 			if (errno == EAGAIN || errno == EWOULDBLOCK)
-// 				return true;
-// 			else
-// 			{
-// 				// Si une vraie erreur comme ECONNRESET, EPIPE ou autre
-// 				std::cout << SOFT_RED "[ERROR] recv() failed: " << strerror(errno) << RESET << std::endl;
-// 				return false;
-// 			}
-// 		}
-// 	}
-// }
-
 bool HttpRequest::ReceiveHeader()
 {
-	std::vector<char> temp_buffer(RECEIVE_CHUNK_SIZE);
+	std::vector<char> temp_buffer(MAX_HEADER_SIZE);
 	ssize_t bytes_received = recv(socket_fd, &temp_buffer[0], temp_buffer.size(), 0);
 
 	if (bytes_received > 0)
@@ -149,6 +106,7 @@ bool HttpRequest::ReceiveHeader()
 		// RFC 7230: Reject headers exceeding reasonable size to prevent DoS
 		if (this->PartialRequest.size() > MAX_HEADER_SIZE)
 		{
+			std::cout << SOFT_RED "[RECEIVE_HEADER] 431" << RESET << std::endl;
 			this->AnswerType = ERROR;
 			this->StatusCode = 431;  // Request Header Fields Too Large
 			return false;
@@ -157,16 +115,24 @@ bool HttpRequest::ReceiveHeader()
 		size_t seperator_pos = this->PartialRequest.find("\r\n\r\n");
 		if (seperator_pos != std::string::npos)
 		{
+			std::cout << SOFT_RED "[RECEIVE_HEADER] seperator found" << RESET << std::endl;
 			this->RawHeader = this->PartialRequest.substr(0, seperator_pos);
 			this->PartialBody = this->PartialRequest.substr(seperator_pos + 4);
 			this->HeaderComplete = true;
 			this->PartialRequest.clear();
 		}
+		else if (seperator_pos == std::string::npos)// this means the header is too long
+		{
+			std::cout << SOFT_RED "[RECEIVE_HEADER] uri too long" << RESET << std::endl;
+			this->AnswerType = ERROR;
+			this->StatusCode = 414; //uri too long
+			return false;
+		}
 		return true;
 	}
 	if (bytes_received == 0)
 		return false;
-	return false;
+	return true;
 }
 
 bool HttpRequest::ParseHeader()
