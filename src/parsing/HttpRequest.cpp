@@ -94,47 +94,79 @@ HttpRequest::~HttpRequest()
 {
 }
 
+// bool HttpRequest::ReceiveHeader()
+// {
+// 	std::vector<char> temp_buffer(RECEIVE_CHUNK_SIZE);
+// 	while (true)
+// 	{
+// 		ssize_t bytes_received = recv(socket_fd, &temp_buffer[0], temp_buffer.size(), 0);
+
+// 		if (bytes_received > 0)
+// 		{
+// 			this->PartialRequest.append(&temp_buffer[0], bytes_received);
+
+// 			// Check if header is complete
+// 			size_t seperator_pos = this->PartialRequest.find("\r\n\r\n");
+// 			if (seperator_pos != std::string::npos)
+// 			{
+// 				this->RawHeader = this->PartialRequest.substr(0, seperator_pos);
+// 				this->PartialBody = this->PartialRequest.substr(seperator_pos + 4);
+// 				this->HeaderComplete = true;
+// 				this->PartialRequest.clear();
+// 				std::cout << LIGHT_CYAN "[HEADER] Complete (" << this->RawHeader.size() << " bytes)" << RESET << std::endl;
+// 				return true;
+// 			}
+// 		}
+// 		else if (bytes_received == 0)
+// 		{
+// 			// Client closed connection
+// 			std::cout << SOFT_RED "[ERROR] Client closed connection during header" << RESET << std::endl;
+// 			return false;
+// 		}
+// 		else if(bytes_received < 0)
+// 		{
+// 			if (errno == EAGAIN || errno == EWOULDBLOCK)
+// 				return true;
+// 			else
+// 			{
+// 				// Si une vraie erreur comme ECONNRESET, EPIPE ou autre
+// 				std::cout << SOFT_RED "[ERROR] recv() failed: " << strerror(errno) << RESET << std::endl;
+// 				return false;
+// 			}
+// 		}
+// 	}
+// }
+
 bool HttpRequest::ReceiveHeader()
 {
 	std::vector<char> temp_buffer(RECEIVE_CHUNK_SIZE);
-	while (true)
+	ssize_t bytes_received = recv(socket_fd, &temp_buffer[0], temp_buffer.size(), 0);
+
+	if (bytes_received > 0)
 	{
-		ssize_t bytes_received = recv(socket_fd, &temp_buffer[0], temp_buffer.size(), 0);
+		this->PartialRequest.append(&temp_buffer[0], bytes_received);
 
-		if (bytes_received > 0)
+		// RFC 7230: Reject headers exceeding reasonable size to prevent DoS
+		if (this->PartialRequest.size() > MAX_HEADER_SIZE)
 		{
-			this->PartialRequest.append(&temp_buffer[0], bytes_received);
-
-			// Check if header is complete
-			size_t seperator_pos = this->PartialRequest.find("\r\n\r\n");
-			if (seperator_pos != std::string::npos)
-			{
-				this->RawHeader = this->PartialRequest.substr(0, seperator_pos);
-				this->PartialBody = this->PartialRequest.substr(seperator_pos + 4);
-				this->HeaderComplete = true;
-				this->PartialRequest.clear();
-				std::cout << LIGHT_CYAN "[HEADER] Complete (" << this->RawHeader.size() << " bytes)" << RESET << std::endl;
-				return true;
-			}
-		}
-		else if (bytes_received == 0)
-		{
-			// Client closed connection
-			std::cout << SOFT_RED "[ERROR] Client closed connection during header" << RESET << std::endl;
+			this->AnswerType = ERROR;
+			this->StatusCode = 431;  // Request Header Fields Too Large
 			return false;
 		}
-		else if(bytes_received < 0)
+
+		size_t seperator_pos = this->PartialRequest.find("\r\n\r\n");
+		if (seperator_pos != std::string::npos)
 		{
-			if (errno == EAGAIN || errno == EWOULDBLOCK)
-				return true;
-			else
-			{
-				// Si une vraie erreur comme ECONNRESET, EPIPE ou autre
-				std::cout << SOFT_RED "[ERROR] recv() failed: " << strerror(errno) << RESET << std::endl;
-				return false;
-			}
+			this->RawHeader = this->PartialRequest.substr(0, seperator_pos);
+			this->PartialBody = this->PartialRequest.substr(seperator_pos + 4);
+			this->HeaderComplete = true;
+			this->PartialRequest.clear();
 		}
+		return true;
 	}
+	if (bytes_received == 0)
+		return false;
+	return false;
 }
 
 bool HttpRequest::ParseHeader()
