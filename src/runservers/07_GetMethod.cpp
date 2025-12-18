@@ -12,14 +12,14 @@ std::string HttpRequest::generate_directory_listing(const std::string &dir_path,
 
 	std::vector<std::string> entries;
 	struct dirent *entry;
-	
+
 	while ((entry = readdir(dir)) != NULL)
 	{
 		std::string name = entry->d_name;
-		
+
 		if (name == "." || name == "..")
 			continue;
-			
+
 		entries.push_back(name);
 	}
 	closedir(dir);
@@ -43,7 +43,7 @@ std::string HttpRequest::generate_directory_listing(const std::string &dir_path,
 	html += "</head>\n<body>\n";
 	html += "<h1>Index of " + uri_path + "</h1>\n";
 	html += "<ul>\n";
-	
+
 	if (uri_path != "/")
 	{
 		html += "<li><a href=\"../\" class=\"dir\">../</a></li>\n";
@@ -55,11 +55,11 @@ std::string HttpRequest::generate_directory_listing(const std::string &dir_path,
 		if (full_path[full_path.length() - 1] != '/')
 			full_path += "/";
 		full_path += name;
-		
+
 		struct stat entry_stat;
 		std::string css_class = "file";
 		std::string link_suffix = "";
-		
+
 		if (stat(full_path.c_str(), &entry_stat) == 0)
 		{
 			if (S_ISDIR(entry_stat.st_mode))
@@ -68,7 +68,7 @@ std::string HttpRequest::generate_directory_listing(const std::string &dir_path,
 				link_suffix = "/";
 			}
 		}
-		
+
 		html += "<li><a href=\"" + name + link_suffix + "\" class=\"" + css_class + "\">" + name + link_suffix + "</a></li>\n";
 	}
 	html += "</ul>\n";
@@ -98,10 +98,10 @@ bool HttpRequest::GetAccessRessource()
 {
 	std::string makingPath = this->Path;
 	std::string decodedUri = urlDecode(this->uri);
-	
+
 	LocationConfig* matchingLocation = NULL;
 	size_t bestMatchLength = 0;
-	
+
 	for (size_t i = 0; i < Server->locations.size(); ++i)
 	{
 		const std::string& locationPath = Server->locations[i].path;
@@ -111,7 +111,7 @@ bool HttpRequest::GetAccessRessource()
 			bestMatchLength = locationPath.length();
 		}
 	}
-	
+
 	// Check if path is a directory
 	struct stat pathStat;
 	if (stat(makingPath.c_str(), &pathStat) == 0 && S_ISDIR(pathStat.st_mode))
@@ -123,17 +123,17 @@ bool HttpRequest::GetAccessRessource()
 			// The redirect will be handled by the response builder
 			return false;
 		}
-		
+
 		std::string index = matchingLocation ? matchingLocation->index : "index.html";
 		if (index.empty())
 			index = "index.html";
-		
+
 		// Append index file to directory path
 		std::string indexPath = makingPath;
 		if (indexPath[indexPath.length() - 1] != '/')
 			indexPath += "/";
 		indexPath += index;
-		
+
 		// Check if index file exists in directory
 		if (access(indexPath.c_str(), F_OK) != 0)
 		{
@@ -152,17 +152,17 @@ bool HttpRequest::GetAccessRessource()
 					return true;
 				}
 			}
-			
+
 			StatusCode = 403;
 			AnswerType = ERROR;
 			return false;
 		}
-		
+
 		// Index file exists, use it
 		makingPath = indexPath;
 	}
 	const char *path = makingPath.c_str();
-	
+
 	// Check if file exists first
 	if (access(path, F_OK) != 0)
 	{
@@ -170,7 +170,7 @@ bool HttpRequest::GetAccessRessource()
 		AnswerType = ERROR;
 		return (false);
 	}
-	
+
 	// Check if we have read permission
 	if (access(path, R_OK) != 0)
 	{
@@ -178,7 +178,7 @@ bool HttpRequest::GetAccessRessource()
 		AnswerType = ERROR;
 		return (false);
 	}
-	
+
 	fd_Ressource = open(path , O_RDONLY);
 	if (fd_Ressource < 0)
 	{
@@ -201,17 +201,21 @@ bool HttpRequest::loadRessource()
 		UseDefaultErrorHTML();
 		return true;
 	}
-	
+
 	try {
 		// Get file size and reserve memory to avoid reallocations
-		off_t fileSize = lseek(fd_Ressource, 0, SEEK_END);
-		lseek(fd_Ressource, 0, SEEK_SET); // Reset to beginning
-		
+		//off_t fileSize = lseek(fd_Ressource, 0, SEEK_END);
+		//lseek(fd_Ressource, 0, SEEK_SET); // Reset to beginning
+
+		struct stat fileInfo;
+		stat(this->Path.c_str(), &fileInfo);
+		off_t fileSize = fileInfo.st_size;
+
 		if (fileSize > 0)
 		{
 			AnswerBody.reserve(fileSize);
 		}
-		
+
 		while ((bytesRead = read(fd_Ressource, buff, sizeof(buff))) > 0)
 		{
 			AnswerBody.append(buff, bytesRead);
@@ -220,7 +224,7 @@ bool HttpRequest::loadRessource()
 		close(fd_Ressource);
 		ContentLength = AnswerBody.size();
 		return true;
-		
+
 	} catch (const std::bad_alloc& e) {
 		close(fd_Ressource);
 		StatusCode = 500;

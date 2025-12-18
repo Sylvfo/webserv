@@ -317,7 +317,10 @@ void WebServ::parseConfig(std::string path)
 					std::string pathErr = tokens.back();
 					for (size_t i = 0; i + 1 < tokens.size(); ++i)
 					{
-						int code = std::atoi(tokens[i].c_str());
+						std::stringstream sToken(tokens[i]);
+						int code;
+						sToken >> code;
+						//int = std::atoi(tokens[i].c_str());
 						currentServer.error_pages[code] = pathErr;
 					}
 				}
@@ -450,7 +453,7 @@ void WebServ::parseConfig(std::string path)
 	for (size_t i = 0; i < servers.size(); ++i)
 	{
 		const ServerConfig &s = servers[i];
-		
+
 		// Vérifier que le port est défini
 		if (s.listen_port <= 0)
 		{
@@ -458,7 +461,7 @@ void WebServ::parseConfig(std::string path)
 			oss << "Server[" << i << "] missing or invalid listen port";
 			throw std::runtime_error(oss.str());
 		}
-		
+
 		// Vérifier que root est défini
 		if (s.root.empty())
 		{

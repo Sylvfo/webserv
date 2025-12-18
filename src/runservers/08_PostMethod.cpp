@@ -40,7 +40,7 @@ void HttpRequest::HandleMultipart()
     size_t boundaryPos = contentType.find("boundary=");
     if (boundaryPos == std::string::npos)
     {
-        this->StatusCode = 400; 
+        this->StatusCode = 400;
         return;
     }
 
@@ -48,14 +48,14 @@ void HttpRequest::HandleMultipart()
     // Header: boundary=XYZ
     // Body: --XYZ (start) and --XYZ-- (end)
     std::string boundary = "--" + contentType.substr(boundaryPos + 9);
-    
+
     // 2. Loop through RawBody
     size_t pos = 0;
     while (true)
     {
         // Find start of a part
         size_t startPos = this->RawBody.find(boundary, pos);
-        if (startPos == std::string::npos) break; 
+        if (startPos == std::string::npos) break;
 
         // Check if it's the end boundary (--boundary--)
         if (startPos + boundary.length() + 2 <= this->RawBody.length())
@@ -66,7 +66,7 @@ void HttpRequest::HandleMultipart()
 
         // The part data usually starts after boundary + \r\n
         size_t partStart = startPos + boundary.length() + 2;
-        
+
         // Find end of this part (the next boundary)
         size_t nextBoundary = this->RawBody.find(boundary, partStart);
         if (nextBoundary == std::string::npos) break;
@@ -80,7 +80,7 @@ void HttpRequest::HandleMultipart()
         {
             // Extract Part Headers
             std::string partHeaders = this->RawBody.substr(partStart, headerEnd - partStart);
-            
+
             // Extract Part Content (Starts after \r\n\r\n)
             size_t bodyStart = headerEnd + 4;
             std::string partBody = this->RawBody.substr(bodyStart, partEnd - bodyStart);
@@ -97,8 +97,8 @@ void HttpRequest::HandleMultipart()
 
             // Determine Upload Path
             // (You can copy the logic from HandleFormData to match location blocks here)
-            std::string uploadPath = Server->root + "/uploads"; 
-            
+            std::string uploadPath = Server->root + "/uploads";
+
             // Write File
             std::string fullPath = uploadPath + "/" + filename;
             std::ofstream outFile(fullPath.c_str(), std::ios::binary);
@@ -228,7 +228,7 @@ std::map<std::string, std::string> HttpRequest::parseFormData(const std::string&
 
 std::string HttpRequest::getCurrentTimestamp()
 {
-	time_t now = time(NULL);
+	time_t now = std::time(0);
 	std::ostringstream oss;
 	oss << now;
 	return oss.str();
