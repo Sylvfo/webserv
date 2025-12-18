@@ -57,7 +57,6 @@ bool data::epollWaiting(server &Server)
 		else if ((event[i].events & EPOLLERR) || (events[i].events & EPOLLHUP))
 		|| (!(events[i].events && EPOLLIN))
 		{
-			std::cout << "close connection" << std::endl;
 			close(events[i].data.fd);
 			return true;
 		}
@@ -65,7 +64,6 @@ bool data::epollWaiting(server &Server)
 		else
 		{
 			readRequest(server, events[i].data.fd);
-			std::cout << "Request ansered" << std::endl;
 		}
 	}
 }

@@ -59,7 +59,6 @@ class WebServ
 		void addServer(ServerConfig config);
 		std::vector<ServerConfig> getServerList();
 		void parseConfig(std::string path);
-		void printConfig();
 
 		/* Init server */
 		void initServers();

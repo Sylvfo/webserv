@@ -61,7 +61,6 @@ bool WebServ::acceptConnection(int index)
 		if (new_socket < 0)
 			break;
 		
-		std::cout << LIGHT_GREEN "[ACCEPT] New client: fd " << new_socket << RESET << std::endl;
 
 		setNonBlocking(new_socket);
 		ConnectionData* connectionInfo = createConnection(index, new_socket);
@@ -71,7 +70,6 @@ bool WebServ::acceptConnection(int index)
 		event.data.ptr = connectionInfo;
 		if (epoll_ctl(epollFd, EPOLL_CTL_ADD, new_socket, &event) < 0)
 		{
-			std::cout << SOFT_RED "[ERROR] epoll_ctl() failed for client" << RESET << std::endl;
 			delete connectionInfo;
 			throw std::runtime_error("epoll_ctl() for clients failed");
 		}
@@ -88,7 +86,6 @@ void WebServ::closeConnection(epoll_event current_event)
 	
 	if (connInfo->is_server == false)
 	{
-		std::cout << LIGHT_PURPLE "[CLOSE] Client fd: " << connInfo->client_fd << RESET << std::endl;
 		epoll_ctl(epollFd, EPOLL_CTL_DEL, connInfo->client_fd, NULL);
 		close(connInfo->client_fd);
 		ClientsConnections.erase(connInfo->client_fd);

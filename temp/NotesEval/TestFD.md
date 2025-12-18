@@ -13,7 +13,6 @@ int main(int ac, char **av)
 	WeServ = new WebServ;
 	//At the beginning
 	sleep(25);
-	std::cout << "Enter webserv" << std::endl;
 	try
 	{
 		if (ac == 2)
@@ -22,7 +21,6 @@ int main(int ac, char **av)
 			WeServ->parseConfig("config/default.conf");
 		else
 		{
-			std::cout << SOFT_RED "[ERROR] Usage: ./webserv [config_file]" << RESET << std::endl;
 			delete WeServ;
 			return 1;
 		}
@@ -33,11 +31,9 @@ int main(int ac, char **av)
 	catch (const std::exception &e)
 	{
 		std::cerr << SOFT_RED "[ERROR] Exception - " << e.what() << RESET << std::endl;
-		std::cout <<  DARK_PURPLE "========== WEBSERV ENDING ==========" RESET << std::endl;
 		delete WeServ;
 		return 1;
 	}
-	std::cout <<  DARK_PURPLE "========== WEBSERV ENDING ==========" RESET << std::endl;
 	delete WeServ;
 	//At the end
 	sleep(25);

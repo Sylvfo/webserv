@@ -38,10 +38,7 @@ int WebServ::initServerSocket(ServerConfig &server, int index)
 
 	fd_socket_servers = socket(AF_INET, SOCK_STREAM, 0);
 	if (fd_socket_servers == -1)
-	{
-		std::cout << SOFT_RED "[ERROR] Failed to create socket" << RESET << std::endl;
 		throw std::runtime_error("Error in socket server");
-	}
 
 	int opt = 1;
 	setsockopt(fd_socket_servers, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
@@ -52,17 +49,15 @@ int WebServ::initServerSocket(ServerConfig &server, int index)
 	server.server_len = sizeof(sockaddr);
 	if (bind(fd_socket_servers, (struct sockaddr *)&server.sockaddr, server.server_len)!= 0)
 	{
-		std::cout << SOFT_RED "[ERROR] bind() failed for port " << server.listen_port << RESET << std::endl;
 		throw std::runtime_error("bind() failed");
 	}
 	
 	if (listen(fd_socket_servers, 1024) != 0)
 	{
-		std::cout << SOFT_RED "[ERROR] listen() failed" << RESET << std::endl;
 		throw std::runtime_error("listen() failed");
 	}
+	std::cout << "Listening on port http://localhost:" << server.listen_port << std::endl;
 	setNonBlocking(fd_socket_servers);
-	std::cout << LIGHT_GREEN "✓ Server listening on http://" << server.server_name << ":" << server.listen_port << RESET << std::endl;
 	server.fd_socket_serv = fd_socket_servers;
 	
 	ConnectionData* connInfo = new ConnectionData();
@@ -76,7 +71,6 @@ void WebServ::initPoll()
 	this->epollFd = epoll_create(1);
 	if (epollFd < 0)
 	{
-		std::cout << SOFT_RED "[ERROR] epoll_create() failed" << RESET << std::endl;
 		throw std::runtime_error("epoll_create() failed");
 	}
 	
@@ -90,7 +84,6 @@ void WebServ::initPoll()
 		event.data.ptr = it->second;
 		if (epoll_ctl(epollFd, EPOLL_CTL_ADD,it->first, &event) < 0)
 		{
-			std::cout << SOFT_RED "[ERROR] epoll_ctl() failed for server fd " << it->first << RESET << std::endl;
 			throw std::runtime_error("epoll_ctl() for servers failed");
 		}
 	}
@@ -101,11 +94,9 @@ void setNonBlocking(int fd)
 	int flags = fcntl(fd, F_GETFL, 0);
 	if (flags == -1)
 	{
-		std::cerr << SOFT_RED "[ERROR] fcntl F_GETFL failed" << RESET << std::endl;
 		return;
 	}
 	if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1)
 	{
-		std::cerr << SOFT_RED "[ERROR] fcntl F_SETFL failed" << RESET << std::endl;
 	}
 }
