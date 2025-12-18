@@ -21,7 +21,6 @@ void WebServ::handleRequest(epoll_event current_event)
 				request.sendAnswerToRequest();
 				request.request_complete = true;
 			}
-			std::cout << SOFT_RED "[ERROR] Failed to receive header" << RESET << std::endl;
 			return;
 		}
 		if (request.header_complete)
@@ -44,7 +43,6 @@ void WebServ::handleRequest(epoll_event current_event)
 	{
 		if (!request.receiveBody())
 		{
-			std::cout << SOFT_RED "[ERROR] Failed to receive body" << RESET << std::endl;
 			if (request.answer_type == ERROR)
 			{
 				request.answerError();
@@ -72,7 +70,6 @@ void HttpRequest::sendAnswerToRequest()
 {
 	ssize_t totalBytesSent = 0;
 
-	std::cout << "[DEBUG] Sending http_answer.size() = " << http_answer.size() << " bytes" << std::endl;
 
 	while(totalBytesSent < (int)http_answer.size())
 	{
@@ -84,7 +81,6 @@ void HttpRequest::sendAnswerToRequest()
 		else if (bytesSent < 0)
 			continue;
 	}
-	std::cout << "[INFO] Successfully sent " << totalBytesSent << " bytes" << std::endl;
 }
 
 std::string intToString(int numb)

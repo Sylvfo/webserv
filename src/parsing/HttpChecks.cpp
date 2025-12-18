@@ -2,7 +2,6 @@
 
 bool HttpRequest::validateHeader() // a helper function for parseHeader if parseHeader would grow to big
 {
-	std::cout << LIGHT_CYAN "[VALIDATE_HEADER] Validating header..." << RESET << std::endl;
 	this->is_chunked = false;
 	this->expecting_body = false;
 	this->content_length = 0;
@@ -11,7 +10,6 @@ bool HttpRequest::validateHeader() // a helper function for parseHeader if parse
 	{
 		if (this->headers["transfer-encoding"].find("chunked") != std::string::npos)
 		{
-			std::cout << SOFT_RED "[ERROR] Chunked transfer encoding not supported (501)" << RESET << std::endl;
 			this->is_chunked = true;
 			this->status_code = 501;
 			this->answer_type = ERROR;
@@ -31,7 +29,6 @@ bool HttpRequest::validateHeader() // a helper function for parseHeader if parse
 		if ((!(stream >> parsed)) || stream >> leftover)
 		//if (*endptr != '\0' || endptr == value_str)
 		{
-			std::cout << SOFT_RED "[ERROR] Invalid Content-Length format (400)" << RESET << std::endl;
 			this->status_code = 400;
 			this->answer_type = ERROR;
 			return false;
@@ -40,7 +37,6 @@ bool HttpRequest::validateHeader() // a helper function for parseHeader if parse
 
 		if (this->content_length > this->Server->client_max_body_size)
 		{
-			std::cout << SOFT_RED "[ERROR] Content-Length exceeds max (" << this->Server->client_max_body_size << " bytes) (413)" << RESET << std::endl;
 			this->status_code = 413;
 			this->answer_type = ERROR;
 			return false;
@@ -50,7 +46,6 @@ bool HttpRequest::validateHeader() // a helper function for parseHeader if parse
 	}
 	if (this->method == "POST")
 	{
-		std::cout << SOFT_RED "[ERROR] POST requires Content-Length or Transfer-Encoding (411)" << RESET << std::endl;
 		this->status_code = 411;
 		this->answer_type = ERROR;
 		return false;
@@ -62,24 +57,19 @@ bool HttpRequest::validateHeader() // a helper function for parseHeader if parse
 
 void HttpRequest::checkRequest()
 {
-	std::cout << LIGHT_CYAN "[CHECK_REQUEST] Checking request for URI: " << this->uri << RESET << std::endl;
-
 	std::string uriWithoutQuery = this->uri;
 	size_t queryPos = uriWithoutQuery.find('?');
 	if (queryPos != std::string::npos)
 	{
 		uriWithoutQuery = uriWithoutQuery.substr(0, queryPos);
-		std::cout << LIGHT_CYAN "[CHECK_REQUEST] Stripped query string, URI: " << uriWithoutQuery << RESET << std::endl;
 	}
 
 	size_t LongestMatch = 0;
 	int MatchedIndex = -1;
 	std::string uri = _urlDecode(uriWithoutQuery);
-	std::cout << LIGHT_CYAN "[CHECK_REQUEST] URL decoded URI: " << uri << RESET << std::endl;
 
 	std::string root = Server->root;
 
-	std::cout << LIGHT_CYAN "[CHECK_REQUEST] Searching for matching location..." << RESET << std::endl;
 	for (size_t i = 0; i < Server->locations.size(); i++)
 	{
 		const std::string& LocationPath = Server->locations[i].path;
@@ -94,7 +84,6 @@ void HttpRequest::checkRequest()
 				{
 					LongestMatch = LocationPath.length();
 					MatchedIndex = i;
-					std::cout << LIGHT_CYAN "[CHECK_REQUEST] Found match: " << LocationPath << " (length: " << LocationPath.length() << ")" << RESET << std::endl;
 				}
 			}
 		}
@@ -102,8 +91,6 @@ void HttpRequest::checkRequest()
 
 	if (MatchedIndex != -1)
 	{
-		std::cout << LIGHT_CYAN "[CHECK_REQUEST] Best match: " << Server->locations[MatchedIndex].path << RESET << std::endl;
-		std::cout << LIGHT_CYAN "[CHECK_REQUEST] Checking if method " << this->method << " is allowed..." << RESET << std::endl;
 		bool MethodAllowed = false;
 		std::vector<std::string>& allowed = Server->locations[MatchedIndex].methods;
 		for (size_t j = 0; j < allowed.size(); j++)
@@ -111,13 +98,11 @@ void HttpRequest::checkRequest()
 			if (allowed[j] == this->method)
 			{
 				MethodAllowed = true;
-				std::cout << LIGHT_CYAN "[CHECK_REQUEST] Method allowed" << RESET << std::endl;
 				break;
 			}
 		}
 		if (!MethodAllowed)
 		{
-			std::cout << SOFT_RED "[CHECK_REQUEST] Method not allowed (405)" << RESET << std::endl;
 			this->status_code = 405;
 			this->answer_type = ERROR;
 			return;
@@ -125,12 +110,7 @@ void HttpRequest::checkRequest()
 		if (!Server->locations[MatchedIndex].root.empty())
 		{
 			root = Server->locations[MatchedIndex].root;
-			std::cout << LIGHT_CYAN "[CHECK_REQUEST] Using location root: " << root << RESET << std::endl;
 		}
-	}
-	else
-	{
-		std::cout << LIGHT_CYAN "[CHECK_REQUEST] No location match, using server root" << RESET << std::endl;
 	}
 	std::string RelativePath;
 	if (MatchedIndex != -1)
@@ -141,7 +121,6 @@ void HttpRequest::checkRequest()
 	if (!root.empty() && root[root.length() - 1] == '/' && !RelativePath.empty() && RelativePath[0] == '/')
 	{
 		RelativePath = RelativePath.substr(1);
-		std::cout << LIGHT_CYAN "[CHECK_REQUEST] Removed leading slash from relative path" << RESET << std::endl;
 	}
 
 	if (root[root.length() - 1] == '/')
@@ -149,12 +128,8 @@ void HttpRequest::checkRequest()
 	else
 		this ->path= root + "/" + RelativePath;
 
-	std::cout << LIGHT_CYAN "[CHECK_REQUEST] Constructed path: " << this->path<< RESET << std::endl;
-	std::cout << LIGHT_CYAN "[CHECK_REQUEST] Checking if path exists..." << RESET << std::endl;
-
     if (access(this->path.c_str(), F_OK) != 0)
 	{
-		std::cout << SOFT_RED "[CHECK_REQUEST] path not found (404)" << RESET << std::endl;
 		this->status_code = 404;
 		this->answer_type = ERROR;
 		return;
@@ -162,18 +137,14 @@ void HttpRequest::checkRequest()
 	
 	if (access(this->path.c_str(), R_OK) != 0)
 	{
-		std::cout << SOFT_RED "[CHECK_REQUEST] Permission denied (403)" << RESET << std::endl;
 		this->status_code = 403;
 		this->answer_type = ERROR;
 		return;
 	}
 	
-	std::cout << LIGHT_CYAN "[CHECK_REQUEST] path exists and is readable" << RESET << std::endl;
-	
 	struct stat FileInfo;
 	if (stat(this->path.c_str(), &FileInfo) != 0)
 	{
-		std::cout << SOFT_RED "[CHECK_REQUEST] Failed to stat path" << RESET << std::endl;
 		this->status_code = 500;
 		this->answer_type = ERROR;
 		return;
@@ -205,13 +176,11 @@ void HttpRequest::checkRequest()
 		CGIHandler cgiHandler;
 		if (cgiHandler.isCGI(uri, Server->locations[MatchedIndex]))
 		{
-			std::cout << BRIGHT_MAGENTA "[CHECK_REQUEST] Detected CGI request: " << uri << RESET << std::endl;
 			this->answer_type = CGI;
 			return;
 		}
 	}
 
-	std::cout << LIGHT_CYAN "[CHECK_REQUEST] Setting answer type to STATIC" << RESET << std::endl;
 	this->answer_type = STATIC;
 }
 

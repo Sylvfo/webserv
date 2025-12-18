@@ -11,7 +11,6 @@ bool HttpRequest::receiveHeader()
 
 		if (this->partial_request.size() > MAX_HEADER_SIZE)
 		{
-			std::cout << SOFT_RED "[RECEIVE_HEADER] 431" << RESET << std::endl;
 			this->answer_type = ERROR;
 			this->status_code = 431;
 			return false;
@@ -20,7 +19,6 @@ bool HttpRequest::receiveHeader()
 		size_t seperator_pos = this->partial_request.find("\r\n\r\n");
 		if (seperator_pos != std::string::npos)
 		{
-			std::cout << SOFT_RED "[RECEIVE_HEADER] seperator found" << RESET << std::endl;
 			this->raw_header = this->partial_request.substr(0, seperator_pos);
 			this->partial_body = this->partial_request.substr(seperator_pos + 4);
 			this->header_complete = true;
@@ -28,7 +26,6 @@ bool HttpRequest::receiveHeader()
 		}
 		else if (seperator_pos == std::string::npos)
 		{
-			std::cout << SOFT_RED "[RECEIVE_HEADER] uri too long" << RESET << std::endl;
 			this->answer_type = ERROR;
 			this->status_code = 414;
 			return false;

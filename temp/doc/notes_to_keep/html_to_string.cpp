@@ -25,7 +25,6 @@
 {
 	std::string content;
 	content = htmlToString("roofs.html");
-	std::cout << content << std::endl;
 	return (0);
 }*/
 
@@ -43,13 +42,11 @@ bool forLosers(std::string filename, std::string s1, std::string s2)
 	std::ifstream myinfile(filename.c_str());
 	if(myinfile.is_open() == false)
 	{
-		std::cout << "problem to open the file" << std::endl;
 		return (false);
 	}
 	std::ofstream myoutfile(newname.c_str());
 	if (myoutfile.is_open() == false)
 	{
-		std::cout << "problem to create the file" << std::endl;
 		myinfile.close();
 		return (false);
 	}

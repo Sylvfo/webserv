@@ -7,7 +7,6 @@ bool HttpRequest::parseHeader()
 
 	if (!std::getline(stream, line))
 	{
-		std::cout << SOFT_RED "[PARSE_HEADER] Empty request (400)" << RESET << std::endl;
 		this->answer_type = ERROR;
 		this->status_code = 400;
 		return false;
@@ -16,7 +15,6 @@ bool HttpRequest::parseHeader()
 	if (!line.empty() && line[line.size() - 1] == '\r')
 		line.erase(line.size() - 1);
 
-	std::cout << BRIGHT_CYAN "[REQUEST] " << line << RESET << std::endl;
 
 	if (!_parseRequestLine(line))
 	{
@@ -34,7 +32,6 @@ bool HttpRequest::parseHeader()
 
 		if (!_parseOneHeader(line))
 		{
-			std::cout << SOFT_RED "[ERROR] Failed to parse header line: " << line << RESET << std::endl;
 			this->answer_type = ERROR;
 			return false;
 		}
@@ -42,7 +39,6 @@ bool HttpRequest::parseHeader()
 
 	if (this->version == "HTTP/1.1" && (this->headers.find("host") == this->headers.end()))
 	{
-		std::cout << SOFT_RED "[ERROR] HTTP/1.1 requires Host header (400)" << RESET << std::endl;
 		this->answer_type = ERROR;
 		this->status_code = 400;
 		return false;
@@ -52,41 +48,37 @@ bool HttpRequest::parseHeader()
 
 bool HttpRequest::_parseRequestLine(const std::string& line)
 {
+	std::cout << line << std::endl;
 	std::stringstream stream(line);
 	std::string method, path, version, junk;
 
 	stream >> method >> path >> version;
 	if (method.empty() || path.empty() || version.empty() || (stream >> junk))
 	{
-		std::cout << SOFT_RED "[ERROR] Invalid request line format (400)" << RESET << std::endl;
 		this->status_code = 400;
 		return false;
 	}
 
 	if (method != "GET" && method != "POST" && method != "DELETE")
 	{
-		std::cout << SOFT_RED "[ERROR] Method not implemented: " << method << " (501)" << RESET << std::endl;
 		this->status_code = 501;
 		return false;
 	}
 
 	if (version != "HTTP/1.1" && version != "HTTP/1.0")
 	{
-		std::cout << SOFT_RED "[ERROR] HTTP version not supported: " << version << " (505)" << RESET << std::endl;
 		this->status_code = 505;
 		return false;
 	}
 
 	if (path.empty() || path[0] != '/')
 	{
-		std::cout << SOFT_RED "[ERROR] Invalid path: " << path << " (400)" << RESET << std::endl;
 		this->status_code = 400;
 		return false;
 	}
 
 	if (path.length() > 8192)
 	{
-		std::cout << SOFT_RED "[ERROR] URI too long (> 8192 bytes) (414)" << RESET << std::endl;
 		this->status_code = 414;
 		return false;
 	}

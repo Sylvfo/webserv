@@ -8,7 +8,6 @@ std::string intToString(int numb);
 
 int MyFirstWebServ()
 {
-	std::cout << "Attempt to create a server" << std::endl;
 
 	int wsocket;
 	int new_wsocket;
@@ -22,7 +21,6 @@ int MyFirstWebServ()
 	wsocket = socket(AF_INET, SOCK_STREAM, 0); // = IPV4, stream, 0 = TCP
 	if (wsocket == -1)
 	{
-		std::cout << "Could not create a socket" << std::endl;
 	}
 
 	//bind socket to address
@@ -33,14 +31,11 @@ int MyFirstWebServ()
 
 	if (bind(wsocket, (struct sockaddr *)&server, server_len)!= 0)
 	{
-		std::cout << "Could not bind socket" << std::endl;
 	}
 	//listening to address
 	if (listen(wsocket, 20) != 0)
 	{
-		std::cout << "Could not start listening" << std::endl;
 	}
-	std::cout << "Listening on 127.0.0.1:8080" << std::endl;
 
 //*************************************************************** */
 	// loop to keep receiving information from our client requests
@@ -49,13 +44,11 @@ int MyFirstWebServ()
 		// accept client request
 		new_wsocket = accept(wsocket, (struct sockaddr *)&server, &server_len);
 		if (new_wsocket == -1)
-			std::cout << "Could not accept" << std::endl;
 		// here security you can make
 		// read request
 		char buff[30720] = {0};
 		int bytes = recv(new_wsocket, buff, BUFFER_SIZE, 0);
 		if (bytes < 0){
-			std::cout << "Could not read client request";
 		}
 		std::string serverMessage = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
 		std::string response = "<html><h1>Hello Babe</h1></html>";
@@ -71,11 +64,9 @@ int MyFirstWebServ()
 			bytesSent = send(new_wsocket, serverMessage.c_str(), serverMessage.size(), 0);
 			if (bytesSent < 0)
 			{
-				std::cout << "Could not send response" ;
 			}
 			totalBytesSent += bytesSent;
 		}
-		std::cout << "sent response to client" << std::endl;
 		close(new_wsocket);
 	}
 	close(wsocket);

@@ -6,7 +6,7 @@
 /*   By: beboccas <beboccas@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 15:07:41 by beboccas          #+#    #+#             */
-/*   Updated: 2025/12/17 23:03:10 by beboccas         ###   ########.fr       */
+/*   Updated: 2025/12/18 15:05:42 by beboccas         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,7 +159,6 @@ ServerConfig WebServ::getServer(std::string hostReq)
 		if (serverHostPort == hostReq)
 			return servers[i];
 	}
-	std::cout << "No server matches the requested host:" << hostReq << ". Returning the first one." << std::endl;
 	return emptyServer;//return first server as default
 
 }*/
@@ -172,27 +171,6 @@ void WebServ::addServer(ServerConfig config)
 std::vector<ServerConfig> WebServ::getServerList()
 {
 	return servers;
-}
-
-void WebServ::printConfig()
-{
-	for (size_t i = 0; i < servers.size(); ++i)
-	{
-		const ServerConfig &s = servers[i];
-		std::cout << "Server[" << i << "] listen=" << s.listen_port << " name=" << s.server_name << " root=" << s.root << " body_max=" << s.client_max_body_size << std::endl;
-		for (std::map<int, std::string>::const_iterator it = s.error_pages.begin(); it != s.error_pages.end(); ++it)
-			std::cout << "  error " << it->first << " -> " << it->second << std::endl;
-		for (size_t j = 0; j < s.locations.size(); ++j)
-		{
-			const LocationConfig &l = s.locations[j];
-			std::cout << "  location " << l.path << " root=" << l.root << " index=" << l.index << " autoindex=" << (l.autoindex?"on":"off") << std::endl;
-			std::cout << "    methods:";
-			for (size_t k = 0; k < l.methods.size(); ++k) std::cout << " " << l.methods[k];
-			std::cout << std::endl;
-			for (size_t k = 0; k < l.returns.size(); ++k)
-				std::cout << "    return " << l.returns[k].first << " " << l.returns[k].second << std::endl;
-		}
-	}
 }
 
 void WebServ::parseConfig(std::string path)
