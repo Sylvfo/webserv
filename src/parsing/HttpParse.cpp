@@ -109,7 +109,7 @@ bool HttpRequest::ParseOneHeader(const std::string& line)
 	}
 	std::string key = line.substr(0, ColonPos);
 	for (size_t i = 0; i < key.length(); i++)
-		key[i] = std::tolower(key[i]);
+		key[i] = std::tolower(static_cast<unsigned char>(key[i]));
 	if (key.find(' ') != std::string::npos || key.find('\t') != std::string::npos)
 	{
 		this->StatusCode = 400;
