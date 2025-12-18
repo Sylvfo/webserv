@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ServerConfig.hpp                                   :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: bschmid <bschmid@student.42lausanne.ch>    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/12/17 23:28:11 by bschmid          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef SERVERCONFIG_HPP
 #define SERVERCONFIG_HPP
 
@@ -29,24 +17,7 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
-
-class LocationConfig
-{
-public:
-    std::string path;
-    std::vector<std::string> methods;
-    bool autoindex;
-    std::string index;
-    std::string root;
-    std::string upload_path;
-    std::string cgi_path;
-    std::vector<std::pair<int, std::string> > returns;
-
-    LocationConfig();
-    LocationConfig(const LocationConfig& other);
-    LocationConfig& operator=(const LocationConfig& other);
-    ~LocationConfig();
-};
+#include "LocationConfig.hpp"
 
 class ServerConfig
 {

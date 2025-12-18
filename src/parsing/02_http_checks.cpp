@@ -1,6 +1,6 @@
 #include "HttpRequest.hpp"
 
-bool HttpRequest::validateHeader() // a helper function for parseHeader if parseHeader would grow to big
+bool HttpRequest::validateHeader()
 {
 	this->is_chunked = false;
 	this->expecting_body = false;
@@ -19,15 +19,12 @@ bool HttpRequest::validateHeader() // a helper function for parseHeader if parse
 
 	if (this->headers.count("content-length"))
 	{
-		//const char* value_str = this->headers["content-length"].c_str();
-		//char* endptr;
-		//unsigned long parsed = std::strtoul(value_str, &endptr, 10);
+
 		std::stringstream stream(this->headers["content-length"]);
 		unsigned long parsed;
 
 		char leftover;
 		if ((!(stream >> parsed)) || stream >> leftover)
-		//if (*endptr != '\0' || endptr == value_str)
 		{
 			this->status_code = 400;
 			this->answer_type = ERROR;
@@ -52,8 +49,6 @@ bool HttpRequest::validateHeader() // a helper function for parseHeader if parse
 	}
 	return true;
 }
-
-
 
 void HttpRequest::checkRequest()
 {
@@ -197,7 +192,6 @@ std::string HttpRequest::_urlDecode(const std::string& str)
 		else if (str[i] == '%' && i + 2 < str.length())
 		{
 			std::string hexStr = str.substr(i + 1, 2);
-			//char* endPtr;
 			std::stringstream sHexValue;
 			sHexValue << std::hex << hexStr;
 			long hexValue;
@@ -207,12 +201,6 @@ std::string HttpRequest::_urlDecode(const std::string& str)
 				result += static_cast<char>(hexValue);
 				i += 2;
 			}
-			// long hexValue = strtol(hexStr.c_str(), &endPtr, 16);
-			// if (*endPtr == '\0')
-			// {
-			// 	result += static_cast<char>(hexValue);
-			// 	i += 2;
-			// }
 			else
 			{
 				result += str[i];
