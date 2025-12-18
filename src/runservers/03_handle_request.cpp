@@ -3,11 +3,11 @@
 void WebServ::handleRequest(epoll_event current_event)
 {
 	ConnectionData* connInfo = static_cast<ConnectionData*>(current_event.data.ptr);
-   	if (!connInfo)
-    {
-        std::cerr << SOFT_RED "[ERROR] NULL connection info" << RESET << std::endl;
-        return;
-    }
+	if (!connInfo)
+	{
+		std::cerr << SOFT_RED "[ERROR] NULL connection info" << RESET << std::endl;
+		return;
+	}
 	HttpRequest& request = connInfo->request;
 	request.socket_fd = connInfo->client_fd;
 	request.Server = connInfo->server;

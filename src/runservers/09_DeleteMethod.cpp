@@ -96,7 +96,6 @@ void HttpRequest::deleteRequest()
 		return;
 	}
 
-
 	// check write permission
 	std::string parentDir = filePath.substr(0, filePath.find_last_of('/'));
 	if (access(parentDir.c_str(), W_OK) != 0)

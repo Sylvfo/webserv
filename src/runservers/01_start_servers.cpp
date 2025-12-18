@@ -36,7 +36,7 @@ int WebServ::initServerSocket(ServerConfig &server, int index)
 {
 	int fd_socket_servers;
 
-	fd_socket_servers = socket(AF_INET, SOCK_STREAM, 0); // = IPV4, stream, 0 = TCP
+	fd_socket_servers = socket(AF_INET, SOCK_STREAM, 0);
 	if (fd_socket_servers == -1)
 	{
 		std::cout << SOFT_RED "[ERROR] Failed to create socket" << RESET << std::endl;
@@ -44,7 +44,7 @@ int WebServ::initServerSocket(ServerConfig &server, int index)
 	}
 
 	int opt = 1;
-	setsockopt(fd_socket_servers, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));//mieux comprendre SO_REUSEPORT??
+	setsockopt(fd_socket_servers, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
 	server.sockaddr.sin_family = AF_INET;
 	server.sockaddr.sin_addr.s_addr = INADDR_ANY;

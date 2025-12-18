@@ -6,7 +6,6 @@ void HttpRequest::answerError()
 	
 	if (!errorPath.empty())
 	{
-		// Page custom trouvée, tente de l'ouvrir
 		_setcontent_type(errorPath);
 		fd_ressource = open(errorPath.c_str(), O_RDONLY);
 		if (fd_ressource >= 0)

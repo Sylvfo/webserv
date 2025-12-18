@@ -1,29 +1,20 @@
 #include "../inc/HttpRequest.hpp"
 
-// --- Constructor ---
 HttpRequest::HttpRequest()
-	// --- Server & Connection ---
 	: Server(NULL)
 	, socket_fd(-1)
-
-	// --- Request State ---
 	, header_complete(false)
 	, request_complete(false)
-
-	// --- Body Handling ---
 	, expecting_body(false)
 	, is_chunked(false)
 	, body_complete(false)
 	, content_length(0)
-
-	// --- Response ---
 	, answer_type(STATIC)
 	, status_code(200)
 	, fd_ressource(-1)
 {
 }
 
-// --- Copy Constructor ---
 HttpRequest::HttpRequest(const HttpRequest& other)
 	: Server(other.Server)
 	, socket_fd(other.socket_fd)
@@ -53,8 +44,6 @@ HttpRequest::HttpRequest(const HttpRequest& other)
 {
 }
 
-
-// --- Assignment Operator ---
 HttpRequest& HttpRequest::operator=(const HttpRequest& other)
 {
 	if (this != &other)
@@ -86,7 +75,6 @@ HttpRequest& HttpRequest::operator=(const HttpRequest& other)
 	return *this;
 }
 
-// --- Destructor ---
 HttpRequest::~HttpRequest()
 {
 }

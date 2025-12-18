@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-
-#pragma once
+#ifndef SERVERCONFIG_HPP
+#define SERVERCONFIG_HPP
 
 #include <string>
 #include <vector>
@@ -27,13 +27,9 @@
 #include <cstring>
 #include <sys/stat.h>
 #include <unistd.h>
-
-
-// added so would compile but not used in header parsing
 #include <netinet/in.h>
 #include <sys/socket.h>
 
-//struct pour la classe serveur config
 class LocationConfig
 {
 public:
@@ -52,7 +48,6 @@ public:
     ~LocationConfig();
 };
 
-//faire une classe ServerConfig
 class ServerConfig
 {
 public:
@@ -63,8 +58,7 @@ public:
     size_t client_max_body_size;
     std::vector<LocationConfig> locations;
 
-	//pour start server
-	int fd_socket_serv;//a voir si c est utile
+	int fd_socket_serv;
 	struct sockaddr_in sockaddr;
 	socklen_t server_len;
 	std::map<int, std::string> error_code_message;
@@ -77,3 +71,4 @@ public:
 	~ServerConfig();
 };
 
+#endif
