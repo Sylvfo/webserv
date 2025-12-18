@@ -58,7 +58,7 @@ void HttpRequest::_setStatusLine()
 	std::map<int, std::string>::iterator it = this->Server->error_code_message.find(status_code);
 	if (it == Server->error_code_message.end())
 	{
-		http_answer += "500 Internal Server Error";
+		http_answer += "501 Not Implemented";
 	}
 	else
 	{
