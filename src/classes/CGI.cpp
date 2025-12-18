@@ -145,7 +145,6 @@ void	CGIHandler::_setupEnvironment(const HttpRequest& request,
 
 	const std::map<std::string, std::string>&	headers = request.headers;
 
-	// Standard CGI environment variables
 	_addEnvVar("REQUEST_METHOD", request.method);
 	_addEnvVar("REQUEST_URI", request.uri);
 	_addEnvVar("SCRIPT_NAME", script_path);
@@ -154,8 +153,6 @@ void	CGIHandler::_setupEnvironment(const HttpRequest& request,
 	_addEnvVar("SERVER_PROTOCOL", request.version.empty() ? "HTTP/1.0" : request.version);
 	_addEnvVar("GATEWAY_INTERFACE", "CGI/1.1");
 	
-	// Extract and set DOCUMENT_ROOT from script_path
-	// Assume script is in www/cgi-bin, so document root is www
 	size_t cgi_pos = script_path.find("/cgi-bin/");
 	if (cgi_pos != std::string::npos)
 	{
@@ -164,7 +161,6 @@ void	CGIHandler::_setupEnvironment(const HttpRequest& request,
 	}
 	else
 	{
-		// Fallback: use www as document root
 		_addEnvVar("DOCUMENT_ROOT", "www");
 	}
 
@@ -184,9 +180,7 @@ void	CGIHandler::_setupEnvironment(const HttpRequest& request,
 		if (cl_it != headers.end())
 			_addEnvVar("CONTENT_LENGTH", cl_it->second);
 	}
-	
-	// Add all HTTP headers as HTTP_* variables
-	std::map<std::string, std::string>::const_iterator	it;
+		std::map<std::string, std::string>::const_iterator	it;
 	for (it = headers.begin(); it != headers.end(); ++it)
 	{
 		std::string	env_name = "HTTP_" + it->first;
@@ -203,7 +197,6 @@ void	CGIHandler::_setupEnvironment(const HttpRequest& request,
 
 std::string	CGIHandler::executeCGI(const std::string& script_path, const HttpRequest& request, const LocationConfig& location, const std::string& body)
 {
-	// Verify script exists and is executable before forking
 	struct stat script_stat;
 	if (stat(script_path.c_str(), &script_stat) != 0)
 	{
@@ -248,17 +241,14 @@ std::string	CGIHandler::executeCGI(const std::string& script_path, const HttpReq
 
 	if (pid == 0)
 	{
-		// Child process
 		close(pipe_in[1]);
 		close(pipe_out[0]);
 
 		if (dup2(pipe_in[0], STDIN_FILENO) == -1
 			|| dup2(pipe_out[1], STDOUT_FILENO) == -1)
 		{
-			// Close remaining fds and let process terminate
 			close(pipe_in[0]);
 			close(pipe_out[1]);
-			// Infinite loop - parent will kill us with waitpid
 			while (1)
 				;
 		}
@@ -271,28 +261,20 @@ std::string	CGIHandler::executeCGI(const std::string& script_path, const HttpReq
 		argv[1] = NULL;
 
 		execve(script_path.c_str(), argv, env_for_exec);
-
-		// If execve fails, loop forever - parent will clean up
-		// Can't use exit() or getpid() as they're not in allowed functions
 		while (1)
 			;
 	}
 	else
 	{
-		// Parent process
 		close(pipe_in[0]);
 		close(pipe_out[1]);
 		delete[] env_for_exec;
-
-		// Write body to CGI stdin if present
 		if (!body.empty())
 		{
 			ssize_t written = write(pipe_in[1], body.c_str(), body.length());
-			(void)written; // Avoid unused variable warning
+			(void)written;
 		}
 		close(pipe_in[1]);
-
-		// Read CGI output
 		std::string	output;
 		char		buffer[1024];
 		ssize_t		bytes_read;
@@ -303,8 +285,6 @@ std::string	CGIHandler::executeCGI(const std::string& script_path, const HttpReq
 			output += buffer;
 		}
 		close(pipe_out[0]);
-
-		// Wait for child process
 		int	status;
 		waitpid(pid, &status, 0);
 
@@ -328,8 +308,6 @@ std::string	CGIHandler::executeCGI(const std::string& script_path, const HttpReq
 
 				response = "HTTP/1.1 200 OK\r\n";
 				response += cgi_headers;
-
-				// Ensure all headers end with \r\n
 				size_t pos = 0;
 				while ((pos = response.find("\n", pos)) != std::string::npos)
 				{
@@ -345,7 +323,6 @@ std::string	CGIHandler::executeCGI(const std::string& script_path, const HttpReq
 			}
 			else
 			{
-				// No headers from CGI, add default ones
 				response = "HTTP/1.1 200 OK\r\n";
 				response += "Content-Type: text/html\r\n";
 				response += "\r\n" + output;
