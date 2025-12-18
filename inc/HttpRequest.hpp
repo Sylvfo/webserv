@@ -5,7 +5,7 @@
 #include "CGI.hpp"
 
 
-enum AnswerType {
+enum answer_type {
 	ERROR,
 	STATIC,//ancien Local
 	CGI,
@@ -42,32 +42,32 @@ public:
 	std::string							method;
 	std::string							uri;
 	std::string							version;
-	std::string							Path;
+	std::string							path;
 	std::map<std::string, std::string>	headers;
 
 	// --- Request State & Buffers ---
-	bool			HeaderComplete;
-	bool			RequestComplete;
-	bool 			IsDirectory;
-	std::string		PartialRequest;
-	std::string		RawHeader;
-	std::string		RedirectionUrl;
+	bool			header_complete;
+	bool			request_complete;
+	bool 			is_directory;
+	std::string		partial_request;
+	std::string		raw_header;
+	std::string		redirection_url;
 
 	// --- Body Handling ---
-	bool			ExpectingBody;
-	bool			IsChunked;
-	bool			BodyComplete;
-	size_t			ContentLength;
-	std::string 	RawBody;
-	std::string		PartialBody;
+	bool			expecting_body;
+	bool			is_chunked;
+	bool			body_complete;
+	size_t			content_length;
+	std::string 	raw_body;
+	std::string		partial_body;
 
 	// --- Response ---
-	int				AnswerType;
-	int				StatusCode;
-	int				fd_Ressource;
-	std::string		HttpAnswer;
-	std::string		ContentType;
-	std::string		AnswerBody;
+	int				answer_type;
+	int				status_code;
+	int				fd_ressource;
+	std::string		http_answer;
+	std::string		content_type;
+	std::string		answer_body;
 
 	// ==============================================================================================
 	// Public Interface
@@ -75,26 +75,26 @@ public:
 
 
 	// --- Parsing & Validation ---
-	bool	ReceiveHeader();
-	bool	ParseHeader();
-	bool	ValidateHeader();
-	void	CheckRequest();
-	bool	ReceiveBody();
+	bool	receiveHeader();
+	bool	parseHeader();
+	bool	validateHeader();
+	void	checkRequest();
+	bool	receiveBody();
 
 	// --- Method Processing ---
-	void	GetRequest();
-	void	PostRequest();
-	void	DeleteRequest();
+	void	getRequest();
+	void	postRequest();
+	void	deleteRequest();
 
 	// --- Response Generation ---
-	void	Answerlocal();
-	void	AnswerCGI();
-	void	AnswerError();
+	void	answerLocal();
+	void	answerCGI();
+	void	answerError();
 	void	sendAnswerToRequest();
 
 	// --- Error Handling ---
-	std::string	GetCustomErrorPage();
-	void		UseDefaultErrorHTML();
+	std::string	getCustomErrorPage();
+	void		useDefaultErrorHTML();
 
 private:
 	// ==============================================================================================
@@ -102,27 +102,26 @@ private:
 	// ==============================================================================================
 
 	// --- Parsing Helpers ---
-	bool	ParseRequestLine(const std::string&);
-	bool	ParseOneHeader(const std::string&);
-	void	HandleMultipart();
+	bool	_parseRequestLine(const std::string&);
+	bool	_parseOneHeader(const std::string&);
+	void	_handleMultipart();
 
 	// --- Response Helpers ---
-	bool	GetAccessRessource();
-	bool	loadRessource();
-	std::string	generate_directory_listing(const std::string &dir_path, const std::string &uri_path);
-	void	SetStatusLine();
-	void	SetResponseHeader();
-	void	SetContentType(std::string &makingPath);
+	bool	_getAccessRessource();
+	bool	_loadRessource();
+	std::string	_generate_directory_listing(const std::string &dir_path, const std::string &uri_path);
+	void	_setStatusLine();
+	void	_setResponseHeader();
+	void	_setcontent_type(std::string &makingPath);
 
 	// --- Utilities ---
-	void								HandleFormData();
-	std::map<std::string, std::string>	parseFormData(const std::string &body);
-	std::string							urlDecode(const std::string &str);
-	std::string							getCurrentTimestamp();
-	void								printHttpRequest();
+	void								_handleFormData();
+	std::map<std::string, std::string>	_parseFormData(const std::string &body);
+	std::string							_urlDecode(const std::string &str);
+	std::string							_getCurrentTimestamp();
 };
 
 // --- Global Helper ---
-std::string IntToString(int numb);
+std::string intToString(int numb);
 
 #endif

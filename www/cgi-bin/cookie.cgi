@@ -18,7 +18,7 @@ else
 fi
 
 # Set new cookie
-echo "Set-Cookie: visitor_count=$NEW_COUNT; Path=/; Max-Age=86400"
+echo "Set-Cookie: visitor_count=$NEW_COUNT; path=/; Max-Age=86400"
 echo ""
 
 echo "<html>"
@@ -44,7 +44,7 @@ echo "<h2>📊 Cookie Details</h2>"
 echo "<table border='1' style='border-collapse: collapse; width: 100%;'>"
 echo "<tr><td><strong>Cookie Name</strong></td><td>visitor_count</td></tr>"
 echo "<tr><td><strong>Current Value</strong></td><td>$NEW_COUNT</td></tr>"
-echo "<tr><td><strong>Path</strong></td><td>/</td></tr>"
+echo "<tr><td><strong>path</strong></td><td>/</td></tr>"
 echo "<tr><td><strong>Max Age</strong></td><td>86400 seconds (24 hours)</td></tr>"
 echo "</table>"
 

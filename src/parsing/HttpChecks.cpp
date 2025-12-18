@@ -1,20 +1,20 @@
 #include "HttpRequest.hpp"
 
-bool HttpRequest::ValidateHeader() // a helper function for ParseHeader if ParseHeader would grow to big
+bool HttpRequest::validateHeader() // a helper function for parseHeader if parseHeader would grow to big
 {
 	std::cout << LIGHT_CYAN "[VALIDATE_HEADER] Validating header..." << RESET << std::endl;
-	this->IsChunked = false;
-	this->ExpectingBody = false;
-	this->ContentLength = 0;
+	this->is_chunked = false;
+	this->expecting_body = false;
+	this->content_length = 0;
 
 	if (this->headers.count("transfer-encoding"))
 	{
 		if (this->headers["transfer-encoding"].find("chunked") != std::string::npos)
 		{
 			std::cout << SOFT_RED "[ERROR] Chunked transfer encoding not supported (501)" << RESET << std::endl;
-			this->IsChunked = true;
-			this->StatusCode = 501;
-			this->AnswerType = ERROR;
+			this->is_chunked = true;
+			this->status_code = 501;
+			this->answer_type = ERROR;
 			return false;
 		}
 	}
@@ -28,27 +28,27 @@ bool HttpRequest::ValidateHeader() // a helper function for ParseHeader if Parse
 		if (*endptr != '\0' || endptr == value_str)
 		{
 			std::cout << SOFT_RED "[ERROR] Invalid Content-Length format (400)" << RESET << std::endl;
-			this->StatusCode = 400;
-			this->AnswerType = ERROR;
+			this->status_code = 400;
+			this->answer_type = ERROR;
 			return false;
 		}
-		this->ContentLength = static_cast<size_t>(parsed);
+		this->content_length = static_cast<size_t>(parsed);
 
-		if (this->ContentLength > this->Server->client_max_body_size)
+		if (this->content_length > this->Server->client_max_body_size)
 		{
 			std::cout << SOFT_RED "[ERROR] Content-Length exceeds max (" << this->Server->client_max_body_size << " bytes) (413)" << RESET << std::endl;
-			this->StatusCode = 413;
-			this->AnswerType = ERROR;
+			this->status_code = 413;
+			this->answer_type = ERROR;
 			return false;
 		}
-		this->ExpectingBody = true;
+		this->expecting_body = true;
 		return true;
 	}
 	if (this->method == "POST")
 	{
 		std::cout << SOFT_RED "[ERROR] POST requires Content-Length or Transfer-Encoding (411)" << RESET << std::endl;
-		this->StatusCode = 411;
-		this->AnswerType = ERROR;
+		this->status_code = 411;
+		this->answer_type = ERROR;
 		return false;
 	}
 	return true;
@@ -56,7 +56,7 @@ bool HttpRequest::ValidateHeader() // a helper function for ParseHeader if Parse
 
 
 
-void HttpRequest::CheckRequest()
+void HttpRequest::checkRequest()
 {
 	std::cout << LIGHT_CYAN "[CHECK_REQUEST] Checking request for URI: " << this->uri << RESET << std::endl;
 
@@ -70,7 +70,7 @@ void HttpRequest::CheckRequest()
 
 	size_t LongestMatch = 0;
 	int MatchedIndex = -1;
-	std::string uri = urlDecode(uriWithoutQuery);
+	std::string uri = _urlDecode(uriWithoutQuery);
 	std::cout << LIGHT_CYAN "[CHECK_REQUEST] URL decoded URI: " << uri << RESET << std::endl;
 
 	std::string root = Server->root;
@@ -114,8 +114,8 @@ void HttpRequest::CheckRequest()
 		if (!MethodAllowed)
 		{
 			std::cout << SOFT_RED "[CHECK_REQUEST] Method not allowed (405)" << RESET << std::endl;
-			this->StatusCode = 405;
-			this->AnswerType = ERROR;
+			this->status_code = 405;
+			this->answer_type = ERROR;
 			return;
 		}
 		if (!Server->locations[MatchedIndex].root.empty())
@@ -141,77 +141,77 @@ void HttpRequest::CheckRequest()
 	}
 
 	if (root[root.length() - 1] == '/')
-		this->Path = root + RelativePath;
+		this ->path= root + RelativePath;
 	else
-		this->Path = root + "/" + RelativePath;
+		this ->path= root + "/" + RelativePath;
 
-	std::cout << LIGHT_CYAN "[CHECK_REQUEST] Constructed path: " << this->Path << RESET << std::endl;
+	std::cout << LIGHT_CYAN "[CHECK_REQUEST] Constructed path: " << this->path<< RESET << std::endl;
 	std::cout << LIGHT_CYAN "[CHECK_REQUEST] Checking if path exists..." << RESET << std::endl;
 
-    if (access(this->Path.c_str(), F_OK) != 0)
+    if (access(this->path.c_str(), F_OK) != 0)
 	{
-		std::cout << SOFT_RED "[CHECK_REQUEST] Path not found (404)" << RESET << std::endl;
-		this->StatusCode = 404;
-		this->AnswerType = ERROR;
+		std::cout << SOFT_RED "[CHECK_REQUEST] path not found (404)" << RESET << std::endl;
+		this->status_code = 404;
+		this->answer_type = ERROR;
 		return;
 	}
 	
-	if (access(this->Path.c_str(), R_OK) != 0)
+	if (access(this->path.c_str(), R_OK) != 0)
 	{
 		std::cout << SOFT_RED "[CHECK_REQUEST] Permission denied (403)" << RESET << std::endl;
-		this->StatusCode = 403;
-		this->AnswerType = ERROR;
+		this->status_code = 403;
+		this->answer_type = ERROR;
 		return;
 	}
 	
-	std::cout << LIGHT_CYAN "[CHECK_REQUEST] Path exists and is readable" << RESET << std::endl;
+	std::cout << LIGHT_CYAN "[CHECK_REQUEST] path exists and is readable" << RESET << std::endl;
 	
 	struct stat FileInfo;
-	if (stat(this->Path.c_str(), &FileInfo) != 0)
+	if (stat(this->path.c_str(), &FileInfo) != 0)
 	{
 		std::cout << SOFT_RED "[CHECK_REQUEST] Failed to stat path" << RESET << std::endl;
-		this->StatusCode = 500;
-		this->AnswerType = ERROR;
+		this->status_code = 500;
+		this->answer_type = ERROR;
 		return;
 	}
 
 	if (S_ISDIR(FileInfo.st_mode))
 	{
-		this->IsDirectory = true;
+		this->is_directory = true;
 		if (this->uri[uri.length() - 1] != '/')
 		{
-			this->StatusCode = 301;
-			this->RedirectionUrl = this->uri + "/";
-			this->AnswerType = ERROR;
+			this->status_code = 301;
+			this->redirection_url = this->uri + "/";
+			this->answer_type = ERROR;
 			return;
 		}
 	}
 	else
 	{
-		this->IsDirectory = false;
+		this->is_directory = false;
 		if (this->uri.length() > 0 && this->uri[this->uri.length() -1] == '/')
 		{
 			this->uri.erase(this->uri.length() - 1);
 		}
 	}
 
-	this->StatusCode = 200;
+	this->status_code = 200;
 	if (MatchedIndex != -1)
 	{
 		CGIHandler cgiHandler;
 		if (cgiHandler.isCGI(uri, Server->locations[MatchedIndex]))
 		{
 			std::cout << BRIGHT_MAGENTA "[CHECK_REQUEST] Detected CGI request: " << uri << RESET << std::endl;
-			this->AnswerType = CGI;
+			this->answer_type = CGI;
 			return;
 		}
 	}
 
 	std::cout << LIGHT_CYAN "[CHECK_REQUEST] Setting answer type to STATIC" << RESET << std::endl;
-	this->AnswerType = STATIC;
+	this->answer_type = STATIC;
 }
 
-std::string HttpRequest::urlDecode(const std::string& str)
+std::string HttpRequest::_urlDecode(const std::string& str)
 {
 	std::string result;
 

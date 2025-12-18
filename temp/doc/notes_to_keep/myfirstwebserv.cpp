@@ -4,7 +4,7 @@
 //http://127.0.0.1:8080/
 // c++ My
 
-std::string IntToString(int numb);
+std::string intToString(int numb);
 
 int MyFirstWebServ()
 {
@@ -60,7 +60,7 @@ int MyFirstWebServ()
 		std::string serverMessage = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
 		std::string response = "<html><h1>Hello Babe</h1></html>";
 		//lit un fichier
-		serverMessage.append(IntToString(response.size()));
+		serverMessage.append(intToString(response.size()));
 		serverMessage.append("\n\n");
 		serverMessage.append(response);
 		int bytesSent = 0;
@@ -82,7 +82,7 @@ int MyFirstWebServ()
 	return (0);
 }
 
-std::string IntToString(int numb)
+std::string intToString(int numb)
 {
 	std::string value;
 	std::stringstream out;

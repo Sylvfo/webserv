@@ -34,7 +34,7 @@ bool WebServ::epollWaiting()
 		{
 			ConnectionData* connInfo = static_cast<ConnectionData*>(current_events[i].data.ptr);
 			handleRequest(current_events[i]);
-			if (connInfo && connInfo->request.RequestComplete)
+			if (connInfo && connInfo->request.request_complete)
 				closeConnection(current_events[i]);
 		}
 	}

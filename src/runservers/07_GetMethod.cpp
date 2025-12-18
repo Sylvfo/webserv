@@ -2,7 +2,7 @@
 #include <dirent.h>
 #include <algorithm>
 
-std::string HttpRequest::generate_directory_listing(const std::string &dir_path, const std::string &uri_path)
+std::string HttpRequest::_generate_directory_listing(const std::string &dir_path, const std::string &uri_path)
 {
 	DIR *dir = opendir(dir_path.c_str());
 	if (!dir)
@@ -76,28 +76,28 @@ std::string HttpRequest::generate_directory_listing(const std::string &dir_path,
 	return html;
 }
 
-void HttpRequest::GetRequest()
+void HttpRequest::getRequest()
 {
-	if (GetAccessRessource() == true)
+	if (_getAccessRessource() == true)
 	{
-		if (AnswerBody.empty())
+		if (answer_body.empty())
 		{
-			if (loadRessource() == true)
+			if (_loadRessource() == true)
 			{
-				StatusCode = 200;
+				status_code = 200;
 			}
 		}
 	}
 	else
 	{
-		AnswerType = ERROR;
+		answer_type = ERROR;
 	}
 }
 
-bool HttpRequest::GetAccessRessource()
+bool HttpRequest::_getAccessRessource()
 {
-	std::string makingPath = this->Path;
-	std::string decodedUri = urlDecode(this->uri);
+	std::string makingPath = this->path;
+	std::string decodedUri = _urlDecode(this->uri);
 	
 	LocationConfig* matchingLocation = NULL;
 	size_t bestMatchLength = 0;
@@ -119,7 +119,7 @@ bool HttpRequest::GetAccessRessource()
 		// If URI doesn't end with '/', redirect to add it
 		if (!decodedUri.empty() && decodedUri[decodedUri.length() - 1] != '/')
 		{
-			StatusCode = 301; // Moved Permanently
+			status_code = 301; // Moved Permanently
 			// The redirect will be handled by the response builder
 			return false;
 		}
@@ -141,20 +141,20 @@ bool HttpRequest::GetAccessRessource()
 			if (matchingLocation && matchingLocation->autoindex)
 			{
 				// Generate directory listing
-				std::string listing = generate_directory_listing(makingPath, decodedUri);
+				std::string listing = _generate_directory_listing(makingPath, decodedUri);
 				if (!listing.empty())
 				{
-					AnswerBody = listing;
-					ContentLength = AnswerBody.size();
-					ContentType = "text/html";
-					StatusCode = 200;
-					fd_Ressource = -1; // No file descriptor needed
+					answer_body = listing;
+					content_length = answer_body.size();
+					content_type = "text/html";
+					status_code = 200;
+					fd_ressource = -1; // No file descriptor needed
 					return true;
 				}
 			}
 			
-			StatusCode = 403;
-			AnswerType = ERROR;
+			status_code = 403;
+			answer_type = ERROR;
 			return false;
 		}
 		
@@ -166,75 +166,75 @@ bool HttpRequest::GetAccessRessource()
 	// Check if file exists first
 	if (access(path, F_OK) != 0)
 	{
-		StatusCode = 404;
-		AnswerType = ERROR;
+		status_code = 404;
+		answer_type = ERROR;
 		return (false);
 	}
 	
 	// Check if we have read permission
 	if (access(path, R_OK) != 0)
 	{
-		StatusCode = 403;
-		AnswerType = ERROR;
+		status_code = 403;
+		answer_type = ERROR;
 		return (false);
 	}
 	
-	fd_Ressource = open(path , O_RDONLY);
-	if (fd_Ressource < 0)
+	fd_ressource = open(path , O_RDONLY);
+	if (fd_ressource < 0)
 	{
-		StatusCode = 500;
-		AnswerType = ERROR;
+		status_code = 500;
+		answer_type = ERROR;
 		return (false);
 	}
-	SetContentType(makingPath);
+	_setcontent_type(makingPath);
 	return true;
 }
 
-bool HttpRequest::loadRessource()
+bool HttpRequest::_loadRessource()
 {
-	AnswerBody.clear();
+	answer_body.clear();
 	char buff[4096];
 	ssize_t bytesRead;
 
-	if (fd_Ressource == -1)
+	if (fd_ressource == -1)
 	{
-		UseDefaultErrorHTML();
+		useDefaultErrorHTML();
 		return true;
 	}
 	
 	try {
 		// Get file size and reserve memory to avoid reallocations
-		off_t fileSize = lseek(fd_Ressource, 0, SEEK_END);
-		lseek(fd_Ressource, 0, SEEK_SET); // Reset to beginning
+		off_t fileSize = lseek(fd_ressource, 0, SEEK_END);
+		lseek(fd_ressource, 0, SEEK_SET); // Reset to beginning
 		
 		if (fileSize > 0)
 		{
-			AnswerBody.reserve(fileSize);
+			answer_body.reserve(fileSize);
 		}
 		
-		while ((bytesRead = read(fd_Ressource, buff, sizeof(buff))) > 0)
+		while ((bytesRead = read(fd_ressource, buff, sizeof(buff))) > 0)
 		{
-			AnswerBody.append(buff, bytesRead);
+			answer_body.append(buff, bytesRead);
 		}
 		//check eof
-		close(fd_Ressource);
-		ContentLength = AnswerBody.size();
+		close(fd_ressource);
+		content_length = answer_body.size();
 		return true;
 		
 	} catch (const std::bad_alloc& e) {
-		close(fd_Ressource);
-		StatusCode = 500;
-		AnswerBody = "Internal Server Error: File too large";
-		ContentLength = AnswerBody.size();
+		close(fd_ressource);
+		status_code = 500;
+		answer_body = "Internal Server Error: File too large";
+		content_length = answer_body.size();
 		return false;
 	} catch (const std::exception& e) {
-		close(fd_Ressource);
-		StatusCode = 500;
+		close(fd_ressource);
+		status_code = 500;
 		return false;
 	}
 }
 
-void HttpRequest::SetContentType(std::string &makingPath)
+void HttpRequest::_setcontent_type(std::string &makingPath)
 {
 	std::string Extension;
 	size_t dot = makingPath.find_last_of('.');
@@ -249,14 +249,14 @@ void HttpRequest::SetContentType(std::string &makingPath)
 	std::map<std::string, std::string>::iterator it = Server->mime_types.find(Extension);
 	if (it == Server->mime_types.end())
 	{
-		ContentType = "application/octet-stream";
+		content_type = "application/octet-stream";
 	}
 	else
 	{
 		try {
-			ContentType = it->second;
+			content_type = it->second;
 		} catch (const std::bad_alloc& e) {
-			ContentType = "application/octet-stream";
+			content_type = "application/octet-stream";
 		}
 	}
 }
