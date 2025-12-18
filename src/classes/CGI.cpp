@@ -67,7 +67,10 @@ void	CGIHandler::_cleanupEnvironment()
 char	*CGIHandler::_strdup(const std::string& str)
 {
 	char	*result = new char[str.length() + 1];
-	std::strcpy(result, str.c_str());
+	for (size_t i = 0; i < str.length(); ++i)
+		result[i] = str[i];
+	result[str.length()] = '\0';
+	//std::strcpy(result, str.c_str());
 	return (result);
 }
 
