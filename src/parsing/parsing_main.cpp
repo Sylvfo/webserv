@@ -3,5 +3,5 @@
 void WebServ::defaultConfig()  
 {}
 
-void WebServ::FileConfig()
+void WebServ::fileConfig()
 {}

@@ -66,7 +66,7 @@ bool WebServ::acceptConnection(int index)
 		std::cout << LIGHT_GREEN "[ACCEPT] New client: fd " << new_socket << RESET << std::endl;
 		
 		setNonBlocking(new_socket);
-		ConnectionData* connectionInfo = CreateConnection(index, new_socket);
+		ConnectionData* connectionInfo = createConnection(index, new_socket);
 
 		struct epoll_event event;
 		event.events = EPOLLIN;  // Level-triggered (removed EPOLLET)
@@ -105,7 +105,7 @@ void WebServ::closeConnection(epoll_event current_event)
 	//current_event.data.ptr = NULL;
 }
 
-ConnectionData* WebServ::CreateConnection(int index, int new_socket)
+ConnectionData* WebServ::createConnection(int index, int new_socket)
 {
 	ConnectionData* NewConnection= new ConnectionData();
 	NewConnection->client_fd = new_socket;
