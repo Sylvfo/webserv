@@ -25,7 +25,7 @@ void WebServ::initErroCode(ServerConfig &server)
 	server.error_code_message.insert(std::make_pair(403, "403 Forbidden"));
 	server.error_code_message.insert(std::make_pair(404, "404 Not Found"));
 	server.error_code_message.insert(std::make_pair(405, "405 Method Not Allowed"));
-	server.error_code_message.insert(std::make_pair(413, "411 Length Required"));
+	server.error_code_message.insert(std::make_pair(411, "411 Length Required"));
 	server.error_code_message.insert(std::make_pair(413, "413 Payload Too Large"));
 	server.error_code_message.insert(std::make_pair(414, "414 URI Too Long"));
 	server.error_code_message.insert(std::make_pair(500, "500 Internal Server Error"));
@@ -41,6 +41,7 @@ void WebServ::initDefautlPage(ServerConfig &server)
 	server.default_error_html.insert(std::make_pair(404, "<html><head><title>404 Not Found</title></head><body><center><h1>404 Not Found</h1></center><hr><center>Webserv</center></body></html>"));
 	server.default_error_html.insert(std::make_pair(405, "<html><head><title>405 Method Not Allowed</title></head><body><center><h1>405 Method Not Allowed</h1></center><hr><center>Webserv</center></body></html>"));
 	server.default_error_html.insert(std::make_pair(413, "<html><head><title>413 Payload Too Large</title></head><body><center><h1>413 Payload Too Large</h1></center><hr><center>Webserv</center></body></html>"));
+	server.default_error_html.insert(std::make_pair(411, "<html><head><title>411 Length Required</title></head><body><center><h1>411 Length Required</h1></center><hr><center>Webserv</center></body></html>"));
 	server.default_error_html.insert(std::make_pair(414, "<html><head><title>414 URI Too Long</title></head><body><center><h1>414 URI Too Long</h1></center><hr><center>Webserv</center></body></html>"));
 	server.default_error_html.insert(std::make_pair(500, "<html><head><title>500 Internal Server Error</title></head><body><center><h1>500 Internal Server Error</h1></center><hr><center>Webserv</center></body></html>"));
 	server.default_error_html.insert(std::make_pair(501, "<html><head><title>501 Not Implemented</title></head><body><center><h1>501 Not Implemented</h1></center><hr><center>Webserv</center></body></html>"));
