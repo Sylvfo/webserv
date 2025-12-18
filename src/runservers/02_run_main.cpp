@@ -1,7 +1,5 @@
 #include "Webserv.hpp"
 
-#include "Webserv.hpp"
-
 bool WebServ::epollWaiting()
 {
 	if (shouldShutdown())
@@ -34,7 +32,7 @@ bool WebServ::epollWaiting()
 		{
 			ConnectionData* connInfo = static_cast<ConnectionData*>(current_events[i].data.ptr);
 			handleRequest(current_events[i]);
-			if (connInfo && connInfo->request.RequestComplete)
+			if (connInfo && connInfo->request.request_complete)
 				closeConnection(current_events[i]);
 		}
 	}
@@ -64,12 +62,12 @@ bool WebServ::acceptConnection(int index)
 			break;
 		
 		std::cout << LIGHT_GREEN "[ACCEPT] New client: fd " << new_socket << RESET << std::endl;
-		
+
 		setNonBlocking(new_socket);
-		ConnectionData* connectionInfo = CreateConnection(index, new_socket);
+		ConnectionData* connectionInfo = createConnection(index, new_socket);
 
 		struct epoll_event event;
-		event.events = EPOLLIN;  // Level-triggered (removed EPOLLET)
+		event.events = EPOLLIN;
 		event.data.ptr = connectionInfo;
 		if (epoll_ctl(epollFd, EPOLL_CTL_ADD, new_socket, &event) < 0)
 		{
@@ -86,7 +84,7 @@ void WebServ::closeConnection(epoll_event current_event)
 {
 	ConnectionData* connInfo = static_cast<ConnectionData*>(current_event.data.ptr);
 	if (!connInfo)
-        return;
+		return;
 	
 	if (connInfo->is_server == false)
 	{
@@ -99,13 +97,10 @@ void WebServ::closeConnection(epoll_event current_event)
 	else if (connInfo->is_server == true)
 	{
 		epoll_ctl(epollFd, EPOLL_CTL_DEL, connInfo->server_fd, NULL);
-		//restart server
-		//delete (connInfo);
 	}
-	//current_event.data.ptr = NULL;
 }
 
-ConnectionData* WebServ::CreateConnection(int index, int new_socket)
+ConnectionData* WebServ::createConnection(int index, int new_socket)
 {
 	ConnectionData* NewConnection= new ConnectionData();
 	NewConnection->client_fd = new_socket;

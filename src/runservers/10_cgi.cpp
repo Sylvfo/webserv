@@ -1,6 +1,6 @@
 #include "Webserv.hpp"
 
-void HttpRequest::AnswerCGI()
+void HttpRequest::answerCGI()
 {
 	LocationConfig* matchingLocation = NULL;
 	size_t bestMatchLength = 0;
@@ -17,7 +17,7 @@ void HttpRequest::AnswerCGI()
 	
 	if (!matchingLocation)
 	{
-		HttpAnswer = "HTTP/1.1 404 Not Found\r\n\r\nLocation not found";
+		http_answer = "HTTP/1.1 404 Not Found\r\n\r\nLocation not found";
 		return;
 	}
 
@@ -49,5 +49,5 @@ void HttpRequest::AnswerCGI()
 		scriptPath += cleanUri.substr(1);
 	}	
 
-	HttpAnswer = cgiHandler.executeCGI(scriptPath, *this, *matchingLocation, RawBody);
+	http_answer = cgiHandler.executeCGI(scriptPath, *this, *matchingLocation, raw_body);
 }

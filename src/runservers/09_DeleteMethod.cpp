@@ -1,6 +1,6 @@
 #include "Webserv.hpp"
 
-void HttpRequest::DeleteRequest()
+void HttpRequest::deleteRequest()
 {
 	//get uri from server
 
@@ -26,7 +26,7 @@ void HttpRequest::DeleteRequest()
 
 	if (matchedIndex == -1)
 	{
-		this->StatusCode = 404;
+		this->status_code = 404;
 		return;
 	}
 	
@@ -42,7 +42,7 @@ void HttpRequest::DeleteRequest()
 	}
 	if (!deleteAllowed)
 	{
-		this->StatusCode = 405;
+		this->status_code = 405;
 		return;
 	}
 
@@ -66,51 +66,50 @@ void HttpRequest::DeleteRequest()
 	// Prevent deleting directory itself
 	if (relativePath.empty() || relativePath == "/")
 	{
-		this->StatusCode = 403;
+		this->status_code = 403;
 		return;
 	}
 
 	// Check if file exists first
 	if (access(filePath.c_str(), F_OK) != 0)
 	{
-		this->StatusCode = 404;
+		this->status_code = 404;
 		return;
 	}
 	
 	// Check if we have read permission to stat the file
 	if (access(filePath.c_str(), R_OK) != 0)
 	{
-		this->StatusCode = 403;
+		this->status_code = 403;
 		return;
 	}
 
 	struct stat fileInfo;
 	if (stat(filePath.c_str(), &fileInfo) != 0)
 	{
-		this->StatusCode = 500;
+		this->status_code = 500;
 		return;
 	}
 	if (S_ISDIR(fileInfo.st_mode) || !(S_ISREG(fileInfo.st_mode)))
 	{
-		this->StatusCode = 403; // forbidden
+		this->status_code = 403; // forbidden
 		return;
 	}
-
 
 	// check write permission
 	std::string parentDir = filePath.substr(0, filePath.find_last_of('/'));
 	if (access(parentDir.c_str(), W_OK) != 0)
 	{
-		this->StatusCode = 403;
+		this->status_code = 403;
 		return;
 	}
 	
 	if (std::remove(filePath.c_str()) == 0)
 	{
-		this->StatusCode = 204; // no content (successful deletion)
+		this->status_code = 204; // no content (successful deletion)
 	}
 	else
 	{
-		this->StatusCode = 500; // internal server error
+		this->status_code = 500; // internal server error
 	}
 }

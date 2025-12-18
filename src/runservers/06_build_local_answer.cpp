@@ -1,70 +1,68 @@
 #include "Webserv.hpp"
 
-void HttpRequest::Answerlocal()
+void HttpRequest::answerLocal()
 {
 	if (method == "GET")
 	{
-		GetRequest();
+		getRequest();
 	}
 	else if (method == "POST")
 	{
-		PostRequest();
+		postRequest();
 	}
 	else if (method == "DELETE")
 	{
-		DeleteRequest();
+		deleteRequest();
 	}
-	SetStatusLine();
-	SetResponseHeader();
+	_setStatusLine();
+	_setResponseHeader();
 }
 
-void HttpRequest::SetResponseHeader()
+void HttpRequest::_setResponseHeader()
 {
-	// Handle 301 redirect for directories
-	if (StatusCode == 301)
+	if (status_code == 301)
 	{
 		std::string redirectUri = uri;
 		if (!redirectUri.empty() && redirectUri[redirectUri.length() - 1] != '/')
 			redirectUri += "/";
 		
-		HttpAnswer += "Location: ";
-		HttpAnswer += redirectUri;
-		HttpAnswer += "\r\n";
-		HttpAnswer += "Content-Length: 0\r\n";
-		HttpAnswer += "Connection: close\r\n";
-		HttpAnswer += "\r\n";
+		http_answer += "Location: ";
+		http_answer += redirectUri;
+		http_answer += "\r\n";
+		http_answer += "Content-Length: 0\r\n";
+		http_answer += "Connection: close\r\n";
+		http_answer += "\r\n";
 		return;
 	}
-	size_t estimatedSize = 200 + AnswerBody.size(); // ~200 bytes for headers
+	size_t estimatedSize = 200 + answer_body.size();
 	try {
-		HttpAnswer.reserve(estimatedSize);
+		http_answer.reserve(estimatedSize);
 	} catch (const std::bad_alloc& e) {
-		// Continue anyway, let it fail naturally if needed
 	}
 	
-	HttpAnswer += "Content-Length: ";
-	HttpAnswer += IntToString(ContentLength);
-	HttpAnswer += "\r\n";
-	HttpAnswer += "Content-Type: ";
-	HttpAnswer += ContentType;
-	HttpAnswer += "\r\n";
-	HttpAnswer += "Connection: close\r\n";
-	HttpAnswer += "\r\n";  // Séparation headers/body
-	HttpAnswer += AnswerBody;
+	http_answer += "Content-Length: ";
+	http_answer += intToString(content_length);
+	http_answer += "\r\n";
+	http_answer += "Content-Type: ";
+	http_answer += content_type;
+	http_answer += "\r\n";
+	http_answer += "Connection: close\r\n";
+	http_answer += "\r\n";
+	http_answer += answer_body;
 }
 
-void HttpRequest::SetStatusLine()
+void HttpRequest::_setStatusLine()
 {
-	HttpAnswer.clear();
-	HttpAnswer = "HTTP/1.0 "; //put in constructor
-	std::map<int, std::string>::iterator it = this->Server->error_code_message.find(StatusCode);
+	http_answer.clear();
+	http_answer = "HTTP/1.0 ";
+	std::map<int, std::string>::iterator it = this->Server->error_code_message.find(status_code);
 	if (it == Server->error_code_message.end())
 	{
-		HttpAnswer += "500 Internal Server Error";
+		http_answer += "500 Internal Server Error";
 	}
 	else
 	{
-		HttpAnswer += it->second;
+		http_answer += it->second;
 	}
-	HttpAnswer += "\r\n";
+	http_answer += "\r\n";
 }

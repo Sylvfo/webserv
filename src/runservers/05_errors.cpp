@@ -1,34 +1,33 @@
 #include "Webserv.hpp"
 
-void HttpRequest::AnswerError()
+void HttpRequest::answerError()
 {
-	std::string errorPath = GetCustomErrorPage();
+	std::string errorPath = getCustomErrorPage();
 	
 	if (!errorPath.empty())
 	{
-		// Page custom trouvée, tente de l'ouvrir
-		SetContentType(errorPath);
-		fd_Ressource = open(errorPath.c_str(), O_RDONLY);
-		if (fd_Ressource >= 0)
+		_setcontent_type(errorPath);
+		fd_ressource = open(errorPath.c_str(), O_RDONLY);
+		if (fd_ressource >= 0)
 		{
-			loadRessource();
+			_loadRessource();
 		}
 		else
 		{
-			UseDefaultErrorHTML();
+			useDefaultErrorHTML();
 		}
 	}
 	else
 	{
-		UseDefaultErrorHTML();
+		useDefaultErrorHTML();
 	}
-	SetStatusLine();
-	SetResponseHeader();
+	_setStatusLine();
+	_setResponseHeader();
 }
 
-std::string HttpRequest::GetCustomErrorPage()
+std::string HttpRequest::getCustomErrorPage()
 {
-	std::map<int, std::string>::iterator it = this->Server->error_pages.find(StatusCode);
+	std::map<int, std::string>::iterator it = this->Server->error_pages.find(status_code);
 	if (it == Server->error_pages.end())
 	{
 		return ("");
@@ -37,13 +36,13 @@ std::string HttpRequest::GetCustomErrorPage()
 	return (path);
 }
 
-void HttpRequest::UseDefaultErrorHTML()
+void HttpRequest::useDefaultErrorHTML()
 {
-	AnswerBody.clear();
+	answer_body.clear();
 	
-	std::map<int, std::string>::iterator it = this->Server->default_error_html.find(StatusCode);
-	AnswerBody = it->second;
+	std::map<int, std::string>::iterator it = this->Server->default_error_html.find(status_code);
+	answer_body = it->second;
 	
-	ContentType = "text/html";
-	ContentLength = AnswerBody.size();
+	content_type = "text/html";
+	content_length = answer_body.size();
 }
