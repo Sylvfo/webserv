@@ -38,6 +38,8 @@ void HttpRequest::_handleMultipart()
         return;
     }
     std::string boundary = "--" + contentType.substr(boundaryPos + 9);
+    
+    // 2. Loop through RawBody
     size_t pos = 0;
     while (true)
     {
@@ -199,7 +201,7 @@ std::map<std::string, std::string> HttpRequest::_parseFormData(const std::string
 
 std::string HttpRequest::_getCurrentTimestamp()
 {
-	time_t now = time(NULL);
+	time_t now = std::time(0);
 	std::ostringstream oss;
 	oss << now;
 	return oss.str();

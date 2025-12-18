@@ -12,14 +12,14 @@ std::string HttpRequest::_generate_directory_listing(const std::string &dir_path
 
 	std::vector<std::string> entries;
 	struct dirent *entry;
-	
+
 	while ((entry = readdir(dir)) != NULL)
 	{
 		std::string name = entry->d_name;
-		
+
 		if (name == "." || name == "..")
 			continue;
-			
+
 		entries.push_back(name);
 	}
 	closedir(dir);
@@ -43,7 +43,7 @@ std::string HttpRequest::_generate_directory_listing(const std::string &dir_path
 	html += "</head>\n<body>\n";
 	html += "<h1>Index of " + uri_path + "</h1>\n";
 	html += "<ul>\n";
-	
+
 	if (uri_path != "/")
 	{
 		html += "<li><a href=\"../\" class=\"dir\">../</a></li>\n";
@@ -55,11 +55,11 @@ std::string HttpRequest::_generate_directory_listing(const std::string &dir_path
 		if (full_path[full_path.length() - 1] != '/')
 			full_path += "/";
 		full_path += name;
-		
+
 		struct stat entry_stat;
 		std::string css_class = "file";
 		std::string link_suffix = "";
-		
+
 		if (stat(full_path.c_str(), &entry_stat) == 0)
 		{
 			if (S_ISDIR(entry_stat.st_mode))
@@ -68,7 +68,7 @@ std::string HttpRequest::_generate_directory_listing(const std::string &dir_path
 				link_suffix = "/";
 			}
 		}
-		
+
 		html += "<li><a href=\"" + name + link_suffix + "\" class=\"" + css_class + "\">" + name + link_suffix + "</a></li>\n";
 	}
 	html += "</ul>\n";
@@ -101,7 +101,7 @@ bool HttpRequest::_getAccessRessource()
 	
 	LocationConfig* matchingLocation = NULL;
 	size_t bestMatchLength = 0;
-	
+
 	for (size_t i = 0; i < Server->locations.size(); ++i)
 	{
 		const std::string& locationPath = Server->locations[i].path;
@@ -119,7 +119,7 @@ bool HttpRequest::_getAccessRessource()
 			status_code = 301;
 			return false;
 		}
-		
+
 		std::string index = matchingLocation ? matchingLocation->index : "index.html";
 		if (index.empty())
 			index = "index.html";
@@ -187,7 +187,7 @@ bool HttpRequest::_loadRessource()
 		useDefaultErrorHTML();
 		return true;
 	}
-	
+
 	try {
 		off_t fileSize = lseek(fd_ressource, 0, SEEK_END);
 		lseek(fd_ressource, 0, SEEK_SET);
@@ -204,7 +204,7 @@ bool HttpRequest::_loadRessource()
 		close(fd_ressource);
 		content_length = answer_body.size();
 		return true;
-		
+
 	} catch (const std::bad_alloc& e) {
 		close(fd_ressource);
 		status_code = 500;

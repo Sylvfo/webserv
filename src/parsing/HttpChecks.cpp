@@ -21,11 +21,15 @@ bool HttpRequest::validateHeader() // a helper function for parseHeader if parse
 
 	if (this->headers.count("content-length"))
 	{
-		const char* value_str = this->headers["content-length"].c_str();
-		char* endptr;
-		unsigned long parsed = std::strtoul(value_str, &endptr, 10);
+		//const char* value_str = this->headers["content-length"].c_str();
+		//char* endptr;
+		//unsigned long parsed = std::strtoul(value_str, &endptr, 10);
+		std::stringstream stream(this->headers["content-length"]);
+		unsigned long parsed;
 
-		if (*endptr != '\0' || endptr == value_str)
+		char leftover;
+		if ((!(stream >> parsed)) || stream >> leftover)
+		//if (*endptr != '\0' || endptr == value_str)
 		{
 			std::cout << SOFT_RED "[ERROR] Invalid Content-Length format (400)" << RESET << std::endl;
 			this->status_code = 400;
@@ -82,7 +86,7 @@ void HttpRequest::checkRequest()
 		if (uri.find(LocationPath) == 0)
 		{
 			size_t matchLen = LocationPath.length();
-			if (uri.length() == matchLen || 
+			if (uri.length() == matchLen ||
 			    uri[matchLen] == '/' ||
 			    LocationPath[LocationPath.length() - 1] == '/')
 			{
@@ -224,13 +228,22 @@ std::string HttpRequest::_urlDecode(const std::string& str)
 		else if (str[i] == '%' && i + 2 < str.length())
 		{
 			std::string hexStr = str.substr(i + 1, 2);
-			char* endPtr;
-			long hexValue = strtol(hexStr.c_str(), &endPtr, 16);
-			if (*endPtr == '\0')
+			//char* endPtr;
+			std::stringstream sHexValue;
+			sHexValue << std::hex << hexStr;
+			long hexValue;
+			sHexValue >> hexValue;
+			if (!sHexValue.eof())
 			{
 				result += static_cast<char>(hexValue);
 				i += 2;
 			}
+			// long hexValue = strtol(hexStr.c_str(), &endPtr, 16);
+			// if (*endPtr == '\0')
+			// {
+			// 	result += static_cast<char>(hexValue);
+			// 	i += 2;
+			// }
 			else
 			{
 				result += str[i];
