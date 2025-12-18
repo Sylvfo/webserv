@@ -12,13 +12,6 @@ void HttpRequest::postRequest()
 	{
 		_handleMultipart();
 	}
-	else if (content_type.find("application/json") != std::string::npos)
-	{
-		status_code = 501;
-		answer_body = "JSON support coming soon!";
-		content_type = "text/plain";
-		content_length = answer_body.size();
-	}
 	else
 	{
 		status_code = 415;
@@ -30,151 +23,144 @@ void HttpRequest::postRequest()
 
 void HttpRequest::_handleMultipart()
 {
-    std::string contentType = this->headers["content-type"];
-    size_t boundaryPos = contentType.find("boundary=");
-    if (boundaryPos == std::string::npos)
-    {
-        this->status_code = 400; 
-        return;
-    }
-    std::string boundary = "--" + contentType.substr(boundaryPos + 9);
-    
-    // 2. Loop through RawBody
-    size_t pos = 0;
-    while (true)
-    {
-        size_t startPos = this->raw_body.find(boundary, pos);
-        if (startPos == std::string::npos) break; 
+	std::string contentType = this->headers["content-type"];
+	size_t boundaryPos = contentType.find("boundary=");
+	if (boundaryPos == std::string::npos)
+	{
+		this->status_code = 400;
+		return;
+	}
+	std::string boundary = "--" + contentType.substr(boundaryPos + 9);
 
-        if (startPos + boundary.length() + 2 <= this->raw_body.length())
-        {
-            if (this->raw_body.substr(startPos + boundary.length(), 2) == "--")
-                break;
-        }
+	size_t pos = 0;
+	while (true)
+	{
+		size_t startPos = this->raw_body.find(boundary, pos);
+		if (startPos == std::string::npos) break;
 
-        size_t partStart = startPos + boundary.length() + 2;
-        
-        size_t nextBoundary = this->raw_body.find(boundary, partStart);
-        if (nextBoundary == std::string::npos) break;
+		if (startPos + boundary.length() + 2 <= this->raw_body.length())
+		{
+			if (this->raw_body.substr(startPos + boundary.length(), 2) == "--")
+				break;
+		}
 
-        size_t partEnd = nextBoundary - 2;
+		size_t partStart = startPos + boundary.length() + 2;
 
-        size_t headerEnd = this->raw_body.find("\r\n\r\n", partStart);
-        if (headerEnd != std::string::npos && headerEnd < partEnd)
-        {
-            std::string partHeaders = this->raw_body.substr(partStart, headerEnd - partStart);
-            
-            size_t bodyStart = headerEnd + 4;
-            std::string partBody = this->raw_body.substr(bodyStart, partEnd - bodyStart);
+		size_t nextBoundary = this->raw_body.find(boundary, partStart);
+		if (nextBoundary == std::string::npos) break;
 
-            std::string filename = "default.bin";
-            size_t namePos = partHeaders.find("filename=\"");
-            if (namePos != std::string::npos)
-            {
-                size_t endName = partHeaders.find("\"", namePos + 10);
-                if (endName != std::string::npos)
-                    filename = partHeaders.substr(namePos + 10, endName - (namePos + 10));
-            }
+		size_t partEnd = nextBoundary - 2;
 
-            std::string uploadPath = Server->root + "/uploads"; 
-            
-            std::string fullPath = uploadPath + "/" + filename;
-            std::ofstream outFile(fullPath.c_str(), std::ios::binary);
-            if (outFile.is_open())
-            {
-                outFile.write(partBody.c_str(), partBody.size());
-                outFile.close();
-            }
-        }
-        pos = nextBoundary;
-    }
+		size_t headerEnd = this->raw_body.find("\r\n\r\n", partStart);
+		if (headerEnd != std::string::npos && headerEnd < partEnd)
+		{
+			std::string partHeaders = this->raw_body.substr(partStart, headerEnd - partStart);
 
-    this->status_code = 201;
-    this->answer_body = "File(s) uploaded successfully.";
+			size_t bodyStart = headerEnd + 4;
+			std::string partBody = this->raw_body.substr(bodyStart, partEnd - bodyStart);
+
+			std::string filename = "default.bin";
+			size_t namePos = partHeaders.find("filename=\"");
+			if (namePos != std::string::npos)
+			{
+				size_t endName = partHeaders.find("\"", namePos + 10);
+				if (endName != std::string::npos)
+					filename = partHeaders.substr(namePos + 10, endName - (namePos + 10));
+			}
+
+			std::string uploadPath = Server->root + "/uploads";
+
+			std::string fullPath = uploadPath + "/" + filename;
+			std::ofstream outFile(fullPath.c_str(), std::ios::binary);
+			if (outFile.is_open())
+			{
+				outFile.write(partBody.c_str(), partBody.size());
+				outFile.close();
+			}
+		}
+		pos = nextBoundary;
+	}
+
+	this->status_code = 201;
+	this->answer_body = "File(s) uploaded successfully.";
 }
 
 void HttpRequest::_handleFormData()
 {
-    std::string currentUri = this->uri;
-    std::string uploadPath;
+	std::string currentUri = this->uri;
+	std::string uploadPath;
 
-    size_t longestMatch = 0;
-    int matchedIndex = -1;
+	size_t longestMatch = 0;
+	int matchedIndex = -1;
 
-    for (size_t i = 0; i < Server->locations.size(); i++)
-    {
-        std::string locationPath = Server->locations[i].path;
-        if (currentUri.find(locationPath) == 0)
-        {
-            if (locationPath.length() > longestMatch)
-            {
-                longestMatch = locationPath.length();
-                matchedIndex = i;
-            }
-        }
-    }
+	for (size_t i = 0; i < Server->locations.size(); i++)
+	{
+		std::string locationPath = Server->locations[i].path;
+		if (currentUri.find(locationPath) == 0)
+		{
+			if (locationPath.length() > longestMatch)
+			{
+				longestMatch = locationPath.length();
+				matchedIndex = i;
+			}
+		}
+	}
 
-    if (matchedIndex >= 0)
-    {
-        uploadPath = Server->locations[matchedIndex].upload_path;
-    }
+	if (matchedIndex >= 0)
+	{
+		uploadPath = Server->locations[matchedIndex].upload_path;
+	}
 
-    if (uploadPath.empty())
-    {
-        uploadPath = Server->root + "/uploads";
-    }
+	if (uploadPath.empty())
+	{
+		uploadPath = Server->root + "/uploads";
+	}
 
-    std::map<std::string, std::string> formData = _parseFormData(this->raw_body);
+	std::map<std::string, std::string> formData = _parseFormData(this->raw_body);
 
-    // Decode values
-    for (std::map<std::string, std::string>::iterator it = formData.begin();
-         it != formData.end(); ++it)
-    {
-        it->second = _urlDecode(it->second);  // Decode in place
-    }
+	for (std::map<std::string, std::string>::iterator it = formData.begin();
+			it != formData.end(); ++it)
+	{
+		it->second = _urlDecode(it->second);  // Decode in place
+	}
 
-    // STEP 3: Generate filename
-    std::string timestamp = _getCurrentTimestamp();
-    std::string filename = uploadPath + "/post_" + timestamp + ".txt";
+	std::string timestamp = _getCurrentTimestamp();
+	std::string filename = uploadPath + "/post_" + timestamp + ".txt";
 
-    // STEP 4: Save to file
-    std::ofstream outFile(filename.c_str());
-    if (!outFile.is_open())
-    {
+	std::ofstream outFile(filename.c_str());
+	if (!outFile.is_open())
+	{
 		status_code = 500;
-        answer_body = "Failed to save data";
-        content_type = "text/plain";
-        content_length = answer_body.size();
-        return;
-    }
+		answer_body = "Failed to save data";
+		content_type = "text/plain";
+		content_length = answer_body.size();
+		return;
+	}
 
-    outFile << "=== POST Data ===" << std::endl;
-    for (std::map<std::string, std::string>::iterator it = formData.begin();
-         it != formData.end(); ++it)
-    {
-        outFile << it->first << ": " << it->second << std::endl;
-    }
-    outFile.close();
+	outFile << "=== POST Data ===" << std::endl;
+	for (std::map<std::string, std::string>::iterator it = formData.begin();
+			it != formData.end(); ++it)
+	{
+		outFile << it->first << ": " << it->second << std::endl;
+	}
+	outFile.close();
 
-    // STEP 5: Build success response
 	status_code = 201;
-    answer_body = "Data saved successfully!\n";
-    content_type = "text/plain";
-    content_length = answer_body.size();
+	answer_body = "Data saved successfully!\n";
+	content_type = "text/plain";
+	content_length = answer_body.size();
 }
 
 std::map<std::string, std::string> HttpRequest::_parseFormData(const std::string& body)
 {
 	std::map<std::string, std::string> result;
 
-	// split at &
 	size_t start = 0;
 	size_t end = body.find('&');
 
 	while (end != std::string::npos)
 	{
 		std::string pair = body.substr(start, end - start);
-		// Split by =
 		size_t equalPos = pair.find('=');
 		if (equalPos != std::string::npos)
 		{
@@ -186,8 +172,6 @@ std::map<std::string, std::string> HttpRequest::_parseFormData(const std::string
 		end = body.find('&', start);
 	}
 
-
-	// Handle last pair (no trailing &)
 	std::string pair = body.substr(start);
 	size_t equalPos = pair.find('=');
 	if (equalPos != std::string::npos)
