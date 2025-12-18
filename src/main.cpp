@@ -7,8 +7,7 @@ int main(int ac, char **av)
 
 	WebServ *WeServ = NULL;
 	WeServ = new WebServ;
-//	sleep(25);
-	std::cout << "Enter webserv" << std::endl;
+	std::cout << "Webserv is starting up..." << std::endl;
 	try
 	{
 		if (ac == 2)
@@ -32,6 +31,5 @@ int main(int ac, char **av)
 		return 1;
 	}
 	delete WeServ;
-//	sleep(25);
 	return 0;
 }

@@ -54,8 +54,6 @@ class WebServ
 		~WebServ();
 
 		/* Parsing functions */
-		void defaultConfig();
-		void fileConfig();
 		void addServer(ServerConfig config);
 		std::vector<ServerConfig> getServerList();
 		void parseConfig(std::string path);

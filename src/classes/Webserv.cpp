@@ -33,5 +33,5 @@ WebServ::~WebServ()
 		it->second = NULL;
 	}
 	ClientsConnections.clear();
-	std::cout << "WebServ destructor called." << std::endl;
+	std::cout << std::endl << "WebServ is shutting down" << std::endl;
 }
