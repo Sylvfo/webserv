@@ -111,16 +111,12 @@ bool HttpRequest::_getAccessRessource()
 			bestMatchLength = locationPath.length();
 		}
 	}
-	
-	// Check if path is a directory
-	struct stat pathStat;
+		struct stat pathStat;
 	if (stat(makingPath.c_str(), &pathStat) == 0 && S_ISDIR(pathStat.st_mode))
 	{
-		// If URI doesn't end with '/', redirect to add it
 		if (!decodedUri.empty() && decodedUri[decodedUri.length() - 1] != '/')
 		{
-			status_code = 301; // Moved Permanently
-			// The redirect will be handled by the response builder
+			status_code = 301;
 			return false;
 		}
 		
@@ -128,19 +124,15 @@ bool HttpRequest::_getAccessRessource()
 		if (index.empty())
 			index = "index.html";
 		
-		// Append index file to directory path
 		std::string indexPath = makingPath;
 		if (indexPath[indexPath.length() - 1] != '/')
 			indexPath += "/";
 		indexPath += index;
 		
-		// Check if index file exists in directory
 		if (access(indexPath.c_str(), F_OK) != 0)
 		{
-			// Index file doesn't exist, check if autoindex is enabled
 			if (matchingLocation && matchingLocation->autoindex)
 			{
-				// Generate directory listing
 				std::string listing = _generate_directory_listing(makingPath, decodedUri);
 				if (!listing.empty())
 				{
@@ -148,37 +140,31 @@ bool HttpRequest::_getAccessRessource()
 					content_length = answer_body.size();
 					content_type = "text/html";
 					status_code = 200;
-					fd_ressource = -1; // No file descriptor needed
+					fd_ressource = -1;
 					return true;
 				}
 			}
-			
 			status_code = 403;
 			answer_type = ERROR;
 			return false;
 		}
 		
-		// Index file exists, use it
 		makingPath = indexPath;
 	}
 	const char *path = makingPath.c_str();
 	
-	// Check if file exists first
 	if (access(path, F_OK) != 0)
 	{
 		status_code = 404;
 		answer_type = ERROR;
 		return (false);
 	}
-	
-	// Check if we have read permission
 	if (access(path, R_OK) != 0)
 	{
 		status_code = 403;
 		answer_type = ERROR;
 		return (false);
 	}
-	
 	fd_ressource = open(path , O_RDONLY);
 	if (fd_ressource < 0)
 	{
@@ -203,9 +189,8 @@ bool HttpRequest::_loadRessource()
 	}
 	
 	try {
-		// Get file size and reserve memory to avoid reallocations
 		off_t fileSize = lseek(fd_ressource, 0, SEEK_END);
-		lseek(fd_ressource, 0, SEEK_SET); // Reset to beginning
+		lseek(fd_ressource, 0, SEEK_SET);
 		
 		if (fileSize > 0)
 		{
@@ -216,7 +201,6 @@ bool HttpRequest::_loadRessource()
 		{
 			answer_body.append(buff, bytesRead);
 		}
-		//check eof
 		close(fd_ressource);
 		content_length = answer_body.size();
 		return true;

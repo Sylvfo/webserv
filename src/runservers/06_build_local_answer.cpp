@@ -20,7 +20,6 @@ void HttpRequest::answerLocal()
 
 void HttpRequest::_setResponseHeader()
 {
-	// Handle 301 redirect for directories
 	if (status_code == 301)
 	{
 		std::string redirectUri = uri;
@@ -35,11 +34,10 @@ void HttpRequest::_setResponseHeader()
 		http_answer += "\r\n";
 		return;
 	}
-	size_t estimatedSize = 200 + answer_body.size(); // ~200 bytes for headers
+	size_t estimatedSize = 200 + answer_body.size();
 	try {
 		http_answer.reserve(estimatedSize);
 	} catch (const std::bad_alloc& e) {
-		// Continue anyway, let it fail naturally if needed
 	}
 	
 	http_answer += "Content-Length: ";
@@ -49,14 +47,14 @@ void HttpRequest::_setResponseHeader()
 	http_answer += content_type;
 	http_answer += "\r\n";
 	http_answer += "Connection: close\r\n";
-	http_answer += "\r\n";  // Séparation headers/body
+	http_answer += "\r\n";
 	http_answer += answer_body;
 }
 
 void HttpRequest::_setStatusLine()
 {
 	http_answer.clear();
-	http_answer = "HTTP/1.0 "; //put in constructor
+	http_answer = "HTTP/1.0 ";
 	std::map<int, std::string>::iterator it = this->Server->error_code_message.find(status_code);
 	if (it == Server->error_code_message.end())
 	{

@@ -55,7 +55,7 @@ class WebServ
 
 		/* Parsing functions */
 		void defaultConfig();
-		void FileConfig();
+		void fileConfig();
 		void addServer(ServerConfig config);
 		std::vector<ServerConfig> getServerList();
 		void parseConfig(std::string path);		
@@ -74,7 +74,7 @@ class WebServ
 		/* Epoll functions */
 		bool	epollWaiting();
 		int		newConnection(epoll_event new_event);
-		ConnectionData* CreateConnection(int index, int new_socket);
+		ConnectionData* createConnection(int index, int new_socket);
 		bool	acceptConnection(int index);
 		void	closeConnection(epoll_event current_event);
 
