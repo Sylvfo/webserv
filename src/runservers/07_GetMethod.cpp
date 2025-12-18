@@ -115,8 +115,9 @@ bool HttpRequest::_loadRessource()
 	}
 
 	try {
-		off_t fileSize = lseek(fd_ressource, 0, SEEK_END);
-		lseek(fd_ressource, 0, SEEK_SET);
+		struct stat fileInfo;
+		stat(this->path.c_str(), &fileInfo);
+		off_t fileSize = fileInfo.st_size;
 		
 		if (fileSize > 0)
 		{
