@@ -1,16 +1,9 @@
 # webserv
 
-
-
-ok so let's make a readme with the following structure:
-
-    what is the webserv project?
-    how we did our webserv
-    how to run it
-    how we tested it
-
-
 <img width="3197" height="1806" alt="image" src="https://github.com/user-attachments/assets/45fb96eb-96eb-490f-98c5-3313a6f74e21" />
+
+<img width="1001" height="546" alt="image" src="https://github.com/user-attachments/assets/17a14e04-137e-4c5a-a4d2-48bec816d2e4" />
+
 
 ## Description
 
@@ -27,5 +20,14 @@ design a website.
 ### 🖥️ Compilation & Usage
 ```bash
 $> make
-$> ./webserv <configurationfile.>
+$> ./webserv <configufile.conf>
+$>
+$> ./webserv config/sforster.conf
+$> // to shut the server down
+$> ^C
 ```
+<img width="456" height="69" alt="image" src="https://github.com/user-attachments/assets/d57f3c05-0efd-4b4f-8f2d-664e1b13a523" />
+
+On your browser:
+http://localhost:2224
+
