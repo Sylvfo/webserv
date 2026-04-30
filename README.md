@@ -24,10 +24,10 @@ $> ./webserv config/sforster.conf
 
 # Stop the server
 $> Ctrl + C
-# 
-
 ```
+
 <img width="456" height="69" alt="image" src="https://github.com/user-attachments/assets/d57f3c05-0efd-4b4f-8f2d-664e1b13a523" />
+
 
 Once the server is running, open your browser and navigate to:
 http://localhost:2224
