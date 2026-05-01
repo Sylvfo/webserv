@@ -1,0 +1,9 @@
+Search for all read/recv/write/send and check if the returned value is correctly handled (checking only -1 or only 0 is not enough; both must be handled)
+
+If errno is checked after read/recv/write/send, the grade is 0 and the evaluation process ends immediately (errno may be logged, not used to drive control flow).
+
+de Sujet:
+config file:
+◦ Enabling or disabling directory listing.
+
+g

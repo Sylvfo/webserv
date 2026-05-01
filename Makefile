@@ -1,12 +1,12 @@
 # **************************************************************************** #
 #                                                                              #
-#                                                         :::      ::::::::    #
+#	                                                     :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: syl <syl@student.42.fr>                    +#+  +:+       +#+         #
+#    By: bschmid <bschmid@student.42lausanne.ch>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/02/12 08:32:46 by cmegret           #+#    #+#              #
-#    Updated: 2025/08/28 14:35:54 by syl              ###   ########.fr        #
+#    Updated: 2025/12/12 01:29:01 by bschmid          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,7 +28,7 @@ NAME = webserv
 #NAME2 = webserv_bonus
 CC = c++
 
-CFLAGS = -Wall -Wextra -Werror -std=c++98 #-g
+CFLAGS = -Wall -Wextra -Werror -std=c++98 #-g -fsanitize=address
 
 # Fichiers sources
 INC_DIR = inc/
@@ -64,7 +64,7 @@ $(OBJ_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) -I$(INC_DIR) -c $< -o $@
 	@echo "$(DARK_CYAN)Compiling: $<$(RESET)"
-	
+
 #a revoir...
 debug: CFLAGS += -g
 debug: re
@@ -81,6 +81,11 @@ fclean: clean
 	#@rm -f $(NAME2)
 	@rm -f $(TEST_NAME)
 	clear
+
+# Rule to remake then run the program. It makes us to type only one commad to test the changes.
+# Example: "make rerun CONFIG_FILE=./config/default.conf"
+rerun: fclean all
+	./$(NAME) $(CONFIG_FILE)
 
 # Règle pour refaire tout
 re: fclean all

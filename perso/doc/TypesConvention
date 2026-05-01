@@ -1,0 +1,9 @@
+Differents writing paterns,
+UpperCamelCase  (ClassNames / ClassFilename.cpp/.hpp) - ClassFiles.hpp should be on class folder,
+Uppercase letter on each Words,
+lowerCamelCase (Functions),
+Uppercase letter on each words except the 1st letter,
+snake_case (Variables / other_filenames.cpp),
+All lowercase, words separated by underscores,
+_private_snake_case (Private variables),
+All lowercase, words separated by underscores and starts with underscore
