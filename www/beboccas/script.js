@@ -137,9 +137,7 @@ function displayFilesList(files) {
     const html = files.map(file => `
         <div class="file-item">
             <div style="flex: 1;">
-                <a href="/uploads/${encodeURIComponent(file.name)}" target="_blank" class="file-link">
                     <div class="file-name">${escapeHtml(file.name)}</div>
-                </a>
                 <div class="file-size">${formatFileSize(file.size)}</div>
             </div>
             <button class="btn-delete" onclick="deleteFile('${escapeHtml(file.name).replace(/'/g, "\\'")}')">
